@@ -1,0 +1,22 @@
+# build rule for java_lib
+
+java_lib(
+    name = "test1", #adsfsdfa
+    srcs = "*.java",
+)
+
+java_lib(#ASDFASDF
+    name = "test2",
+    deps = [
+      ":test1"
+    ],
+)
+
+java_lib(
+    name = "test3",
+    deps = #dfasdfasf
+    [
+      ":test1",
+      ":test2",
+    ]
+)
