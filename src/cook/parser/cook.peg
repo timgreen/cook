@@ -1,0 +1,55 @@
+// This file contains the PEG grammar definition that
+// Treetop uses to generate our parser.
+
+Config = Spacing Commands EOT;
+Commands = Command* ;
+Command = ( BuildRule ) Spacing ;
+
+BuildRule = RuleName LPAR ParamList RPAR ;
+
+RuleName = [a-zA-Z]+ ;
+
+ParamList = Param ( COMMA Param )* COMMA? ;
+Param = Key EQU Value ;
+
+Key = [a-zA-Z]+ Spacing ;
+Value = ( StringValue / ListValue ) ;
+StringValue = StringLiteral Spacing ;
+ListValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing ;
+
+StringLiteral = "L"? (["] StringChar* ["] Spacing)+ ;
+StringChar = Escape / ![\"\n\\] _ ;
+Escape = SimpleEscape ;
+SimpleEscape = "\\" ['\"?\\abfnrtv] ;
+
+
+//-------------------------------------------------------------------------
+//  A.1.1  Lexical elements
+//  Tokens are: Keyword, Identifier, Constant, StringLiteral, Punctuator.
+//  Tokens are separated by Spacing.
+//-------------------------------------------------------------------------
+
+Spacing
+    = ( WhiteSpace
+      / LineComment
+      )*
+    ;
+
+WhiteSpace  = [ \n\r\t\u000B\u000C] ;
+
+LineComment = "#" (!"\n" _)* ;
+
+//-------------------------------------------------------------------------
+LBRK       =  "["         Spacing ;
+RBRK       =  "]"         Spacing ;
+LPAR       =  "("         Spacing ;
+RPAR       =  ")"         Spacing ;
+
+COLON      =  ":"  ![>]   Spacing ;
+EQU        =  "="  !"="   Spacing ;
+COMMA      =  ","         Spacing ;
+
+
+
+//-------------------------------------------------------------------------
+EOT        =  !_    ;
