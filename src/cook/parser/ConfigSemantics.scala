@@ -5,7 +5,7 @@ import cook.parser.unit._
 /**
  * Build parse tree.
  */
-class Semantics extends mouse.runtime.SemanticsBase {
+class ConfigSemantics extends mouse.runtime.SemanticsBase {
   def getBuildConfig = config
 
   def buildConfig {

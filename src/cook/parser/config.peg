@@ -1,5 +1,7 @@
 // This file contains the PEG grammar definition that
 // Mouse uses to generate our parser.
+//
+// BuildConfig grammar
 
 BuildConfig = Spacing Command* EOT {buildConfig} ;
 Command = ( BuildRule ) Spacing ;

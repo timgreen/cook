@@ -23,14 +23,14 @@ generateParser() {
   mkBuildDir
   mkdir -p $GEN_DIR/cook/parser/
   cd $GEN_DIR/cook/parser/
-  java -cp $CP mouse.Generate -G $SRC/cook/parser/cook.peg -p cook.parser -P Parser -S Semantics
+  java -cp $CP mouse.Generate -G $SRC/cook/parser/config.peg -p cook.parser -P ConfigParser -S ConfigSemantics
   cd $ROOT
 }
 
 build() {
   generateParser
   scala_files=$(find $SRC -name "*.scala" -print)
-  java_files=( $GEN_DIR/cook/parser/Parser.java )
+  java_files=$(find $GEN_DIR/cook/parser/ -name "*.java" -print)
   scalac -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
   javac -d $BUILD_DIR -classpath $CP:$BUILD_DIR ${java_files[*]}
 }
@@ -41,7 +41,7 @@ testParser() {
   IFS="
 "
   for TEST_CASE in $TEST/*.cook; do
-    java -cp $CP:$BUILD_DIR mouse.TryParser -P cook.parser.Parser -f $TEST_CASE
+    java -cp $CP:$BUILD_DIR mouse.TryParser -P cook.parser.ConfigParser -f $TEST_CASE
   done
 }
 
