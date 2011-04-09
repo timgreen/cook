@@ -67,7 +67,7 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
 
   def typeName {
     for (t <- Array("string", "int", "stringlist", "intlist")) {
-      if (rhs(0).isA(t)) {
+      if (rhs(0).isA(t.toUpperCase)) {
         lhs.put(t)
       }
     }

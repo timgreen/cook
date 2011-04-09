@@ -12,7 +12,7 @@ RuleName = Identifier {ruleName} ;
 // TODO(timgreen):
 RuleBlock = Spacing {ruleBlock} ;
 
-ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
+ParamList = ( Param COMMA )* ( Param COMMA? )? Spacing {&paramList} ;
 Param = ParamName COLON TypeName ( EQU DefaultValue )? {param} ;
 
 ParamName = Identifier {paramName} ;
