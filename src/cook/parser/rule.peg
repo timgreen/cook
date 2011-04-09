@@ -1,5 +1,5 @@
-// This file contains the PEG grammar definition that
-// Mouse uses to generate our parser.
+// This file contains the PEG grammar definition that Mouse uses to generate our parser.
+// http://en.wikipedia.org/wiki/Parsing_expression_grammar
 //
 // RuleConfig grammar
 
@@ -13,9 +13,10 @@ RuleName = Identifier {ruleName} ;
 RuleBlock = Spacing {ruleBlock} ;
 
 ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
-Param = Key ( EQU DefaultValue )? {param} ;
+Param = ParamName COLON TypeName ( EQU DefaultValue )? {param} ;
 
-Key = Identifier {key} ;
+ParamName = Identifier {paramName} ;
+TypeName = ( STRING / INT / STRINGLIST / INTLIST) Spacing {typeName} ;
 DefaultValue =
     (
     StringValue
@@ -39,7 +40,12 @@ ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK Spacing {l
 //  Keywords
 //-------------------------------------------------------------------------
 
-DEF      = "def"       !IdChar Spacing ;
+DEF        = "def"       !IdChar Spacing ;
+
+STRING     = "string"    !( "[" / IdChar ) Spacing ;
+INT        = "int"       !( "[" / IdChar ) Spacing ;
+STRINGLIST = "string[]"  !IdChar Spacing ;
+INTLIST    = "int[]"     !IdChar Spacing ;
 
 
 //-------------------------------------------------------------------------
@@ -119,6 +125,7 @@ RWING      =  "}"         Spacing ;
 
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
+COLON      =  ":"  ![>]   Spacing ;
 
 EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;

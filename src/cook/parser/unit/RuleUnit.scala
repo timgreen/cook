@@ -6,9 +6,9 @@ case class ListStringValue(value: Array[String]) extends DefaultValue
 case class NumberValue(value: Int) extends DefaultValue
 case class ListNumberValue(value: Array[Int]) extends DefaultValue
 
-class Param(val key: String, val value: DefaultValue)
+class Param(val name: String, val typeName: String, val defaultValue: DefaultValue)
 
-abstract class Command
-case class RuleRule(val ruleName: String, val params: Map[String, DefaultValue]) extends Command
+class RuleBlock  // TODO(timgreen)
+class RuleRule(val ruleName: String, val params: Map[String, DefaultValue], val block: RuleBlock)
 
 class RuleConfig(val path: String, val rules: Array[RuleRule])

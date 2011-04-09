@@ -19,7 +19,10 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
   }
 
   def ruleRule {
-    // TODO(timgreen):
+    val ruleName = rhs(1).get.asInstanceOf[String]
+    val params = rhs(3).get.asInstanceOf[Map[String, DefaultValue]]
+    val block = rhs(6).get.asInstanceOf[RuleBlock]
+    lhs.put(new RuleRule(ruleName, params, block))
   }
 
   def ruleName {
@@ -28,18 +31,19 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
 
   def ruleBlock {
     // TODO(timgreen):
+    lhs.put(new RuleBlock)
   }
 
   def paramList: Boolean = {
-    val map = scala.collection.mutable.HashMap.empty[String, DefaultValue]
+    val map = scala.collection.mutable.HashMap.empty[String, Param]
     for (i <- 0 until rhsSize if rhs(i).isA("Param")) {
       val param = rhs(i).get.asInstanceOf[Param]
-      if (map.contains(param.key)) {
+      if (map.contains(param.name)) {
         // param name should be unique
         // TODO(timgreen): err msg
         return false
       }
-      map += (param.key -> param.value)
+      map += (param.name -> param)
     }
 
     lhs.put(map.toMap)
@@ -47,17 +51,26 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
   }
 
   def param {
-    val key = rhs(0).get.asInstanceOf[String]
-    val defaultValue = if (rhsSize > 2) {
-      rhs(2).get.asInstanceOf[DefaultValue]
+    val paramName = rhs(0).get.asInstanceOf[String]
+    val typeName = rhs(2).get.asInstanceOf[String]
+    val defaultValue = if (rhsSize > 4) {
+      rhs(4).get.asInstanceOf[DefaultValue]
     } else {
       null
     }
-    lhs.put(new Param(key, defaultValue))
+    lhs.put(new Param(paramName, typeName, defaultValue))
   }
 
-  def key {
+  def paramName {
     lhs.put(rhs(0).get)
+  }
+
+  def typeName {
+    for (t <- Array("string", "int", "stringlist", "intlist")) {
+      if (rhs(0).isA(t)) {
+        lhs.put(t)
+      }
+    }
   }
 
   def defaultValue {

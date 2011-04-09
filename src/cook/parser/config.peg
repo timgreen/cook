@@ -1,5 +1,5 @@
-// This file contains the PEG grammar definition that
-// Mouse uses to generate our parser.
+// This file contains the PEG grammar definition that Mouse uses to generate our parser.
+// http://en.wikipedia.org/wiki/Parsing_expression_grammar
 //
 // BuildConfig grammar
 
