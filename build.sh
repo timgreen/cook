@@ -22,9 +22,7 @@ mkBuildDir() {
 generateParser() {
   mkBuildDir
   mkdir -p $GEN_DIR/cook/parser/
-  cd $GEN_DIR/cook/parser/
-  java -cp $CP mouse.Generate -G $SRC/cook/parser/config.peg -p cook.parser -P ConfigParser -S ConfigSemantics
-  cd $ROOT
+  java -cp $CP mouse.Generate -G $SRC/cook/parser/config.peg -p cook.parser -P ConfigParser -S ConfigSemantics -D $GEN_DIR/cook/parser/
 }
 
 build() {
