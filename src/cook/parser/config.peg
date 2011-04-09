@@ -4,27 +4,27 @@
 // BuildConfig grammar
 
 BuildConfig = Spacing Command* EOT {buildConfig} ;
-Command = ( BuildRule ) Spacing ;
+Command = ( BuildRule ) Spacing {command} ;
 
 BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
 
-RuleName = Identifier ;
+RuleName = Identifier {ruleName} ;
 
-ParamList = Param ( COMMA Param )* COMMA? Spacing {paramList} ;
+ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
 Param = Key EQU Value {param} ;
 
-Key = Identifier ;
-Value = ( StringValue / ListValue ) ;
+Key = Identifier {key} ;
+Value = ( StringValue / ListValue ) {value} ;
 StringValue = StringLiteral Spacing {stringValue} ;
 ListValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing {listValue} ;
 
-StringLiteral = ["] StringChar* ["] Spacing ;
+StringLiteral = ["] StringChar* ["] Spacing {stringLiteral} ;
 StringChar = Escape / ![\"\n\\] _ ;
 Escape = SimpleEscape ;
 SimpleEscape = "\\" ['\"?\\abfnrtv] ;
 
-Identifier = IdNondigit IdChar* Spacing ;
-IdNondigit = [a-z] / [A-Z] / [_] ;
+Identifier = IdNondigit IdChar* Spacing {identifier} ;
+IdNondigit = [a-z] / [A-Z] ;
 IdChar = [a-z] / [A-Z] / [0-9] / [_] ;
 
 //-------------------------------------------------------------------------

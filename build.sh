@@ -11,12 +11,17 @@ BIN_DIR=$ROOT/cook_bin
 
 CP=$LIB/Mouse-1.3.jar:$LIB/scala-library.jar
 RUNTIM_CP=$LIB/Mouse-1.3.runtime.jar
+SCALA_TEST_CP=$LIB/scalatest-1.3.jar
 
 
 mkBuildDir() {
   mkdir -p $GEN_DIR
   mkdir -p $BUILD_DIR
   mkdir -p $BIN_DIR
+}
+
+testPeg() {
+  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/config.peg
 }
 
 generateParser() {
@@ -33,12 +38,23 @@ build() {
   javac -d $BUILD_DIR -classpath $CP:$BUILD_DIR ${java_files[*]}
 }
 
+buildTest() {
+  build
+  scala_files=$(find $TEST -name "*.scala" -print)
+  scalac -unchecked -d $BUILD_DIR -classpath $CP:$BUILD_DIR:$SCALA_TEST_CP ${scala_files[*]}
+}
+
+runTest() {
+  buildTest
+  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.ConfigTest
+}
+
 testParser() {
   build
 
   IFS="
 "
-  for TEST_CASE in $TEST/*.cook; do
+  for TEST_CASE in $TEST/cook/parser/*.cook; do
     java -cp $CP:$BUILD_DIR mouse.TryParser -P cook.parser.ConfigParser -f $TEST_CASE
   done
 }
@@ -49,7 +65,8 @@ clear() {
 
 main() {
   clear
-  testParser
+  testPeg
+  runTest
 }
 
 main

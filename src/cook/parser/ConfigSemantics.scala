@@ -10,42 +10,76 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
 
   def buildConfig {
     val list =
-        for (i <- 0 until rhsSize if rhs(i).get.isInstanceOf[Command]) yield {
+        for (i <- 0 until rhsSize if rhs(i).isA("Command")) yield {
           rhs(i).get.asInstanceOf[Command]
         }
     config = list.toArray
   }
 
-  def buildRule {
-    lhs.put(new BuileRule(rhs(0).text, rhs(2).get.asInstanceOf[Map[String, Value]]))
+  def command {
+    lhs.put(rhs(0).get)
   }
 
-  def paramList {
-    val list =
-        for (i <- 0 until rhsSize if rhs(i).get.isInstanceOf[Param]) yield {
-          val param = rhs(i).get.asInstanceOf[Param]
-          param.key -> param.value
-        }
-    val map = Map[String, Value]() ++ list
-    lhs.put(map)
+  def buildRule {
+    val ruleName = rhs(0).get.asInstanceOf[String]
+    val params = rhs(2).get.asInstanceOf[Map[String, Value]]
+    lhs.put(new BuildRule(ruleName, params))
+  }
+
+  def ruleName {
+    lhs.put(rhs(0).get)
+  }
+
+  def paramList: Boolean = {
+    val map = scala.collection.mutable.HashMap.empty[String, Value]
+    for (i <- 0 until rhsSize if rhs(i).isA("Param")) {
+      val param = rhs(i).get.asInstanceOf[Param]
+      if (map.contains(param.key)) {
+        // key should be unique
+        return false
+      }
+      map += (param.key -> param.value)
+    }
+
+    lhs.put(map.toMap)
+    true
   }
 
   def param {
-    val key = rhs(0).text
+    val key = rhs(0).get.asInstanceOf[String]
     val value = rhs(2).get.asInstanceOf[Value]
     lhs.put(new Param(key, value))
   }
 
+  def key {
+    lhs.put(rhs(0).get)
+  }
+
+  def value {
+    lhs.put(rhs(0).get)
+  }
+
   def stringValue {
-    lhs.put(new StringValue(lhs.text))
+    val string = rhs(0).get.asInstanceOf[String]
+    lhs.put(new StringValue(string))
   }
 
   def listValue {
     val list =
-        for (i <- 0 until rhsSize if rhs(i).get.isInstanceOf[StringValue]) yield {
+        for (i <- 0 until rhsSize if rhs(i).isA("StringValue")) yield {
           rhs(i).get.asInstanceOf[StringValue].value
         }
     lhs.put(new ListValue(list.toArray))
+  }
+
+  def stringLiteral {
+    val chars = for (i <- 1 until (rhsSize - 2)) yield rhs(i).text
+    lhs.put(chars.mkString)
+  }
+
+  def identifier {
+    val chars = for (i <- 0 until (rhsSize - 1)) yield rhs(i).text
+    lhs.put(chars.mkString)
   }
 
   private
