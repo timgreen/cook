@@ -1,22 +1,22 @@
 // This file contains the PEG grammar definition that
 // Mouse uses to generate our parser.
 
-Config = Spacing Command* EOT ;
+Config = Spacing Command* EOT {config} ;
 Command = ( BuildRule ) Spacing ;
 
-BuildRule = RuleName LPAR ParamList RPAR ;
+BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
 
 RuleName = Identifier ;
 
-ParamList = Param ( COMMA Param )* COMMA? Spacing ;
-Param = Key EQU Value ;
+ParamList = Param ( COMMA Param )* COMMA? Spacing {paramList} ;
+Param = Key EQU Value {param} ;
 
 Key = Identifier ;
 Value = ( StringValue / ListValue ) ;
-StringValue = StringLiteral Spacing ;
-ListValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing ;
+StringValue = StringLiteral Spacing {stringValue} ;
+ListValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing {listValue} ;
 
-StringLiteral = "L"? (["] StringChar* ["] Spacing)+ ;
+StringLiteral = ["] StringChar* ["] Spacing ;
 StringChar = Escape / ![\"\n\\] _ ;
 Escape = SimpleEscape ;
 SimpleEscape = "\\" ['\"?\\abfnrtv] ;
@@ -43,7 +43,6 @@ RBRK       =  "]"         Spacing ;
 LPAR       =  "("         Spacing ;
 RPAR       =  ")"         Spacing ;
 
-COLON      =  ":"  ![>]   Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
 
