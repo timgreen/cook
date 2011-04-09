@@ -6,13 +6,14 @@ import cook.parser.unit._
  * Build parse tree.
  */
 class Semantics extends mouse.runtime.SemanticsBase {
+  def getBuildConfig = config
 
-  def config {
+  def buildConfig {
     val list =
         for (i <- 0 until rhsSize if rhs(i).get.isInstanceOf[Command]) yield {
           rhs(i).get.asInstanceOf[Command]
         }
-    lhs.put(list.toArray)
+    config = list.toArray
   }
 
   def buildRule {
@@ -46,4 +47,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         }
     lhs.put(new ListValue(list.toArray))
   }
+
+  private
+  var config: Array[Command] = null
 }

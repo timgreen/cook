@@ -1,7 +1,7 @@
 // This file contains the PEG grammar definition that
 // Mouse uses to generate our parser.
 
-Config = Spacing Command* EOT {config} ;
+BuildConfig = Spacing Command* EOT {buildConfig} ;
 Command = ( BuildRule ) Spacing ;
 
 BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
