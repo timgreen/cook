@@ -7,6 +7,7 @@ import cook.parser.unit._
  */
 class ConfigSemantics extends mouse.runtime.SemanticsBase {
   def getBuildConfig = config
+  def getErrors = errors  // TODO(timgreen): own diagnostic output
 
   def buildConfig {
     val list =
@@ -115,4 +116,5 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
 
   private
   var config: Array[Command] = null
+  var errors: Array[String] = null
 }
