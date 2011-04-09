@@ -22,12 +22,14 @@ mkBuildDir() {
 
 testPeg() {
   java -cp $CP mouse.TestPEG -G $SRC/cook/parser/config.peg
+  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/rule.peg
 }
 
 generateParser() {
   mkBuildDir
   mkdir -p $GEN_DIR/cook/parser/
   java -cp $CP mouse.Generate -G $SRC/cook/parser/config.peg -p cook.parser -P ConfigParser -S ConfigSemantics -D $GEN_DIR/cook/parser/
+  java -cp $CP mouse.Generate -G $SRC/cook/parser/rule.peg -p cook.parser -P RuleParser -S RuleSemantics -D $GEN_DIR/cook/parser/
 }
 
 build() {

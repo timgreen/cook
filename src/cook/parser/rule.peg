@@ -1,31 +1,33 @@
 // This file contains the PEG grammar definition that
 // Mouse uses to generate our parser.
 //
-// BuildConfig grammar
+// RuleConfig grammar
 
-BuildConfig = Spacing Command* EOT {buildConfig} ;
-Command = ( BuildRule ) Spacing {command} ;
+RuleConfig = Spacing RuleRule* EOT {ruleConfig} ;
 
-BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
+RuleRule = DEF RuleName LPAR ParamList RPAR LWING RuleBlock RWING {ruleRule} ;
 
 RuleName = Identifier {ruleName} ;
 
+// TODO(timgreen):
+RuleBlock = Spacing {ruleBlock} ;
+
 ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
-Param = Key EQU Value {param} ;
+Param = Key ( EQU DefaultValue )? {param} ;
 
 Key = Identifier {key} ;
-Value =
+DefaultValue =
     (
     StringValue
     / ListStringValue
     / NumberValue
     / ListNumberValue
-    ) {value} ;
+    ) {defaultValue} ;
 
 StringValue = StringLiteral Spacing {stringValue} ;
 NumberValue = IntegerConstant Spacing {numberValue} ;
-ListStringValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK {listStringValue} ;
-ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK {listNumberValue} ;
+ListStringValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing {listStringValue} ;
+ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK Spacing {listNumberValue} ;
 
 
 
@@ -37,8 +39,7 @@ ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK {listNumbe
 //  Keywords
 //-------------------------------------------------------------------------
 
-INCLUDE      = "include"       !IdChar Spacing ;
-SUBINCLUDE   = "subclude"      !IdChar Spacing ;
+DEF      = "def"       !IdChar Spacing ;
 
 
 //-------------------------------------------------------------------------
@@ -113,6 +114,8 @@ LBRK       =  "["         Spacing ;
 RBRK       =  "]"         Spacing ;
 LPAR       =  "("         Spacing ;
 RPAR       =  ")"         Spacing ;
+LWING      =  "{"         Spacing ;
+RWING      =  "}"         Spacing ;
 
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;

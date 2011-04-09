@@ -1,53 +1,45 @@
 package cook.parser
 
-import cook.parser.configunit._
+import cook.parser.ruleunit._
 
 /**
- * Build parse tree for config.
+ * Build parse tree for rule.
  */
-class ConfigSemantics extends mouse.runtime.SemanticsBase {
+class RuleSemantics extends mouse.runtime.SemanticsBase {
 
-  def getBuildConfig = config
+  def getRuleConfig = config
   def getErrors = errors  // TODO(timgreen): own diagnostic output
 
-  def buildConfig {
+  def ruleConfig {
     val list =
-        for (i <- 0 until rhsSize if rhs(i).isA("Command")) yield {
-          rhs(i).get.asInstanceOf[Command]
+        for (i <- 0 until rhsSize if rhs(i).isA("RuleRule")) yield {
+          rhs(i).get.asInstanceOf[RuleRule]
         }
     config = list.toArray
   }
 
-  def command {
-    lhs.put(rhs(0).get)
-  }
-
-  def buildRule {
-    val ruleName = rhs(0).get.asInstanceOf[String]
-    val params = rhs(2).get.asInstanceOf[Map[String, Value]]
-    lhs.put(new BuildRule(ruleName, params))
+  def ruleRule {
+    // TODO(timgreen):
   }
 
   def ruleName {
     lhs.put(rhs(0).get)
   }
 
+  def ruleBlock {
+    // TODO(timgreen):
+  }
+
   def paramList: Boolean = {
-    val map = scala.collection.mutable.HashMap.empty[String, Value]
+    val map = scala.collection.mutable.HashMap.empty[String, DefaultValue]
     for (i <- 0 until rhsSize if rhs(i).isA("Param")) {
       val param = rhs(i).get.asInstanceOf[Param]
       if (map.contains(param.key)) {
-        // key should be unique
+        // param name should be unique
         // TODO(timgreen): err msg
         return false
       }
       map += (param.key -> param.value)
-    }
-
-    if (!map.contains("name")) {
-      // must have name
-      // TODO(timgreen): err msg
-      return false
     }
 
     lhs.put(map.toMap)
@@ -56,15 +48,19 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
 
   def param {
     val key = rhs(0).get.asInstanceOf[String]
-    val value = rhs(2).get.asInstanceOf[Value]
-    lhs.put(new Param(key, value))
+    val defaultValue = if (rhsSize > 2) {
+      rhs(2).get.asInstanceOf[DefaultValue]
+    } else {
+      null
+    }
+    lhs.put(new Param(key, defaultValue))
   }
 
   def key {
     lhs.put(rhs(0).get)
   }
 
-  def value {
+  def defaultValue {
     lhs.put(rhs(0).get)
   }
 
@@ -124,6 +120,6 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
   }
 
   private
-  var config: Array[Command] = null
+  var config: Array[RuleRule] = null
   var errors: Array[String] = null
 }
