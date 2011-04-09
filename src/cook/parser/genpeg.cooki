@@ -2,6 +2,8 @@
 #
 # Generate java file[s] from peg define[s]
 
-def genpeg_java() {
-
+def genpeg_java(src: string, parser: string, semantics: string) {
+  # var generated_java = path + name + ".java"
+  # run("java -cp $CP mouse.Generate -G $src -p cook.parser -P ConfigParser -S ConfigSemantics -D $GEN_DIR/cook/parser/")
+  # output_gen(generated_java)
 }

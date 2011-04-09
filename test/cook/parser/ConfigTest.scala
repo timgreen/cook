@@ -73,7 +73,7 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
     result should be (null)
   }
 
-  it should "return error with duplicated param key" in {
+  it should "return error for duplicated param key" in {
     val result = Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
     result should be (null)
   }

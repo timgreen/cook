@@ -3,7 +3,9 @@ include("genpeg")
 # Config Parser
 genpeg_java(
     name = "configParser",
-    srcs = [ "config.peg" ]
+    src = "config.peg",
+    parser = "ConfigParser",
+    semantics = "ConfigSemantics",
 )
 
 java_lib(
@@ -19,7 +21,9 @@ java_lib(
 # Rule Parser
 genpeg_java(
     name = "ruleParser",
-    srcs = [ "rule.peg" ]
+    src = "rule.peg",
+    parser = "RuleParser",
+    semantics = "RuleSemantics",
 )
 
 java_lib(
