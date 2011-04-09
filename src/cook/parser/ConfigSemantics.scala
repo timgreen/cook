@@ -22,6 +22,20 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
     lhs.put(rhs(0).get)
   }
 
+  def includeRule {
+    val includeType = rhs(0).get.asInstanceOf[String]
+    val label = rhs(2).get.asInstanceOf[String]
+    lhs.put(new IncludeRule(includeType, label))
+  }
+
+  def includeType {
+    for (t <- Array("include", "subinclude")) {
+      if (rhs(0).isA(t.toUpperCase)) {
+        lhs.put(t)
+      }
+    }
+  }
+
   def buildRule {
     val ruleName = rhs(0).get.asInstanceOf[String]
     val params = rhs(2).get.asInstanceOf[Map[String, Value]]

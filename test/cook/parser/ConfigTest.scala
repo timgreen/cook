@@ -7,10 +7,17 @@ import cook.parser.configunit._
 
 class ConfigTest extends FlatSpec with ShouldMatchers {
 
-  "Config parser" should "be able to parse simple java libaray rule" in {
-    val result = Config.parse("test", "test/cook/parser/simple_javalib.cook")
+  "Config parser" should "be able to parse self build rule" in {
+    val result = Config.parse("test0", "src/cook/parser/COOK")
     result should not be (null)
-    result.path should be ("test")
+    result.path should be ("test0")
+    result.commands.length should be (5)
+  }
+
+  it should "be able to parse simple java libaray rule" in {
+    val result = Config.parse("test1", "test/cook/parser/simple_javalib.cook")
+    result should not be (null)
+    result.path should be ("test1")
     result.commands.length should be (1)
   }
 

@@ -10,5 +10,6 @@ class Param(val key: String, val value: Value)
 
 abstract class Command
 case class BuildRule(val ruleName: String, val params: Map[String, Value]) extends Command
+case class IncludeRule(val includeType: String, val label: String) extends Command
 
 class BuildConfig(val path: String, val commands: Array[Command])

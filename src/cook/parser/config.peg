@@ -4,7 +4,11 @@
 // BuildConfig grammar
 
 BuildConfig = Spacing Command* EOT {buildConfig} ;
-Command = ( BuildRule ) Spacing {command} ;
+Command = ( BuildRule / IncludeRule ) {command} ;
+
+IncludeRule = IncludeType LPAR StringLiteral RPAR {includeRule} ;  // TODO(timgreen): LABEL?
+
+IncludeType = ( INCLUDE / SUBINCLUDE ) Spacing {includeType} ;
 
 BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
 
@@ -22,8 +26,8 @@ Value =
     / ListNumberValue
     ) {value} ;
 
-StringValue = StringLiteral Spacing {stringValue} ;
-NumberValue = IntegerConstant Spacing {numberValue} ;
+StringValue = StringLiteral {stringValue} ;
+NumberValue = IntegerConstant {numberValue} ;
 ListStringValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK {listStringValue} ;
 ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK {listNumberValue} ;
 

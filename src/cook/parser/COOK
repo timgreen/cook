@@ -7,7 +7,7 @@ genpeg_java(
 )
 
 java_lib(
-    name = "config"
+    name = "config",
     srcs = [
       "Config.scala",
       "ConfigSemantics.scala",
@@ -23,7 +23,7 @@ genpeg_java(
 )
 
 java_lib(
-    name = "rule"
+    name = "rule",
     srcs = [
       "Rule.scala",
       "RuleSemantics.scala",
