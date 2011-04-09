@@ -3,7 +3,7 @@ package cook.parser
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
-import cook.parser.unit._
+import cook.parser.configunit._
 
 class ConfigTest extends FlatSpec with ShouldMatchers {
 

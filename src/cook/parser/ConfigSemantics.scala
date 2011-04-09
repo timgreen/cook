@@ -1,6 +1,6 @@
 package cook.parser
 
-import cook.parser.unit._
+import cook.parser.configunit._
 
 /**
  * Build parse tree.
@@ -37,9 +37,16 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
       val param = rhs(i).get.asInstanceOf[Param]
       if (map.contains(param.key)) {
         // key should be unique
+        // TODO(timgreen): err msg
         return false
       }
       map += (param.key -> param.value)
+    }
+
+    if (!map.contains("name")) {
+      // must have name
+      // TODO(timgreen): err msg
+      return false
     }
 
     lhs.put(map.toMap)

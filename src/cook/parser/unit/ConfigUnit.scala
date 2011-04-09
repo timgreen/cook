@@ -1,4 +1,4 @@
-package cook.parser.unit
+package cook.parser.configunit
 
 abstract class Value
 case class StringValue(value: String) extends Value

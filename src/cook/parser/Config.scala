@@ -5,7 +5,7 @@ import mouse.runtime.SourceFile
 
 import java.io.File
 
-import cook.parser.unit._
+import cook.parser.configunit._
 
 object Config {
 
