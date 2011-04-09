@@ -49,16 +49,6 @@ runTest() {
   java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.ConfigTest
 }
 
-testParser() {
-  build
-
-  IFS="
-"
-  for TEST_CASE in $TEST/cook/parser/*.cook; do
-    java -cp $CP:$BUILD_DIR mouse.TryParser -P cook.parser.ConfigParser -f $TEST_CASE
-  done
-}
-
 clear() {
   rm -fr $GEN_DIR $BUILD_DIR $BIN_DIR
 }
