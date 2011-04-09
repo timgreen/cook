@@ -14,31 +14,100 @@ ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
 Param = Key EQU Value {param} ;
 
 Key = Identifier {key} ;
-Value = ( StringValue / ListValue ) {value} ;
-StringValue = StringLiteral Spacing {stringValue} ;
-ListValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing {listValue} ;
+Value =
+    (
+    StringValue
+    / ListStringValue
+    / NumberValue
+    / ListNumberValue
+    ) {value} ;
 
-StringLiteral = ["] StringChar* ["] Spacing {stringLiteral} ;
-StringChar = Escape / ![\"\n\\] _ ;
-Escape = SimpleEscape ;
-SimpleEscape = "\\" ['\"?\\abfnrtv] ;
+StringValue = StringLiteral Spacing {stringValue} ;
+NumberValue = IntegerConstant Spacing {numberValue} ;
+ListStringValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK Spacing {listStringValue} ;
+ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK Spacing {listNumberValue} ;
+
+
+
+//-----------------------------------------------------------------------//
+//  Lexical elements                                                     //
+//-----------------------------------------------------------------------//
+
+//-------------------------------------------------------------------------
+//  Keywords
+//-------------------------------------------------------------------------
+
+INCLUDE      = "include"       !IdChar Spacing ;
+SUBINCLUDE   = "subclude"      !IdChar Spacing ;
+
+
+//-------------------------------------------------------------------------
+//  Constant
+//-------------------------------------------------------------------------
+
+IntegerConstant
+    = ( DecimalConstant
+      / HexConstant
+      / OctalConstant
+      )
+    IntegerSuffix? Spacing {integerConstant}
+    ;
+
+DecimalConstant = [1-9][0-9]* {decimalConstant} ;
+
+OctalConstant   = "0"[0-7]* {octalConstant} ;
+
+HexConstant     = HexPrefix HexDigit+ {hexConstant} ;
+
+HexPrefix       = "0x" / "0X" ;
+
+HexDigit        = [a-f] / [A-F] / [0-9] ;
+
+IntegerSuffix
+    = [uU] Lsuffix?
+    / Lsuffix [uU]?
+    ;
+
+Lsuffix
+    = "ll"
+    / "LL"
+    / [lL]
+    ;
+
+
+//-------------------------------------------------------------------------
+//  Identifier
+//-------------------------------------------------------------------------
 
 Identifier = IdNondigit IdChar* Spacing {identifier} ;
 IdNondigit = [a-z] / [A-Z] ;
 IdChar = [a-z] / [A-Z] / [0-9] / [_] ;
 
+
 //-------------------------------------------------------------------------
-//  A.1.1  Lexical elements
-//  Tokens are: Keyword, Identifier, Constant, StringLiteral, Punctuator.
-//  Tokens are separated by Spacing.
+//  Spacing
 //-------------------------------------------------------------------------
 
 Spacing = ( WhiteSpace / LineComment )* ;
 
 WhiteSpace  = [ \n\r\t\u000B\u000C] ;
 
-LineComment = "#" (!"\n" _)* ;
+LineComment = "#" (!"\n" _)* EOL ;
 
+
+//-------------------------------------------------------------------------
+//  String Literals
+//-------------------------------------------------------------------------
+
+StringLiteral = ["] StringChar* ["] Spacing {stringLiteral} ;
+StringChar = Escape / ![\"\n\\] _ ;
+
+Escape = SimpleEscape ;
+SimpleEscape = "\\" ['\"?\\abfnrtv] ;
+
+
+//-------------------------------------------------------------------------
+//  Punctuators
 //-------------------------------------------------------------------------
 LBRK       =  "["         Spacing ;
 RBRK       =  "]"         Spacing ;
@@ -48,7 +117,5 @@ RPAR       =  ")"         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
 
-
-
-//-------------------------------------------------------------------------
+EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;

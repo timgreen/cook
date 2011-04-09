@@ -2,7 +2,9 @@ package cook.parser.unit
 
 abstract class Value
 case class StringValue(value: String) extends Value
-case class ListValue(value: Array[String]) extends Value
+case class ListStringValue(value: Array[String]) extends Value
+case class NumberValue(value: Int) extends Value
+case class ListNumberValue(value: Array[Int]) extends Value
 
 class Param(val key: String, val value: Value)
 

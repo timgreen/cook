@@ -64,21 +64,52 @@ class ConfigSemantics extends mouse.runtime.SemanticsBase {
     lhs.put(new StringValue(string))
   }
 
-  def listValue {
+  def listStringValue {
     val list =
         for (i <- 0 until rhsSize if rhs(i).isA("StringValue")) yield {
           rhs(i).get.asInstanceOf[StringValue].value
         }
-    lhs.put(new ListValue(list.toArray))
+    lhs.put(new ListStringValue(list.toArray))
   }
 
-  def stringLiteral {
-    val chars = for (i <- 1 until (rhsSize - 2)) yield rhs(i).text
-    lhs.put(chars.mkString)
+  def numberValue {
+    val number = rhs(0).get.asInstanceOf[Int]
+    lhs.put(new NumberValue(number))
+  }
+
+  def listNumberValue {
+    val list =
+        for (i <- 0 until rhsSize if rhs(i).isA("NumberValue")) yield {
+          rhs(i).get.asInstanceOf[NumberValue].value
+        }
+    lhs.put(new ListNumberValue(list.toArray))
+  }
+
+  // Lexical elements
+
+  def integerConstant {
+    lhs.put(rhs(0).get)
+  }
+
+  def decimalConstant {
+    lhs.put(Integer.parseInt(lhs.text, 10))
+  }
+
+  def octalConstant {
+    lhs.put(Integer.parseInt(lhs.text, 8))
+  }
+
+  def hexConstant {
+    lhs.put(Integer.parseInt(rhsText(1, rhsSize), 16))
   }
 
   def identifier {
     val chars = for (i <- 0 until (rhsSize - 1)) yield rhs(i).text
+    lhs.put(chars.mkString)
+  }
+
+  def stringLiteral {
+    val chars = for (i <- 1 until (rhsSize - 2)) yield rhs(i).text
     lhs.put(chars.mkString)
   }
 

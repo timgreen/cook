@@ -38,26 +38,37 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
 
     val nameValue = buildRule.params("name").asInstanceOf[StringValue]
     nameValue.value should be ("test3")
-    val depsValue = buildRule.params("deps").asInstanceOf[ListValue]
+    val depsValue = buildRule.params("deps").asInstanceOf[ListStringValue]
     depsValue.value.size should be (2)
     depsValue.value(0) should be (":test1")
     depsValue.value(1) should be (":test2")
   }
 
+  it should "be able to parse number values" in {
+    val result = Config.parse("test4", "test/cook/parser/with_number_value.cook")
+    result should not be (null)
+
+    val buildRule = result.commands(0).asInstanceOf[BuildRule]
+    buildRule.params.size should be (5)
+
+    val version = buildRule.params("version").asInstanceOf[NumberValue]
+    version.value should be (1)
+    val oct = buildRule.params("oct").asInstanceOf[NumberValue]
+    oct.value should be (0123)
+    val hex = buildRule.params("hex").asInstanceOf[NumberValue]
+    hex.value should be (0xA12AF)
+    val list = buildRule.params("list").asInstanceOf[ListNumberValue]
+    list.value should be (Array(13, 011, 0xAA))
+  }
+
   it should "be able to detect errors" in {
-    val result = Config.parse("test4", "test/cook/parser/error_miss_comma.cook")
+    val result = Config.parse("test5", "test/cook/parser/error_miss_comma.cook")
     result should be (null)
   }
 
   it should "return error with duplicated param key" in {
-    val result = Config.parse("test5", "test/cook/parser/error_duplicated_param_key.cook")
+    val result = Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
     result should be (null)
   }
-/*
-  it should "throw NoSuchElementException if an empty stack is popped" in {
-    val emptyStack = new Stack[String]
-    evaluating { emptyStack.pop() } should produce [NoSuchElementException]
-  }
-  */
 }
 
