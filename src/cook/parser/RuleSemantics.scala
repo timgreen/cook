@@ -20,7 +20,7 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
 
   def ruleRule {
     val ruleName = rhs(1).get.asInstanceOf[String]
-    val params = rhs(3).get.asInstanceOf[Map[String, DefaultValue]]
+    val params = rhs(3).get.asInstanceOf[Map[String, Param]]
     val block = rhs(6).get.asInstanceOf[RuleBlock]
     lhs.put(new RuleRule(ruleName, params, block))
   }
@@ -35,7 +35,7 @@ class RuleSemantics extends mouse.runtime.SemanticsBase {
   }
 
   def paramList: Boolean = {
-    val map = scala.collection.mutable.HashMap.empty[String, Param]
+    val map = new scala.collection.mutable.HashMap[String, Param]
     for (i <- 0 until rhsSize if rhs(i).isA("Param")) {
       val param = rhs(i).get.asInstanceOf[Param]
       if (map.contains(param.name)) {
