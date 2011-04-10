@@ -9,34 +9,29 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
 
   "Config parser" should "be able to parse self build rule" in {
     val result = Config.parse("test0", "src/cook/parser/COOK")
-    result should not be (null)
     result.path should be ("test0")
     result.commands.length should be (5)
   }
 
   it should "be able to parse simple java libaray rule" in {
     val result = Config.parse("test1", "test/cook/parser/simple_javalib.cook")
-    result should not be (null)
     result.path should be ("test1")
     result.commands.length should be (1)
   }
 
   it should "be able to parse more than one java libaray rules" in {
     val result = Config.parse("test2", "test/cook/parser/simple_javalib2.cook")
-    result should not be (null)
     result.path should be ("test2")
     result.commands.length should be (3)
   }
 
   it should "be able to parse config files with comments" in {
     val result = Config.parse("test3", "test/cook/parser/with_comments.cook")
-    result should not be (null)
     result.commands.length should be (1)
   }
 
   it should "be able to parse config files with inline comments" in {
     val result = Config.parse("test4", "test/cook/parser/with_inline_comments.cook")
-    result should not be (null)
     result.commands.length should be (3)
 
     val buildRule = result.commands(2).asInstanceOf[BuildRule]
@@ -53,7 +48,6 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
 
   it should "be able to parse number values" in {
     val result = Config.parse("test4", "test/cook/parser/with_number_value.cook")
-    result should not be (null)
 
     val buildRule = result.commands(0).asInstanceOf[BuildRule]
     buildRule.params.size should be (5)
@@ -69,13 +63,15 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "be able to detect errors" in {
-    val result = Config.parse("test5", "test/cook/parser/error_miss_comma.cook")
-    result should be (null)
+    evaluating {
+      Config.parse("test5", "test/cook/parser/error_miss_comma.cook")
+    } should produce [ConfigErrorException]
   }
 
   it should "return error for duplicated param key" in {
-    val result = Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
-    result should be (null)
+    evaluating {
+      Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
+    } should produce [ConfigErrorException]
   }
 }
 

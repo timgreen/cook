@@ -12,8 +12,7 @@ object Rule {
 
   def parse(path: String, filename: String): RuleConfig = {
     val parser = new RuleParser
-    val isOk = parser.parse(new SourceFile(filename))
-    if (!isOk) {
+    if (!parser.parse(new SourceFile(filename))) {
       // TODO(timgreen):
       throw new RuleErrorException(null)
     }

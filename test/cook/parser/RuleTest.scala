@@ -9,7 +9,6 @@ class RuleTest extends FlatSpec with ShouldMatchers {
 
   "Rule parser" should "be able to parse genpeg rule" in {
     val result = Rule.parse("test0", "src/cook/parser/genpeg.cooki")
-    result should not be (null)
     result.path should be ("test0")
     result.rules.length should be (1)
   }
