@@ -1,36 +1,44 @@
 // This file contains the PEG grammar definition that Mouse uses to generate our parser.
 // http://en.wikipedia.org/wiki/Parsing_expression_grammar
 //
-// BuildConfig grammar
+// CookConfig grammar
 
-BuildConfig = Spacing Command* EOT {buildConfig} ;
-Command = ( BuildRule / IncludeRule ) {command} ;
+CookConfig      = Spacing Statement* EOT                              {cookConfig} ;
 
-IncludeRule = IncludeType LPAR StringLiteral RPAR {includeRule} ;  // TODO(timgreen): LABEL?
+Statement       = ( SingleStatement SEMI )* SingleStatement SEMI? EOL {statement} ;
 
-IncludeType = ( INCLUDE / SUBINCLUDE ) Spacing {includeType} ;
+SingleStatement = ( FuncCall / Assginment / FunctionDef )             {singleStatement} ;
 
-BuildRule = RuleName LPAR ParamList RPAR {buildRule} ;
+FuncCall        = Identifier FuncCallSuffix                           {funcCall} ;
 
-RuleName = Identifier {ruleName} ;
+Assginment      = Identifier EQU Expr                                 {assginment} ;
 
-ParamList = Param ( COMMA Param )* COMMA? Spacing {&paramList} ;
-Param = Key EQU Value {param} ;
+Expr            = ( ExprItem ( PLUS / MINUS ) )* ExprItem             {expr} ;
 
-Key = Identifier {key} ;
-Value =
-    (
-    StringValue
-    / ListStringValue
-    / NumberValue
-    / ListNumberValue
-    ) {value} ;
+ExprItem        = SimpleExprItem ( SelectorSuffix )*                  {exprItem} ;
 
-StringValue = StringLiteral {stringValue} ;
-NumberValue = IntegerConstant {numberValue} ;
-ListStringValue = LBRK StringValue ( COMMA StringValue )* COMMA? RBRK {listStringValue} ;
-ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK {listNumberValue} ;
+SimpleExprItem  = ( IntegerConstant
+                  / StringLiteral ![.]
+                  / Identifier ![.(]
+                  / FuncCall
+                  / LBRK ExprList? RBRK
+                  / LPAR Expr RPAR
+                  )                                                   {simpleExprItem} ;
 
+ExprList        = ( Expr COMMA )* Expr COMMA?                         {exprList} ;
+
+FuncCallSuffix  = LPAR ArgList? RPAR                                  {functionCallSuffix} ;
+
+ArgList         = ( Arg COMMA )* Arg COMMA?                           {argList} ;
+
+Arg             = ( Identifier EQU Expr / Expr )                      {arg} ;
+
+SelectorSuffix  = DOT ( Identifier / Identifier FuncCallSuffix )      {selectorSuffix} ;
+
+FunctionDef     = DEF Identifier LPAR ArgList RPAR LWING
+                  ( FuncCall / Assginment )* Return? RWING EOL        {functionDef} ;
+
+Return          = RETURN Expr                                         {invokeReturn} ;
 
 
 //-----------------------------------------------------------------------//
@@ -41,9 +49,13 @@ ListNumberValue = LBRK NumberValue ( COMMA NumberValue )* COMMA? RBRK {listNumbe
 //  Keywords
 //-------------------------------------------------------------------------
 
-INCLUDE      = "include"       !IdChar Spacing ;
-SUBINCLUDE   = "subclude"      !IdChar Spacing ;
+DEF      = "def"      ! IdChar Spacing ;
+RETURN   = "return"   ! IdChar Spacing ;
 
+INCLUDE  = "include"  ! IdChar Spacing ;
+SUBCLUDE = "subclude" ! IdChar Spacing ;
+
+RULE     = "rule"     ! IdChar Spacing ;
 
 //-------------------------------------------------------------------------
 //  Constant
@@ -117,9 +129,18 @@ LBRK       =  "["         Spacing ;
 RBRK       =  "]"         Spacing ;
 LPAR       =  "("         Spacing ;
 RPAR       =  ")"         Spacing ;
+LWING      =  "{"         Spacing ;
+RWING      =  "}"         Spacing ;
 
+
+PLUS       =  "+"  ![+=]  Spacing ;
+MINUS      =  "-"  ![\-=>]Spacing ;
+
+
+DOT        =  "."         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
+SEMI       =  ";"         Spacing ;
 
 EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;

@@ -21,15 +21,13 @@ mkBuildDir() {
 }
 
 testPeg() {
-  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/config.peg
-  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/rule.peg
+  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/cook.peg
 }
 
 generateParser() {
   mkBuildDir
   mkdir -p $GEN_DIR/cook/parser/
-  java -cp $CP mouse.Generate -G $SRC/cook/parser/config.peg -p cook.parser -P ConfigParser -S ConfigSemantics -D $GEN_DIR/cook/parser/
-  java -cp $CP mouse.Generate -G $SRC/cook/parser/rule.peg -p cook.parser -P RuleParser -S RuleSemantics -D $GEN_DIR/cook/parser/
+  java -cp $CP mouse.Generate -G $SRC/cook/parser/cook.peg -p cook.parser -P Parser -S Semantics -D $GEN_DIR/cook/parser/
 }
 
 build() {
@@ -48,8 +46,7 @@ buildTest() {
 
 runTest() {
   buildTest
-  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.ConfigTest
-  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.RuleTest
+  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.ParserTest
 }
 
 clear() {
