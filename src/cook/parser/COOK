@@ -2,36 +2,36 @@ include("genpeg")
 
 # Config Parser
 genpeg_java(
-    name = "configParser",
-    src = "config.peg",
-    parser = "ConfigParser",
-    semantics = "ConfigSemantics",
+  name = "configParser",
+  src = "config.peg",
+  parser = "ConfigParser",
+  semantics = "ConfigSemantics",
 )
 
-java_lib(
-    name = "config",
-    srcs = [
+scala_lib(
+  name = "config",
+  srcs = [
       "Config.scala",
       "ConfigSemantics.scala",
       "unit/ConfigUnit.scala",
       ":configParser",
-    ]
+  ]
 )
 
 # Rule Parser
 genpeg_java(
-    name = "ruleParser",
-    src = "rule.peg",
-    parser = "RuleParser",
-    semantics = "RuleSemantics",
+  name = "ruleParser",
+  src = "rule.peg",
+  parser = "RuleParser",
+  semantics = "RuleSemantics",
 )
 
-java_lib(
-    name = "rule",
-    srcs = [
+scala_lib(
+  name = "rule",
+  srcs = [
       "Rule.scala",
       "RuleSemantics.scala",
       "unit/RuleUnit.scala",
       ":ruleParser",
-    ]
+  ]
 )
