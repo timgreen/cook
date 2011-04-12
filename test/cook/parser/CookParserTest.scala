@@ -61,6 +61,13 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
     exprs(0).exprItems(0).simpleExprItem should be (StringLiteral(":test1"))
     exprs(1).exprItems(0).simpleExprItem should be (StringLiteral(":test2"))
   }
+
+  it should "be able to detect errors" in {
+    evaluating {
+      CookParser.parse("test5", "test/cook/parser/error_miss_comma.cook")
+    } should produce [ParserErrorException]
+  }
+}
 /*
   it should "be able to parse number values" in {
     val result = CookParser.parse("test4", "test/cook/parser/with_number_value.cook")
@@ -78,17 +85,4 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
     list.value should be (Array(13, 011, 0xAA))
   }
 
-  it should "be able to detect errors" in {
-    evaluating {
-      CookParser.parse("test5", "test/cook/parser/error_miss_comma.cook")
-    } should produce [ConfigErrorException]
-  }
-
-  it should "return error for duplicated param key" in {
-    evaluating {
-      CookParser.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
-    } should produce [ConfigErrorException]
-  }
   */
-}
-
