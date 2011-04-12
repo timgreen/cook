@@ -19,42 +19,51 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
     result.statements.length should be (1)
   }
 
-  /*
   it should "be able to parse simple java libaray rule" in {
-    val result = Config.parse("test1", "test/cook/parser/simple_javalib.cook")
-    result.path should be ("test1")
-    result.commands.length should be (1)
+    val result = CookParser.parse("test2", "test/cook/parser/simple_javalib.cook")
+    result.path should be ("test2")
+    result.statements.length should be (1)
   }
 
   it should "be able to parse more than one java libaray rules" in {
-    val result = Config.parse("test2", "test/cook/parser/simple_javalib2.cook")
-    result.path should be ("test2")
-    result.commands.length should be (3)
+    val result = CookParser.parse("test3", "test/cook/parser/simple_javalib2.cook")
+    result.path should be ("test3")
+    result.statements.length should be (3)
   }
 
   it should "be able to parse config files with comments" in {
-    val result = Config.parse("test3", "test/cook/parser/with_comments.cook")
-    result.commands.length should be (1)
+    val result = CookParser.parse("test4", "test/cook/parser/with_comments.cook")
+    result.statements.length should be (1)
   }
 
   it should "be able to parse config files with inline comments" in {
-    val result = Config.parse("test4", "test/cook/parser/with_inline_comments.cook")
-    result.commands.length should be (3)
+    val result = CookParser.parse("test5", "test/cook/parser/with_inline_comments.cook")
+    result.statements.length should be (3)
 
-    val buildRule = result.commands(2).asInstanceOf[BuildRule]
-    buildRule.ruleName should be ("java_lib")
-    buildRule.params.size should be (2)
+    val FuncCall(name, args) = result.statements(2)
+    name should be ("java_lib")
+    args.length should be (2)
 
-    val nameValue = buildRule.params("name").asInstanceOf[StringValue]
-    nameValue.value should be ("test3")
-    val depsValue = buildRule.params("deps").asInstanceOf[ListStringValue]
-    depsValue.value.size should be (2)
-    depsValue.value(0) should be (":test1")
-    depsValue.value(1) should be (":test2")
+    val ArgNamedValue(argName1, argExpr1) = args(0)
+    val ArgNamedValue(argName2, argExpr2) = args(1)
+
+    argName1 should be ("name")
+    argExpr1.exprItems.length should be (1)
+    argExpr1.exprItems(0).simpleExprItem should be (StringLiteral("test3"))
+    argExpr1.exprItems(0).selectorSuffixs.isEmpty should be (true)
+    argExpr1.ops.isEmpty should be (true)
+
+    argName2 should be ("deps")
+    argExpr2.exprItems.length should be (1)
+    argExpr2.ops.isEmpty should be (true)
+    val ExprList(exprs) = argExpr2.exprItems(0).simpleExprItem
+    exprs.length should be (2)
+    exprs(0).exprItems(0).simpleExprItem should be (StringLiteral(":test1"))
+    exprs(1).exprItems(0).simpleExprItem should be (StringLiteral(":test2"))
   }
-
+/*
   it should "be able to parse number values" in {
-    val result = Config.parse("test4", "test/cook/parser/with_number_value.cook")
+    val result = CookParser.parse("test4", "test/cook/parser/with_number_value.cook")
 
     val buildRule = result.commands(0).asInstanceOf[BuildRule]
     buildRule.params.size should be (5)
@@ -71,13 +80,13 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
 
   it should "be able to detect errors" in {
     evaluating {
-      Config.parse("test5", "test/cook/parser/error_miss_comma.cook")
+      CookParser.parse("test5", "test/cook/parser/error_miss_comma.cook")
     } should produce [ConfigErrorException]
   }
 
   it should "return error for duplicated param key" in {
     evaluating {
-      Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
+      CookParser.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
     } should produce [ConfigErrorException]
   }
   */

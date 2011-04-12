@@ -11,7 +11,7 @@ FuncCall        = Identifier LPAR ArgList? RPAR                           {funcC
 
 Assginment      = !Keyword Identifier EQU Expr                            {assginment} ;
 
-Expr            = ( ExprItem ( PLUS / MINUS ) )* ExprItem                 {expr} ;
+Expr            = ExprItem ( ( PLUS / MINUS ) ExprItem )*                 {expr} ;
 
 ExprItem        = SimpleExprItem ( SelectorSuffix )*                      {exprItem} ;
 

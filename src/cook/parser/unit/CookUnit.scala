@@ -8,7 +8,7 @@ abstract class Statement
 abstract class FuncStatement extends Statement
 case class Assginment(id: String, value: Expr) extends FuncStatement
 
-class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Array[SelectorSuffix])
+case class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Array[SelectorSuffix])
 
 abstract class SimpleExprItem extends FuncStatement
 case class IntegerConstant(int: Int) extends SimpleExprItem
@@ -31,4 +31,4 @@ case class FuncDef(name: String,
                    statements: Array[FuncStatement],
                    returnStatement: ReturnStatement) extends Statement
 
-class ReturnStatement(val expr: Expr)
+case class ReturnStatement(val expr: Expr)

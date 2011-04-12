@@ -55,7 +55,6 @@ clear() {
 
 main() {
   clear
-  testPeg
   runTest
 }
 
