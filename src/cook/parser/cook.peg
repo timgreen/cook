@@ -3,19 +3,19 @@
 //
 // CookConfig grammar
 
-CookConfig      = Spacing Statement* EOT                              {cookConfig} ;
+CookConfig      = Spacing Statements? EOT                                 {cookConfig} ;
 
-Statement       = ( SingleStatement SEMI )* SingleStatement SEMI? EOL {statement} ;
+Statements      = ( Statement SEMI )* Statement SEMI? EOL Spacing         {statements} ;
 
-SingleStatement = ( FuncCall / Assginment / FunctionDef )             {singleStatement} ;
+Statement       = ( FuncStatement / FuncDef )                             {statement} ;
 
-FuncCall        = Identifier FuncCallSuffix                           {funcCall} ;
+FuncCall        = Identifier LPAR ArgList? RPAR                           {funcCall} ;
 
-Assginment      = Identifier EQU Expr                                 {assginment} ;
+Assginment      = !Keyword Identifier EQU Expr                            {assginment} ;
 
-Expr            = ( ExprItem ( PLUS / MINUS ) )* ExprItem             {expr} ;
+Expr            = ( ExprItem ( PLUS / MINUS ) )* ExprItem                 {expr} ;
 
-ExprItem        = SimpleExprItem ( SelectorSuffix )*                  {exprItem} ;
+ExprItem        = SimpleExprItem ( SelectorSuffix )*                      {exprItem} ;
 
 SimpleExprItem  = ( IntegerConstant
                   / StringLiteral ![.]
@@ -23,22 +23,22 @@ SimpleExprItem  = ( IntegerConstant
                   / FuncCall
                   / LBRK ExprList? RBRK
                   / LPAR Expr RPAR
-                  )                                                   {simpleExprItem} ;
+                  )                                                       {simpleExprItem} ;
 
-ExprList        = ( Expr COMMA )* Expr COMMA?                         {exprList} ;
+ExprList        = ( Expr COMMA )* Expr COMMA?                             {exprList} ;
 
-FuncCallSuffix  = LPAR ArgList? RPAR                                  {functionCallSuffix} ;
+ArgList         = ( Arg COMMA )* Arg COMMA?                               {argList} ;
 
-ArgList         = ( Arg COMMA )* Arg COMMA?                           {argList} ;
+Arg             = ( !Keyword Identifier EQU Expr / Expr )                 {arg} ;
 
-Arg             = ( Identifier EQU Expr / Expr )                      {arg} ;
+SelectorSuffix  = DOT ( Identifier ![(] / FuncCall )                      {selectorSuffix} ;
 
-SelectorSuffix  = DOT ( Identifier / Identifier FuncCallSuffix )      {selectorSuffix} ;
+FuncDef         = DEF !Keyword Identifier LPAR ArgList RPAR LWING
+                  FuncStatement* ReturnStatement? RWING EOL Spacing       {funcDef} ;
 
-FunctionDef     = DEF Identifier LPAR ArgList RPAR LWING
-                  ( FuncCall / Assginment )* Return? RWING EOL        {functionDef} ;
+FuncStatement   = ( FuncCall / Assginment )                               {funcStatement} ;
 
-Return          = RETURN Expr                                         {invokeReturn} ;
+ReturnStatement = RETURN Expr                                             {returnStatement} ;
 
 
 //-----------------------------------------------------------------------//
@@ -48,6 +48,8 @@ Return          = RETURN Expr                                         {invokeRet
 //-------------------------------------------------------------------------
 //  Keywords
 //-------------------------------------------------------------------------
+
+Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / RULE ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
