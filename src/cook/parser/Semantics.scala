@@ -14,20 +14,10 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   def cookConfig {
     val statements =
-        if (rhs(1).isA("Statements")) {
-          rhs(1).get.asInstanceOf[Array[Statement]]
-        } else {
-          Array[Statement]()
-        }
-    config = new Config(statements)
-  }
-
-  def statements {
-    val statements =
         for (i <- 0 until rhsSize if rhs(i).isA("Statement")) yield {
           rhs(i).get.asInstanceOf[Statement]
         }
-    lhs.put(statements.toArray)
+    config = new Config(statements.toArray)
   }
 
   def statement {

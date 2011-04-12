@@ -3,9 +3,7 @@
 //
 // CookConfig grammar
 
-CookConfig      = Spacing Statements? EOT                                 {cookConfig} ;
-
-Statements      = ( Statement SEMI )* Statement SEMI? EOL Spacing         {statements} ;
+CookConfig      = Spacing Statement* EOT                                  {cookConfig} ;
 
 Statement       = ( FuncStatement / FuncDef )                             {statement} ;
 
@@ -25,16 +23,16 @@ SimpleExprItem  = ( IntegerConstant
                   / LPAR Expr RPAR
                   )                                                       {simpleExprItem} ;
 
-ExprList        = ( Expr COMMA )* Expr COMMA?                             {exprList} ;
+ExprList        = Expr ( COMMA Expr )* COMMA?                             {exprList} ;
 
-ArgList         = ( Arg COMMA )* Arg COMMA?                               {argList} ;
+ArgList         = Arg ( COMMA Arg )* COMMA?                               {argList} ;
 
 Arg             = ( !Keyword Identifier EQU Expr / Expr )                 {arg} ;
 
 SelectorSuffix  = DOT ( Identifier ![(] / FuncCall )                      {selectorSuffix} ;
 
 FuncDef         = DEF !Keyword Identifier LPAR ArgList RPAR LWING
-                  FuncStatement* ReturnStatement? RWING EOL Spacing       {funcDef} ;
+                  FuncStatement* ReturnStatement? RWING                   {funcDef} ;
 
 FuncStatement   = ( FuncCall / Assginment )                               {funcStatement} ;
 
@@ -142,7 +140,6 @@ MINUS      =  "-"  ![\-=>]Spacing ;
 DOT        =  "."         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
-SEMI       =  ";"         Spacing ;
 
 EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;

@@ -46,7 +46,7 @@ buildTest() {
 
 runTest() {
   buildTest
-  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.ParserTest
+  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.CookParserTest
 }
 
 clear() {

@@ -3,16 +3,23 @@ package cook.parser
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
-import cook.parser.configunit._
+import cook.parser.unit._
 
-class ConfigTest extends FlatSpec with ShouldMatchers {
+class CookParserTest extends FlatSpec with ShouldMatchers {
 
-  "Config parser" should "be able to parse self build rule" in {
-    val result = Config.parse("test0", "src/cook/parser/COOK")
+  "Cook parser" should "be able to parse self build rule" in {
+    val result = CookParser.parse("test0", "src/cook/parser/COOK")
     result.path should be ("test0")
-    result.commands.length should be (5)
+    result.statements.length should be (3)
   }
 
+  it should "be able to parse genpeg rule" in {
+    val result = CookParser.parse("test1", "src/cook/parser/genpeg.cooki")
+    result.path should be ("test1")
+    result.statements.length should be (1)
+  }
+
+  /*
   it should "be able to parse simple java libaray rule" in {
     val result = Config.parse("test1", "test/cook/parser/simple_javalib.cook")
     result.path should be ("test1")
@@ -73,5 +80,6 @@ class ConfigTest extends FlatSpec with ShouldMatchers {
       Config.parse("test6", "test/cook/parser/error_duplicated_param_key.cook")
     } should produce [ConfigErrorException]
   }
+  */
 }
 
