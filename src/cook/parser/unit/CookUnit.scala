@@ -1,6 +1,7 @@
 package cook.parser.unit
 
-class CookConfig(val statements: Array[Statement])
+class CookConfig(val path: String, val statements: Array[Statement])
+class Config(val statements: Array[Statement])
 
 abstract class Statement
 
@@ -9,7 +10,7 @@ case class Assginment(id: String, value: Expr) extends FuncStatement
 
 class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Array[SelectorSuffix])
 
-abstract case class SimpleExprItem extends FuncStatement
+abstract class SimpleExprItem extends FuncStatement
 case class IntegerConstant(int: Int) extends SimpleExprItem
 case class StringLiteral(str: String) extends SimpleExprItem
 case class Identifier(id: String) extends SimpleExprItem

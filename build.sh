@@ -34,7 +34,7 @@ build() {
   generateParser
   scala_files=$(find $SRC -name "*.scala" -print)
   java_files=$(find $GEN_DIR/cook/parser/ -name "*.java" -print)
-  scalac -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
+  scalac -deprecation -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
   javac -d $BUILD_DIR -classpath $CP:$BUILD_DIR ${java_files[*]}
 }
 

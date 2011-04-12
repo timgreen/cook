@@ -9,7 +9,7 @@ import cook.parser.unit._
  */
 class Semantics extends mouse.runtime.SemanticsBase {
 
-  def getCookConfig = config
+  def getConfig = config
   def getErrors = errors  // TODO(timgreen): own diagnostic output
 
   def cookConfig {
@@ -19,7 +19,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         } else {
           Array[Statement]()
         }
-    config = new CookConfig(statements)
+    config = new Config(statements)
   }
 
   def statements {
@@ -146,7 +146,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
     var i = 6
     val statements = new ArrayBuffer[FuncStatement]
     while (rhs(i).isA("FuncStatement")) {
-      statements + rhs(i).asInstanceOf[FuncStatement]
+      statements += rhs(i).asInstanceOf[FuncStatement]
       i = i + 1
     }
 
@@ -193,6 +193,6 @@ class Semantics extends mouse.runtime.SemanticsBase {
   }
 
   private
-  var config: CookConfig = null
+  var config: Config = null
   var errors: Array[String] = null
 }
