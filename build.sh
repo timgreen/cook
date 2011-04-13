@@ -21,19 +21,19 @@ mkBuildDir() {
 }
 
 testPeg() {
-  java -cp $CP mouse.TestPEG -G $SRC/cook/parser/cook.peg
+  java -cp $CP mouse.TestPEG -G $SRC/cook/config/parser/cook.peg
 }
 
 generateParser() {
   mkBuildDir
-  mkdir -p $GEN_DIR/cook/parser/
-  java -cp $CP mouse.Generate -G $SRC/cook/parser/cook.peg -p cook.parser -P Parser -S Semantics -D $GEN_DIR/cook/parser/
+  mkdir -p $GEN_DIR/cook/config/parser/
+  java -cp $CP mouse.Generate -G $SRC/cook/config/parser/cook.peg -p cook.config.parser -P Parser -S Semantics -D $GEN_DIR/cook/config/parser/
 }
 
 build() {
   generateParser
   scala_files=$(find $SRC -name "*.scala" -print)
-  java_files=$(find $GEN_DIR/cook/parser/ -name "*.java" -print)
+  java_files=$(find $GEN_DIR/cook/config/parser/ -name "*.java" -print)
   scalac -deprecation -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
   javac -d $BUILD_DIR -classpath $CP:$BUILD_DIR ${java_files[*]}
 }
@@ -46,7 +46,7 @@ buildTest() {
 
 runTest() {
   buildTest
-  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.parser.CookParserTest
+  java -cp $CP:$BUILD_DIR:$SCALA_TEST_CP org.scalatest.tools.Runner -p . -o -s cook.config.parser.CookParserTest
 }
 
 clear() {
@@ -54,7 +54,6 @@ clear() {
 }
 
 main() {
-  clear
   runTest
 }
 

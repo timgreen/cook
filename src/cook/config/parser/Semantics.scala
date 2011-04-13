@@ -1,8 +1,8 @@
-package cook.parser
+package cook.config.parser
 
 import scala.collection.mutable.ArrayBuffer
 
-import cook.parser.unit._
+import cook.config.parser.unit._
 
 /**
  * Build parse tree for COOK config.

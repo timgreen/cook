@@ -1,4 +1,4 @@
-package cook.parser.unit
+package cook.config.parser.unit
 
 class CookConfig(val path: String, val statements: Array[Statement])
 class Config(val statements: Array[Statement])

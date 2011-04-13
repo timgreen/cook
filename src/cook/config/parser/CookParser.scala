@@ -1,12 +1,11 @@
-package cook.parser
+package cook.config.parser
 
 import java.io.File
-import scala.collection.mutable._
 
 import mouse.runtime.SourceString
 import mouse.runtime.SourceFile
 
-import cook.parser.unit._
+import cook.config.parser.unit._
 
 object CookParser {
 
