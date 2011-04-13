@@ -67,11 +67,10 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
     name should be ("testNumberValue")
     args.length should be (5)
 
-    val ArgNamedValue(argName1, argExpr1) = args(0)
-    val ArgNamedValue(argName2, argExpr2) = args(1)
-    val ArgNamedValue(argName3, argExpr3) = args(2)
-    val ArgNamedValue(argName4, argExpr4) = args(3)
-    val ArgNamedValue(argName5, argExpr5) = args(4)
+    val ArgNamedValue(argName1, argExpr1) = args(1)
+    val ArgNamedValue(argName2, argExpr2) = args(2)
+    val ArgNamedValue(argName3, argExpr3) = args(3)
+    val ArgNamedValue(argName4, argExpr4) = args(4)
 
     argName1 should be ("version")
     argExpr1.exprItems.length should be (1)
