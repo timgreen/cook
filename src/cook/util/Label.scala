@@ -5,19 +5,34 @@ import java.io.FileNotFoundException
 
 import scala.collection.mutable.ArrayBuffer
 
-abstract class Label
+abstract class Label {
+  protected var hashObj: String = null
 
-case class FileLabel(val pathFromRoot: Array[String], val name: String) extends Label {
-  val file = new File(pathFromRoot.mkString, name)
-  throw new FileNotFoundException(file.getPath)
+  override def hashCode = hashObj.hashCode
+
+  override def equals(obj: Any): Boolean = {
+    if (!obj.isInstanceOf[Label]) return false
+    val l = obj.asInstanceOf[Label]
+    return (hashObj == l.hashObj)
+  }
 }
 
-case class TargetLabel(val pathFromRoot: Array[String], val name: String) extends Label {
+class FileLabel(pathFromRoot: Array[String], name: String) extends Label {
+  val filename = "%s/%s".format(pathFromRoot.mkString("/"), name)
+  val file = new File(filename)
+  throw new FileNotFoundException(file.getPath)
+
+  hashObj = filename
+}
+
+class TargetLabel(pathFromRoot: Array[String], name: String) extends Label {
 
   val isRootLabel = false
 
   /**
    * "//package_a/package_b/package_c:target_name"
+   " or
+   * "//package_a/package_b/package_c"
    */
   val targetFullname: String = if (name.startsWith("//")) {
     name
@@ -25,9 +40,15 @@ case class TargetLabel(val pathFromRoot: Array[String], val name: String) extend
     "//%s/%s".format(pathFromRoot.mkString("/"), name)
   }
 
+  hashObj = targetFullname
+
   val pathSeq: Array[String] = if (targetFullname.indexOf(':') != -1) {
+    // "//package_a/package_b/package_c:target_name"
     targetFullname.drop(2).split(Array(':', '/'))
   } else {
+    // "//package_a/package_b/package_c"
+    // =
+    // "//package_a/package_b/package_c:package_c"
     val t = new ArrayBuffer[String]
     t.appendAll(targetFullname.drop(2).split('/'))
     t.append(t.last)

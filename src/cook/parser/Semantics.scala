@@ -12,6 +12,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
   def getConfig = config
   def getErrors = errors  // TODO(timgreen): own diagnostic output
 
+  private[parser]
   def cookConfig {
     val statements =
         for (i <- 0 until rhsSize if rhs(i).isA("Statement")) yield {
