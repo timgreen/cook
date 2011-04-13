@@ -47,13 +47,14 @@ ReturnStatement = RETURN Expr                                             {retur
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / RULE ) ;
+Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / RULE ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
 
 INCLUDE  = "include"  ! IdChar Spacing ;
 SUBCLUDE = "subclude" ! IdChar Spacing ;
+GLOB     = "glob"     ! IdChar Spacing ;
 
 RULE     = "rule"     ! IdChar Spacing ;
 

@@ -60,27 +60,58 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
     exprs(1).exprItems(0).simpleExprItem should be (StringLiteral(":test2"))
   }
 
+  it should "be able to parse number values" in {
+    val result = CookParser.parse("test6", "test/cook/parser/with_number_value.cook")
+
+    val FuncCall(name, args) = result.statements(0)
+    name should be ("testNumberValue")
+    args.length should be (5)
+
+    val ArgNamedValue(argName1, argExpr1) = args(0)
+    val ArgNamedValue(argName2, argExpr2) = args(1)
+    val ArgNamedValue(argName3, argExpr3) = args(2)
+    val ArgNamedValue(argName4, argExpr4) = args(3)
+    val ArgNamedValue(argName5, argExpr5) = args(4)
+
+    argName1 should be ("version")
+    argExpr1.exprItems.length should be (1)
+    argExpr1.exprItems(0).simpleExprItem should be (IntegerConstant(1))
+    argExpr1.exprItems(0).selectorSuffixs.isEmpty should be (true)
+    argExpr1.ops.isEmpty should be (true)
+
+    argName2 should be ("oct")
+    argExpr2.exprItems.length should be (1)
+    argExpr2.exprItems(0).simpleExprItem should be (IntegerConstant(0123))
+    argExpr2.exprItems(0).selectorSuffixs.isEmpty should be (true)
+    argExpr2.ops.isEmpty should be (true)
+
+    argName3 should be ("hex")
+    argExpr3.exprItems.length should be (1)
+    argExpr3.exprItems(0).simpleExprItem should be (IntegerConstant(0xA12AF))
+    argExpr3.exprItems(0).selectorSuffixs.isEmpty should be (true)
+    argExpr3.ops.isEmpty should be (true)
+
+    argName4 should be ("list")
+    argExpr4.exprItems.length should be (1)
+    argExpr4.exprItems(0).selectorSuffixs.isEmpty should be (true)
+    argExpr4.ops.isEmpty should be (true)
+
+    val ExprList(exprs) = argExpr4.exprItems(0).simpleExprItem
+    exprs.length should be (3)
+    exprs(0).exprItems(0).simpleExprItem should be (IntegerConstant(13))
+    exprs(1).exprItems(0).simpleExprItem should be (IntegerConstant(011))
+    exprs(2).exprItems(0).simpleExprItem should be (IntegerConstant(0xAA))
+  }
+
   it should "be able to detect errors" in {
     evaluating {
-      CookParser.parse("test5", "test/cook/parser/error_miss_comma.cook")
+      CookParser.parse("test7", "test/cook/parser/error_miss_comma.cook")
+    } should produce [ParserErrorException]
+  }
+
+  it should "report error on re-define build-in function" in {
+    evaluating {
+      CookParser.parse("test8", "test/cook/parser/error_redef_buildin_func.cook")
     } should produce [ParserErrorException]
   }
 }
-/*
-  it should "be able to parse number values" in {
-    val result = CookParser.parse("test4", "test/cook/parser/with_number_value.cook")
-
-    val buildRule = result.commands(0).asInstanceOf[BuildRule]
-    buildRule.params.size should be (5)
-
-    val version = buildRule.params("version").asInstanceOf[NumberValue]
-    version.value should be (1)
-    val oct = buildRule.params("oct").asInstanceOf[NumberValue]
-    oct.value should be (0123)
-    val hex = buildRule.params("hex").asInstanceOf[NumberValue]
-    hex.value should be (0xA12AF)
-    val list = buildRule.params("list").asInstanceOf[ListNumberValue]
-    list.value should be (Array(13, 011, 0xAA))
-  }
-
-  */
