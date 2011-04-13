@@ -71,7 +71,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
           new Identifier(id)
         } else if (rhs(0).isA("FuncCall")) {
           val funcCall = rhs(0).get.asInstanceOf[FuncCall]
-          FuncCall
+          funcCall
         } else if (rhs(0).isA("LBRK")) {
           val exprList =
               if (rhs(1).isA("ExprList")) {

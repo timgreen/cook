@@ -10,7 +10,7 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
   "Cook parser" should "be able to parse self build rule" in {
     val result = CookParser.parse("test0", "test/cook/parser/COOK")
     result.path should be ("test0")
-    result.statements.length should be (3)
+    result.statements.length should be (1)
   }
 
   it should "be able to parse genpeg rule" in {
@@ -21,13 +21,11 @@ class CookParserTest extends FlatSpec with ShouldMatchers {
 
   it should "be able to parse simple java libaray rule" in {
     val result = CookParser.parse("test2", "test/cook/parser/simple_javalib.cook")
-    result.path should be ("test2")
     result.statements.length should be (1)
   }
 
   it should "be able to parse more than one java libaray rules" in {
     val result = CookParser.parse("test3", "test/cook/parser/simple_javalib2.cook")
-    result.path should be ("test3")
     result.statements.length should be (3)
   }
 
