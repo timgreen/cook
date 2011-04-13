@@ -18,7 +18,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 0 until rhsSize if rhs(i).isA("Statement")) yield {
           rhs(i).get.asInstanceOf[Statement]
         }
-    config = new Config(statements.toArray)
+    config = new CookConfig(statements.toArray)
   }
 
   def statement {
@@ -184,6 +184,6 @@ class Semantics extends mouse.runtime.SemanticsBase {
   }
 
   private
-  var config: Config = null
+  var config: CookConfig = null
   var errors: Array[String] = null
 }

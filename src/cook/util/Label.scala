@@ -31,7 +31,7 @@ class TargetLabel(pathFromRoot: Array[String], name: String) extends Label {
 
   /**
    * "//package_a/package_b/package_c:target_name"
-   " or
+   * or
    * "//package_a/package_b/package_c"
    */
   val targetFullname: String = if (name.startsWith("//")) {
@@ -81,8 +81,8 @@ object Label {
   }
 
   /**
-  * Special TargetLabel stand for "COOK_ROOT" file
-  */
+   * Special TargetLabel stand for "COOK_ROOT" file
+   */
   val ROOT_LABEL = new TargetLabel(Array(), "COOK_ROOT") {
     override val isRootLabel = true
   }

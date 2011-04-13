@@ -9,13 +9,15 @@ import cook.config.parser.unit._
 
 object CookParser {
 
-  def parse(path: String, filename: String): CookConfig = {
+  def parse(filename: String): CookConfig = parse(new File(filename))
+
+  def parse(file: File): CookConfig = {
     val parser = new Parser
-    if (!parser.parse(new SourceFile(filename))) {
+    if (!parser.parse(new SourceFile(file.getPath))) {
       // TODO(timgreen):
       throw new ParserErrorException(null)
     }
-    new CookConfig(path, parser.semantics.getConfig.statements)
+    parser.semantics.getConfig
   }
 }
 

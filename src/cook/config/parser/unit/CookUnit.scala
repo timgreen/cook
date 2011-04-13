@@ -1,7 +1,6 @@
 package cook.config.parser.unit
 
-class CookConfig(val path: String, val statements: Array[Statement])
-class Config(val statements: Array[Statement])
+class CookConfig(val statements: Array[Statement])
 
 abstract class Statement
 
