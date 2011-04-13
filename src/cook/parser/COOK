@@ -2,16 +2,16 @@ include("genpeg")
 
 # Config Parser
 genpeg_java(
-  name = "Parser",
+  name = "gen_parser",
   src = "cook.peg",
 )
 
 scala_lib(
-  name = "CookParser",
+  name = "parser",
   srcs = [
       "CookParser.scala",
       "Semantics.scala",
       "unit/CookUnit.scala",
-      ":Parser",
+      ":gen_parser",
   ]
 )

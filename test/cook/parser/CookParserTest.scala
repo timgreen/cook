@@ -8,7 +8,7 @@ import cook.parser.unit._
 class CookParserTest extends FlatSpec with ShouldMatchers {
 
   "Cook parser" should "be able to parse self build rule" in {
-    val result = CookParser.parse("test0", "src/cook/parser/COOK")
+    val result = CookParser.parse("test0", "test/cook/parser/COOK")
     result.path should be ("test0")
     result.statements.length should be (3)
   }
