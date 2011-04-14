@@ -59,6 +59,27 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     result.get should be (StringValue("a1"))
   }
 
+  "List" should "have attr 'length'" in {
+    val int1 = ExprItem(IntegerConstant(1), Seq[SelectorSuffix]())
+    val int2 = ExprItem(IntegerConstant(2), Seq[SelectorSuffix]())
+    val list = ExprList(Seq(Expr(Seq(int1), Seq[String]()), Expr(Seq(int2), Seq[String]())))
+    val exprItem = ExprItem(list, Seq[SelectorSuffix](IdSuffix("length")))
+    val result = exprItem.run("", Scope())
+    result.get should be (NumberValue(2))
+  }
+
+  it should "have attr 'size'" in {
+    val int1 = ExprItem(IntegerConstant(1), Seq[SelectorSuffix]())
+    val int2 = ExprItem(IntegerConstant(2), Seq[SelectorSuffix]())
+    val int3 = ExprItem(IntegerConstant(3), Seq[SelectorSuffix]())
+    val list = ExprList(Seq(Expr(Seq(int1), Seq[String]()),
+                            Expr(Seq(int2), Seq[String]()),
+                            Expr(Seq(int3), Seq[String]())))
+    val exprItem = ExprItem(list, Seq[SelectorSuffix](IdSuffix("size")))
+    val result = exprItem.run("", Scope())
+    result.get should be (NumberValue(3))
+  }
+
   "[1, 2]" should "= [1, 2]" in {
     val int1 = ExprItem(IntegerConstant(1), Seq[SelectorSuffix]())
     val int2 = ExprItem(IntegerConstant(2), Seq[SelectorSuffix]())
