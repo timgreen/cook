@@ -83,7 +83,9 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
     case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
     case identifier: Identifier => identifier.run(path, scope)
-    // TODO(timgreen): impl others
+    case funcCall: FuncCall => None  // TODO(timgreen): impl
+    case exprList: ExprList => exprList.run(path, scope)
+    case expr: Expr => expr.run(path, scope)
     case _ => None
   }
 }
@@ -197,9 +199,15 @@ object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(statement: Statement) = new RunnableStatement(statement)
 
+  implicit def toRunnableUnit(funcStatement: FuncStatement) =
+      new RunnableFuncStatement(funcStatement)
+
   implicit def toRunnableUnit(assginment: Assginment) = new RunnableAssginment(assginment)
 
   implicit def toRunnableUnit(exprItem: ExprItem) = new RunnableExprItem(exprItem)
+
+  implicit def toRunnableUnit(simpleExprItem: SimpleExprItem) =
+      new RunnableSimpleExprItem(simpleExprItem)
 
   implicit def toRunnableUnit(integerConstant: IntegerConstant) =
       new RunnableIntegerConstant(integerConstant)
@@ -208,6 +216,10 @@ object RunnableUnitWrapper {
       new RunnableStringLiteral(stringLiteral)
 
   implicit def toRunnableUnit(identifier: Identifier) = new RunnableIdentifier(identifier)
+
+  implicit def toRunnableUnit(funcCall: FuncCall) = new RunnableFuncCall(funcCall)
+
+  implicit def toRunnableUnit(exprList: ExprList) = new RunnableExprList(exprList)
 
   implicit def toRunnableUnit(expr: Expr) = new RunnableExpr(expr)
 }

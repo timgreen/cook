@@ -76,10 +76,10 @@ case class ListValue(list: Seq[Value]) extends Value {
   override def typeName = "List"
 
   override def op(o: String, v: Value): Value = o match {
-    case "+" => ListValue((list.genericBuilder += v).result)
+    case "+" => ListValue(list :+ v)
     case "++" => {
       v match {
-        case ListValue(l) => ListValue((list.genericBuilder ++= l).result)
+        case ListValue(l) => ListValue(list ++ l)
         case _ => {
           throw new EvalException(
               "Operation \"++\" on (List op %s) is not supportted".format(v.typeName))

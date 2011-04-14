@@ -1,0 +1,5 @@
+scala_lib(
+  name = "value",
+  srcs = [ "Value.scala" ],
+  deps = [ "//src/cook/config/runner:exception" ]
+)
