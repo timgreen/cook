@@ -53,6 +53,14 @@ class RunnableAssginment(val assginment: Assginment) {
   }
 }
 
+class RunnableExprItem(val exprItem: ExprItem) {
+
+  def run(path: String, scope: Scope): Option[Value] = {
+    // TODO(timgreen)
+    None
+  }
+}
+
 class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) {
 
   def run(path: String, scope: Scope): Option[Value] = simpleExprItem match {
@@ -115,7 +123,7 @@ class RunnableExprList(val exprList: ExprList) {
           case Some(value) => value
           case None => {
             // TODO(timgreen): better error message
-            throw new EvalConfigException("find None in Expr List")
+            throw new EvalConfigException("None is not allowed in Expr List")
           }
         }
       }))
@@ -124,8 +132,20 @@ class RunnableExprList(val exprList: ExprList) {
 class RunnableExpr(val expr: Expr) {
 
   def run(path: String, scope: Scope): Option[Value] = {
-    // TODO(timgreen):
-    None
+
+    def getOrError(v: Option[Value]): Value = v match {
+      case Some(value) => value
+      case None => {
+        // TODO(timgreen): better error message
+        throw new EvalConfigException("None is not allowed in expr")
+      }
+    }
+
+    val it = expr.exprItems.iterator
+    var v = getOrError(it.next.run(path, scope.newChildScope))
+    Some(expr.ops.foldLeft(v) {
+      _.op(_, getOrError(it.next.run(path, scope.newChildScope)))
+    })
   }
 
 }
@@ -151,6 +171,8 @@ object RunnableUnitWrapper {
   implicit def toRunnableUnit(statement: Statement) = new RunnableStatement(statement)
 
   implicit def toRunnableUnit(assginment: Assginment) = new RunnableAssginment(assginment)
+
+  implicit def toRunnableUnit(exprItem: ExprItem) = new RunnableExprItem(exprItem)
 
   implicit def toRunnableUnit(integerConstant: IntegerConstant) =
       new RunnableIntegerConstant(integerConstant)
