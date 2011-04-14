@@ -6,6 +6,7 @@ import scala.collection.mutable.HashMap
 
 import cook.config.parser._
 import cook.config.parser.unit._
+import cook.config.runner.unit.RunnableUnitWrapper._
 
 object CookRunner {
 
@@ -14,18 +15,15 @@ object CookRunner {
       return configToScopeMap(path)
     }
 
-    val includedScope = rootScope.clone.asInstanceOf[Scope]
     val scope = Scope()
-
-    val cookConfig = CookParser.parse(configFile)
-    // TODO(timgreen):
+    CookParser.parse(configFile).run(path,  scope)
 
     configToScopeMap.put(path, scope)
     scope
   }
 
   private[runner]
-  val configToScopeMap = new HashMap[String, Scope]
+  val configToScopeMap: HashMap[String, Scope] = new HashMap[String, Scope]
 
   def rootScope = configToScopeMap("COOK_ROOT")
 }
