@@ -44,7 +44,7 @@ class RunnableAssginment(val assginment: Assginment) {
     assginment.expr.run(path, scope.newChildScope) match {
       case Some(value) => scope.vars.put(assginment.id, value)
       case None => {
-        throw new EvalConfigException(
+        throw new EvalException(
             "Assginment error: can not assign None to \"%s\"".format(assginment.id))
       }
     }
@@ -89,7 +89,7 @@ class RunnableIdentifier(val identifier: Identifier) {
   def run(path: String, scope: Scope): Option[Value] = {
     scope.get(identifier.id) match {
       case Some(value) => return Some(value)
-      case None => throw new EvalConfigException("var \"%s\" is not defined".format(identifier.id))
+      case None => throw new EvalException("var \"%s\" is not defined".format(identifier.id))
     }
     None
   }
@@ -110,7 +110,7 @@ class RunnableFuncCall(val funcCall: FuncCall) {
 
     scope.getFunc(funcCall.name) match {
       case Some(runnableFuncDef) => return runnableFuncDef.run(path, args)
-      case None => throw new EvalConfigException("func \"%s\" is not defined".format(funcCall.name))
+      case None => throw new EvalException("func \"%s\" is not defined".format(funcCall.name))
     }
   }
 }
@@ -123,7 +123,7 @@ class RunnableExprList(val exprList: ExprList) {
           case Some(value) => value
           case None => {
             // TODO(timgreen): better error message
-            throw new EvalConfigException("None is not allowed in Expr List")
+            throw new EvalException("None is not allowed in Expr List")
           }
         }
       }))
@@ -137,7 +137,7 @@ class RunnableExpr(val expr: Expr) {
       case Some(value) => value
       case None => {
         // TODO(timgreen): better error message
-        throw new EvalConfigException("None is not allowed in expr")
+        throw new EvalException("None is not allowed in expr")
       }
     }
 
@@ -162,7 +162,8 @@ class ArgList(args: Seq[Arg]) {
   // TODO(timgreen):
 }
 
-class EvalConfigException(error: String) extends RuntimeException
+// TODO(timgreen): move to parent package
+class EvalException(error: String) extends RuntimeException
 
 object RunnableUnitWrapper {
 
