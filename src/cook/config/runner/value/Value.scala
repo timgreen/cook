@@ -2,7 +2,7 @@ package cook.config.runner.value
 
 import scala.collection.Seq
 
-import cook.config.runner.unit.EvalException
+import cook.config.runner.EvalException
 
 abstract class Value {
   def typeName(): String

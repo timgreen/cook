@@ -3,6 +3,7 @@ package cook.config.runner.unit
 import scala.collection.Seq
 
 import cook.config.parser.unit._
+import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.value._
 
@@ -189,9 +190,6 @@ class RunnableFuncDef(val funcDef: FuncDef, val scope: Scope) extends RunnableUn
 class ArgList(args: Seq[Arg]) {
   // TODO(timgreen):
 }
-
-// TODO(timgreen): move to parent package
-class EvalException(error: String) extends RuntimeException
 
 object RunnableUnitWrapper {
 
