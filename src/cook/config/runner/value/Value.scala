@@ -5,8 +5,9 @@ import scala.collection.Seq
 import cook.config.runner.unit.EvalException
 
 abstract class Value {
-  def op(o: String, v: Value): Value
   def typeName(): String
+  def op(o: String, v: Value): Value
+  def attr(id: String): Value
 }
 
 case class NumberValue(int: Int) extends Value {
@@ -29,6 +30,10 @@ case class NumberValue(int: Int) extends Value {
       throw new EvalException(
         "Operation \"%s\" on (Number op %s) is not supportted".format(o, v.typeName))
     }
+  }
+
+  override def attr(id: String): Value = id match {
+    case _ => throw new EvalException("attr \"%s\" is not supportted by Number".format(id))
   }
 }
 
@@ -58,6 +63,12 @@ case class StringValue(str: String) extends Value {
         "Operation \"%s\" on (String op %s) is not supportted".format(o, v.typeName))
     }
   }
+
+  override def attr(id: String): Value = id match {
+    case "size" => NumberValue(str.size)
+    case "length" => NumberValue(str.length)
+    case _ => throw new EvalException("attr \"%s\" is not supportted by String".format(id))
+  }
 }
 
 case class ListValue(list: Seq[Value]) extends Value {
@@ -78,6 +89,12 @@ case class ListValue(list: Seq[Value]) extends Value {
     case _ => {
           throw new EvalException("Unsupportted operator \"%s\" on (List op %s)".format(o, v))
     }
+  }
+
+  override def attr(id: String): Value = id match {
+    case "size" => NumberValue(list.size)
+    case "length" => NumberValue(list.length)
+    case _ => throw new EvalException("attr \"%s\" is not supportted by List".format(id))
   }
 }
 

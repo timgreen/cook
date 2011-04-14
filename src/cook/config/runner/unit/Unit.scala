@@ -8,7 +8,18 @@ import cook.config.runner.value._
 
 import RunnableUnitWrapper._
 
-class RunnableCookConfig(val cookConfig: CookConfig) {
+abstract class RunnableUnit {
+
+  def getOrError(v: Option[Value]): Value = v match {
+    case Some(value) => value
+    case None => {
+      // TODO(timgreen): better error message
+      throw new EvalException("None is not allowed in expr")
+    }
+  }
+}
+
+class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
     cookConfig.statements.foreach(_.run(path, scope))
@@ -16,7 +27,7 @@ class RunnableCookConfig(val cookConfig: CookConfig) {
   }
 }
 
-class RunnableStatement(val statement: Statement) {
+class RunnableStatement(val statement: Statement) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = statement match {
     case funcStatement: FuncStatement => funcStatement.run(path, scope)
@@ -25,7 +36,7 @@ class RunnableStatement(val statement: Statement) {
   }
 }
 
-class RunnableFuncStatement(val funcStatement: FuncStatement) {
+class RunnableFuncStatement(val funcStatement: FuncStatement) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = funcStatement match {
     case assginment: Assginment => assginment.run(path, scope)
@@ -34,7 +45,7 @@ class RunnableFuncStatement(val funcStatement: FuncStatement) {
   }
 }
 
-class RunnableAssginment(val assginment: Assginment) {
+class RunnableAssginment(val assginment: Assginment) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
     if (scope.definedInParent(assginment.id)) {
@@ -53,15 +64,19 @@ class RunnableAssginment(val assginment: Assginment) {
   }
 }
 
-class RunnableExprItem(val exprItem: ExprItem) {
+class RunnableExprItem(val exprItem: ExprItem) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
-    // TODO(timgreen)
-    None
+    val v = getOrError(exprItem.simpleExprItem.run(path, scope))
+    Some(exprItem.selectorSuffixs.foldLeft(v) {
+      (v, selectorSuffix) => {
+        getOrError(new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope))
+      }
+    })
   }
 }
 
-class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) {
+class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = simpleExprItem match {
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
@@ -72,19 +87,19 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) {
   }
 }
 
-class RunnableIntegerConstant(val integerConstant: IntegerConstant) {
+class RunnableIntegerConstant(val integerConstant: IntegerConstant) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] =
       Some(NumberValue(integerConstant.int))
 }
 
-class RunnableStringLiteral(val stringLiteral: StringLiteral) {
+class RunnableStringLiteral(val stringLiteral: StringLiteral) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] =
       Some(StringValue(stringLiteral.str))
 }
 
-class RunnableIdentifier(val identifier: Identifier) {
+class RunnableIdentifier(val identifier: Identifier) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
     scope.get(identifier.id) match {
@@ -95,7 +110,7 @@ class RunnableIdentifier(val identifier: Identifier) {
   }
 }
 
-class RunnableFuncCall(val funcCall: FuncCall) {
+class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
     // Steps:
@@ -115,7 +130,7 @@ class RunnableFuncCall(val funcCall: FuncCall) {
   }
 }
 
-class RunnableExprList(val exprList: ExprList) {
+class RunnableExprList(val exprList: ExprList) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] =
       Some(ListValue(exprList.exprs.map {
@@ -129,20 +144,11 @@ class RunnableExprList(val exprList: ExprList) {
       }))
 }
 
-class RunnableExpr(val expr: Expr) {
+class RunnableExpr(val expr: Expr) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
-
-    def getOrError(v: Option[Value]): Value = v match {
-      case Some(value) => value
-      case None => {
-        // TODO(timgreen): better error message
-        throw new EvalException("None is not allowed in expr")
-      }
-    }
-
     val it = expr.exprItems.iterator
-    var v = getOrError(it.next.run(path, scope.newChildScope))
+    val v = getOrError(it.next.run(path, scope.newChildScope))
     Some(expr.ops.foldLeft(v) {
       _.op(_, getOrError(it.next.run(path, scope.newChildScope)))
     })
@@ -150,7 +156,29 @@ class RunnableExpr(val expr: Expr) {
 
 }
 
-class RunnableFuncDef(val funcDef: FuncDef, val scope: Scope) {
+class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
+    extends RunnableUnit {
+
+  def run(path: String, scope: Scope): Option[Value] = selectorSuffix match {
+    case is: IdSuffix => new RunnableIdSuffix(is, v).run(path, scope)
+    case cs: CallSuffix => new RunnableCallSuffix(cs, v).run(path, scope)
+  }
+}
+
+class RunnableIdSuffix(val idSuffix: IdSuffix, val v: Value) extends RunnableUnit {
+
+  def run(path: String, scope: Scope): Option[Value] = Some(v.attr(idSuffix.id))
+}
+
+class RunnableCallSuffix(val callSuffix: CallSuffix, val v: Value) extends RunnableUnit {
+
+  def run(path: String, scope: Scope): Option[Value] = {
+    // TODO(timgreen):
+    None
+  }
+}
+
+class RunnableFuncDef(val funcDef: FuncDef, val scope: Scope) extends RunnableUnit {
 
   def run(path: String, argList: ArgList): Option[Value] = {
   // TODO(timgreen):
