@@ -5,7 +5,7 @@ class CookConfig(val statements: Array[Statement])
 abstract class Statement
 
 abstract class FuncStatement extends Statement
-case class Assginment(id: String, value: Expr) extends FuncStatement
+case class Assginment(id: String, expr: Expr) extends FuncStatement
 
 case class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Array[SelectorSuffix])
 
