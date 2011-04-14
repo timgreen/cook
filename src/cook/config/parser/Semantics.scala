@@ -1,5 +1,6 @@
 package cook.config.parser
 
+import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 import cook.config.parser.unit._
@@ -18,7 +19,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 0 until rhsSize if rhs(i).isA("Statement")) yield {
           rhs(i).get.asInstanceOf[Statement]
         }
-    config = new CookConfig(statements.toArray)
+    config = new CookConfig(statements)
   }
 
   def statement {
@@ -27,7 +28,12 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   def funcCall {
     val id   = rhs(0).get.asInstanceOf[String]
-    val args = if (rhs(2).isA("ArgList")) rhs(2).get.asInstanceOf[Array[Arg]] else Array[Arg]()
+    val args =
+        if (rhs(2).isA("ArgList")) {
+          rhs(2).get.asInstanceOf[Seq[Arg]]
+        } else {
+          ArrayBuffer[Arg]()
+        }
     lhs.put(new FuncCall(id, args))
   }
 
@@ -46,7 +52,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 1 until rhsSize if i % 2 == 1) yield {
           rhs(i).text.substring(0, 1)
         }
-    lhs.put(new Expr(exprItems.toArray, ops.toArray))
+    lhs.put(new Expr(exprItems, ops))
   }
 
   def exprItem {
@@ -55,7 +61,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 1 until rhsSize if rhs(i).isA("SelectorSuffix")) yield {
           rhs(i).get.asInstanceOf[SelectorSuffix]
         }
-    lhs.put(new ExprItem(simpleExprItem, selectorSuffixs.toArray))
+    lhs.put(new ExprItem(simpleExprItem, selectorSuffixs))
   }
 
 
@@ -76,9 +82,9 @@ class Semantics extends mouse.runtime.SemanticsBase {
         } else if (rhs(0).isA("LBRK")) {
           val exprList =
               if (rhs(1).isA("ExprList")) {
-                rhs(1).get.asInstanceOf[Array[Expr]]
+                rhs(1).get.asInstanceOf[Seq[Expr]]
               } else {
-                Array[Expr]()
+                ArrayBuffer[Expr]()
               }
           new ExprList(exprList)
         } else if (rhs(1).isA("Expr")) {
@@ -94,7 +100,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 0 until rhsSize if rhs(i).isA("Expr")) yield {
           rhs(i).get.asInstanceOf[Expr]
         }
-    lhs.put(exprs.toArray)
+    lhs.put(exprs)
   }
 
   def argList {
@@ -102,7 +108,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         for (i <- 0 until rhsSize if rhs(i).isA("Arg")) yield {
           rhs(i).get.asInstanceOf[Arg]
         }
-    lhs.put(args.toArray)
+    lhs.put(args)
   }
 
   def arg {
@@ -132,7 +138,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   def funcDef {
     val name = rhs(1).get.asInstanceOf[String]
-    val args = rhs(3).get.asInstanceOf[Array[Arg]]
+    val args = rhs(3).get.asInstanceOf[Seq[Arg]]
 
     var i = 6
     val statements = new ArrayBuffer[FuncStatement]
@@ -143,7 +149,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
     val returnStatement = rhs(i).get.asInstanceOf[ReturnStatement]
 
-    lhs.put(new FuncDef(name, args, statements.toArray, returnStatement))
+    lhs.put(new FuncDef(name, args, statements, returnStatement))
   }
 
   def funcStatement {

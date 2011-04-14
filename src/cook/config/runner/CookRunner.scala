@@ -10,6 +10,7 @@ import cook.config.runner.unit.RunnableUnitWrapper._
 
 object CookRunner {
 
+  // TODO(timgreen): DO WITH COOK_ROOT
   def run(path: String, configFile: File): Scope = {
     if (configToScopeMap.contains(path)) {
       return configToScopeMap(path)
@@ -24,6 +25,4 @@ object CookRunner {
 
   private[runner]
   val configToScopeMap: HashMap[String, Scope] = new HashMap[String, Scope]
-
-  def rootScope = configToScopeMap("COOK_ROOT")
 }

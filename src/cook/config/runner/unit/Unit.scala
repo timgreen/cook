@@ -1,53 +1,42 @@
 package cook.config.runner.unit
 
+import scala.collection.Seq
+
 import cook.config.parser.unit._
 import cook.config.runner.Scope
 import cook.config.runner.value._
 
-trait RunnableUnit {
-
-  def run(path: String, scope: Scope): Option[Value] = None
-}
-
 import RunnableUnitWrapper._
 
-class RunnableCookConfig(cookConfig: CookConfig) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = cookConfig
+class RunnableCookConfig(val cookConfig: CookConfig) {
 
-  override def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Option[Value] = {
     cookConfig.statements.foreach(_.run(path, scope))
     None
   }
 }
 
-class RunnableStatement(statement: Statement) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = statement
+class RunnableStatement(val statement: Statement) {
 
-  override def run(path: String, scope: Scope): Option[Value] = statement match {
+  def run(path: String, scope: Scope): Option[Value] = statement match {
     case funcStatement: FuncStatement => funcStatement.run(path, scope)
     case funcDef: FuncDef => funcDef.run(path, scope)
     case _ => None
   }
 }
 
-class RunnableFuncStatement(funcStatement: FuncStatement) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = funcStatement
+class RunnableFuncStatement(val funcStatement: FuncStatement) {
 
-  override def run(path: String, scope: Scope): Option[Value] = funcStatement match {
+  def run(path: String, scope: Scope): Option[Value] = funcStatement match {
     case assginment: Assginment => assginment.run(path, scope)
     case simpleExprItem: SimpleExprItem => simpleExprItem.run(path, scope)
     case _ => None
   }
 }
 
-class RunnableAssginment(assginment: Assginment) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = assginment
+class RunnableAssginment(val assginment: Assginment) {
 
-  override def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Option[Value] = {
     if (scope.definedInParent(assginment.id)) {
       // TODO(timgreen): log warning
     }
@@ -64,11 +53,9 @@ class RunnableAssginment(assginment: Assginment) extends Proxy with RunnableUnit
   }
 }
 
-class RunnableSimpleExprItem(simpleExprItem: SimpleExprItem) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = simpleExprItem
+class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) {
 
-  override def run(path: String, scope: Scope): Option[Value] = simpleExprItem match {
+  def run(path: String, scope: Scope): Option[Value] = simpleExprItem match {
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
     case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
     case identifier: Identifier => identifier.run(path, scope)
@@ -77,45 +64,82 @@ class RunnableSimpleExprItem(simpleExprItem: SimpleExprItem) extends Proxy with 
   }
 }
 
-class RunnableIntegerConstant(integerConstant: IntegerConstant) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = integerConstant
+class RunnableIntegerConstant(val integerConstant: IntegerConstant) {
 
-  override def run(path: String, scope: Scope): Option[Value] =
+  def run(path: String, scope: Scope): Option[Value] =
       Some(NumberValue(integerConstant.int))
 }
 
-class RunnableStringLiteral(stringLiteral: StringLiteral) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = stringLiteral
+class RunnableStringLiteral(val stringLiteral: StringLiteral) {
 
-  override def run(path: String, scope: Scope): Option[Value] =
+  def run(path: String, scope: Scope): Option[Value] =
       Some(StringValue(stringLiteral.str))
 }
 
-class RunnableIdentifier(identifier: Identifier) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = identifier
+class RunnableIdentifier(val identifier: Identifier) {
 
-  override def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Option[Value] = {
     scope.get(identifier.id) match {
       case Some(value) => return Some(value)
-      case None => throw new EvalConfigException("var \"%s\" not defined".format(identifier.id))
+      case None => throw new EvalConfigException("var \"%s\" is not defined".format(identifier.id))
     }
     None
   }
 }
 
-class RunnableExpr(expr: Expr) extends Proxy with RunnableUnit {
-  // Proxy.self
-  def self: Any = expr
+class RunnableFuncCall(val funcCall: FuncCall) {
 
-  override def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Option[Value] = {
+    // Steps:
+    // 1. eval args into values, & wrapper into ArgList object
+    // 2. check function def
+    // 3. call function in new scope
+    // 4. return result
 
+    val args = new ArgList(funcCall.args)
+
+    // TODO(timgreen): impl buildin
+
+    scope.getFunc(funcCall.name) match {
+      case Some(runnableFuncDef) => return runnableFuncDef.run(path, args)
+      case None => throw new EvalConfigException("func \"%s\" is not defined".format(funcCall.name))
+    }
+  }
+}
+
+class RunnableExprList(val exprList: ExprList) {
+
+  def run(path: String, scope: Scope): Option[Value] =
+      Some(ListValue(exprList.exprs.map {
+        _.run(path, scope.newChildScope) match {
+          case Some(value) => value
+          case None => {
+            // TODO(timgreen): better error message
+            throw new EvalConfigException("find None in Expr List")
+          }
+        }
+      }))
+}
+
+class RunnableExpr(val expr: Expr) {
+
+  def run(path: String, scope: Scope): Option[Value] = {
     // TODO(timgreen):
     None
   }
 
+}
+
+class RunnableFuncDef(val funcDef: FuncDef, val scope: Scope) {
+
+  def run(path: String, argList: ArgList): Option[Value] = {
+  // TODO(timgreen):
+    None
+  }
+}
+
+class ArgList(args: Seq[Arg]) {
+  // TODO(timgreen):
 }
 
 class EvalConfigException(error: String) extends RuntimeException
@@ -137,6 +161,4 @@ object RunnableUnitWrapper {
   implicit def toRunnableUnit(identifier: Identifier) = new RunnableIdentifier(identifier)
 
   implicit def toRunnableUnit(expr: Expr) = new RunnableExpr(expr)
-
-
 }
