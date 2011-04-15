@@ -5,10 +5,10 @@ scala_lib(
 
 scala_lib(
   name = "runnable",
-  srcs = [
-      "unit/Unit.scala",
+  srcs = glob([
+      "unit/*.scala",
       "Scope.scala",
-  ],
+  ]),
   deps = [
       ":exception",
       "//src/cook/config/runner/value"

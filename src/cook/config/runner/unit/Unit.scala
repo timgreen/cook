@@ -205,30 +205,6 @@ class RunnableFuncDef(
   }
 }
 
-class ArgsValue(args: Seq[Arg]) {
-  // TODO(timgreen):
-}
-
-object ArgsValue {
-
-  def apply(args: Seq[Arg], path: String, scope: Scope): ArgsValue = {
-    // TODO(timgreen):
-    null
-  }
-}
-
-class ArgsDef() {
-
-}
-
-object ArgsDef {
-
-  def apply(args: Seq[ArgDef], path: String, scope: Scope): ArgsDef = {
-    // TODO(timgreen):
-    null
-  }
-}
-
 object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(cookConfig: CookConfig) = new RunnableCookConfig(cookConfig)
