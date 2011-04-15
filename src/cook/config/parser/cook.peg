@@ -29,9 +29,13 @@ ArgList         = Arg ( COMMA Arg )* COMMA?                               {argLi
 
 Arg             = ( !Keyword Identifier EQU Expr / Expr )                 {arg} ;
 
+ArgDefList      = ArgDef ( COMMA ArgDef )* COMMA?                         {argDefList} ;
+
+ArgDef          = !Keyword Identifier ( EQU Expr )?                       {argDef};
+
 SelectorSuffix  = DOT ( Identifier ![(] / FuncCall )                      {selectorSuffix} ;
 
-FuncDef         = DEF !Keyword Identifier LPAR ArgList RPAR LWING
+FuncDef         = DEF !Keyword Identifier LPAR ArgDefList? RPAR LWING
                   FuncStatement* ReturnStatement? RWING                   {funcDef} ;
 
 FuncStatement   = ( FuncCall / Assginment )                               {funcStatement} ;

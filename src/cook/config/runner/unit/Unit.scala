@@ -32,8 +32,21 @@ class RunnableStatement(val statement: Statement) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = statement match {
     case funcStatement: FuncStatement => funcStatement.run(path, scope)
-    case funcDef: FuncDef => funcDef.run(path, scope)
-    case _ => None
+    case funcDef: FuncDef => {
+      if (scope.funcDefinedInParent(funcDef.name)) {
+        // TODO(timgreen): log warning
+      }
+
+      val argsDef = ArgsDef(funcDef.argDefs, path, scope)
+      val runnableFuncDef = new RunnableFuncDef(funcDef.name,
+                                                scope,
+                                                argsDef,
+                                                funcDef.statements,
+                                                funcDef.returnStatement)
+
+      scope.funcs.put(funcDef.name, runnableFuncDef)
+      None
+    }
   }
 }
 
@@ -104,13 +117,11 @@ class RunnableStringLiteral(val stringLiteral: StringLiteral) extends RunnableUn
 
 class RunnableIdentifier(val identifier: Identifier) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
-    scope.get(identifier.id) match {
-      case Some(value) => return Some(value)
-      case None => throw new EvalException("var \"%s\" is not defined".format(identifier.id))
-    }
-    None
-  }
+  def run(path: String, scope: Scope): Option[Value] =
+      scope.get(identifier.id) match {
+        case Some(value) => return Some(value)
+        case None => throw new EvalException("var \"%s\" is not defined".format(identifier.id))
+      }
 }
 
 class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
@@ -122,7 +133,7 @@ class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
     // 3. call function in new scope
     // 4. return result
 
-    val args = new ArgList(funcCall.args)
+    val args = ArgsValue(funcCall.args, path, scope)
 
     // TODO(timgreen): impl buildin
 
@@ -181,16 +192,41 @@ class RunnableCallSuffix(val callSuffix: CallSuffix, val v: Value) extends Runna
   }
 }
 
-class RunnableFuncDef(val funcDef: FuncDef, val scope: Scope) extends RunnableUnit {
+class RunnableFuncDef(
+    val name: String,
+    val scope: Scope,
+    val argsDef: ArgsDef,
+    val statements: Seq[FuncStatement],
+    val returnStatement: Option[Expr]) extends RunnableUnit {
 
-  def run(path: String, argList: ArgList): Option[Value] = {
+  def run(path: String, argsValue: ArgsValue): Option[Value] = {
   // TODO(timgreen):
     None
   }
 }
 
-class ArgList(args: Seq[Arg]) {
+class ArgsValue(args: Seq[Arg]) {
   // TODO(timgreen):
+}
+
+object ArgsValue {
+
+  def apply(args: Seq[Arg], path: String, scope: Scope): ArgsValue = {
+    // TODO(timgreen):
+    null
+  }
+}
+
+class ArgsDef() {
+
+}
+
+object ArgsDef {
+
+  def apply(args: Seq[ArgDef], path: String, scope: Scope): ArgsDef = {
+    // TODO(timgreen):
+    null
+  }
 }
 
 object RunnableUnitWrapper {

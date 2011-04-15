@@ -124,6 +124,26 @@ class Semantics extends mouse.runtime.SemanticsBase {
     lhs.put(a)
   }
 
+  def argDefList {
+    val argDefs =
+        for (i <- 0 until rhsSize if rhs(i).isA("ArgDef")) yield {
+          rhs(i).get.asInstanceOf[ArgDef]
+        }
+    lhs.put(argDefs)
+  }
+
+  def argDef {
+    val name = rhs(0).get.asInstanceOf[String]
+    val ad =
+        if (rhsSize > 1) {
+          val value = rhs(2).get.asInstanceOf[Expr]
+          new ArgDefNameValue(name, value)
+        } else {
+          new ArgDefName(name)
+        }
+    lhs.put(ad)
+  }
+
   def selectorSuffix {
     val s =
         if (rhs(1).isA("Identifier")) {
@@ -138,18 +158,30 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   def funcDef {
     val name = rhs(1).get.asInstanceOf[String]
-    val args = rhs(3).get.asInstanceOf[Seq[Arg]]
+    val argDefs =
+        if (rhs(3).isA("ArgDefList")) {
+          rhs(3).get.asInstanceOf[Seq[ArgDef]]
+        } else {
+          Seq[ArgDef]()
+        }
 
-    var i = 6
+    var i = 4
     val statements = new ArrayBuffer[FuncStatement]
-    while (rhs(i).isA("FuncStatement")) {
-      statements += rhs(i).asInstanceOf[FuncStatement]
+    while (!rhs(i).isA("ReturnStatement") && !rhs(i).isA("RWING")) {
+      if (rhs(i).isA("FuncStatement")) {
+        statements += rhs(i).asInstanceOf[FuncStatement]
+      }
       i = i + 1
     }
 
-    val returnStatement = rhs(i).get.asInstanceOf[ReturnStatement]
+    val returnStatement =
+        if (rhs(i).isA("ReturnStatement")) {
+          Some(rhs(i).get.asInstanceOf[Expr])
+        } else {
+          None
+        }
 
-    lhs.put(new FuncDef(name, args, statements, returnStatement))
+    lhs.put(new FuncDef(name, argDefs, statements, returnStatement))
   }
 
   def funcStatement {
@@ -158,7 +190,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   def returnStatement {
     val expr = rhs(1).get.asInstanceOf[Expr]
-    lhs.put(new ReturnStatement(expr))
+    lhs.put(expr)
   }
 
   // Lexical elements
