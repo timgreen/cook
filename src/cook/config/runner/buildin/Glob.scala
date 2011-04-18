@@ -3,7 +3,6 @@ package cook.config.runner.buildin
 import scala.collection.mutable.HashMap
 
 import java.io.File
-import java.io.FilenameFilter
 
 import org.apache.tools.ant.DirectoryScanner
 

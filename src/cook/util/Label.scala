@@ -3,7 +3,7 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Seq
 
 abstract class Label {
   protected var hashObj: String = null
@@ -17,7 +17,7 @@ abstract class Label {
   }
 }
 
-class FileLabel(pathFromRoot: Array[String], name: String) extends Label {
+class FileLabel(pathFromRoot: Seq[String], name: String) extends Label {
   val filename = "%s/%s".format(pathFromRoot.mkString("/"), name)
   val file = new File(filename)
   throw new FileNotFoundException(file.getPath)
@@ -25,7 +25,7 @@ class FileLabel(pathFromRoot: Array[String], name: String) extends Label {
   hashObj = filename
 }
 
-class TargetLabel(pathFromRoot: Array[String], name: String) extends Label {
+class TargetLabel(pathFromRoot: Seq[String], name: String) extends Label {
 
   val isRootLabel = false
 
@@ -42,17 +42,16 @@ class TargetLabel(pathFromRoot: Array[String], name: String) extends Label {
 
   hashObj = targetFullname
 
-  val pathSeq: Array[String] = if (targetFullname.indexOf(':') != -1) {
+  val pathSeq: Seq[String] = if (targetFullname.indexOf(':') != -1) {
     // "//package_a/package_b/package_c:target_name"
-    targetFullname.drop(2).split(Array(':', '/'))
+    targetFullname.drop(2).split(Array(':', '/')).toSeq
   } else {
     // "//package_a/package_b/package_c"
     // =
     // "//package_a/package_b/package_c:package_c"
-    val t = new ArrayBuffer[String]
+    val t = new Seq[String]
     t.appendAll(targetFullname.drop(2).split('/'))
     t.append(t.last)
-    t.toArray
   }
 
   def targetName = pathSeq.last
@@ -72,7 +71,7 @@ class TargetLabel(pathFromRoot: Array[String], name: String) extends Label {
 
 object Label {
 
-  def apply(pathFromRoot: Array[String], name: String): Label = {
+  def apply(pathFromRoot: Seq[String], name: String): Label = {
     if ("//|:".r.findPrefixOf(name) != None) {
       new TargetLabel(pathFromRoot, name)
     } else {
@@ -83,7 +82,7 @@ object Label {
   /**
    * Special TargetLabel stand for "COOK_ROOT" file
    */
-  val ROOT_LABEL = new TargetLabel(Array(), "COOK_ROOT") {
+  val ROOT_LABEL = new TargetLabel(Seq(), "COOK_ROOT") {
     override val isRootLabel = true
   }
 }

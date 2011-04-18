@@ -11,7 +11,7 @@ class Target(
     val exeCmd: String) {
 
   /**
-   *
+   * Only executeable target can be run by "cook run"
    */
   def isExecutable = (exeCmd != null)
 

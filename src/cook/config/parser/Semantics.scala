@@ -1,7 +1,7 @@
 package cook.config.parser
 
 import scala.collection.Seq
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Seq
 
 import cook.config.parser.unit._
 
@@ -32,7 +32,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         if (rhs(2).isA("ArgList")) {
           rhs(2).get.asInstanceOf[Seq[Arg]]
         } else {
-          ArrayBuffer[Arg]()
+          Seq[Arg]()
         }
     lhs.put(new FuncCall(id, args))
   }
@@ -84,7 +84,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
               if (rhs(1).isA("ExprList")) {
                 rhs(1).get.asInstanceOf[Seq[Expr]]
               } else {
-                ArrayBuffer[Expr]()
+                Seq[Expr]()
               }
           new ExprList(exprList)
         } else if (rhs(1).isA("Expr")) {
@@ -166,7 +166,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         }
 
     var i = 4
-    val statements = new ArrayBuffer[FuncStatement]
+    val statements = new Seq[FuncStatement]
     while (!rhs(i).isA("ReturnStatement") && !rhs(i).isA("RWING")) {
       if (rhs(i).isA("FuncStatement")) {
         statements += rhs(i).asInstanceOf[FuncStatement]
@@ -223,5 +223,5 @@ class Semantics extends mouse.runtime.SemanticsBase {
 
   private
   var config: CookConfig = null
-  var errors: Array[String] = null
+  var errors: Seq[String] = null
 }
