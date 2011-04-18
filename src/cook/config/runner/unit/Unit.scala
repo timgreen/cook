@@ -37,8 +37,10 @@ trait RunnableUnit {
         }
       })
     }
-    // TODO(timgreen): better error message
-    throw new EvalException("Need List StringValue here")
+    case _ => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need List StringValue here")
+    }
   }
 }
 
