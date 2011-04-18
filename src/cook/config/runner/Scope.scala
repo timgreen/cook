@@ -44,6 +44,7 @@ object Scope {
 
   private def initRootScope {
     ROOT_SCOPE.funcs.put("glob", new Glob)
+    ROOT_SCOPE.funcs.put("path", new Path)
   }
 
   initRootScope
