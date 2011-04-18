@@ -9,7 +9,7 @@ GEN_DIR=$ROOT/cook_gen
 BUILD_DIR=$ROOT/cook_build
 BIN_DIR=$ROOT/cook_bin
 
-CP=$LIB/Mouse-1.3.jar:$LIB/scala-library.jar
+CP=$LIB/Mouse-1.3.jar:$LIB/scala-library.jar:$LIB/ant.jar
 RUNTIM_CP=$LIB/Mouse-1.3.runtime.jar
 SCALA_TEST_CP=$LIB/scalatest-1.3.jar
 

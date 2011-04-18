@@ -6,6 +6,7 @@ scala_lib(
 scala_lib(
   name = "runnable",
   srcs = glob([
+      "buildin/*.scala",
       "unit/*.scala",
       "Scope.scala",
   ]),
