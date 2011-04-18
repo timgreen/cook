@@ -41,7 +41,7 @@ object ArgsValue extends RunnableUnit {
                 .format(name, runnableFuncDef.name))
           }
           names += name
-          val value = getOrError(expr.run(path, scope))
+          val value = expr.run(path, scope).sureNotNull
           values.put(name, value)
         }
         case _ => throw new EvalException(
@@ -62,7 +62,7 @@ object ArgsValue extends RunnableUnit {
             expr
           }
         }
-        val value = getOrError(expr.run(path, scope))
+        val value = expr.run(path, scope).sureNotNull
         values.put(name, value)
       }
 
@@ -84,7 +84,7 @@ object ArgsDef extends RunnableUnit {
       _ match {
         case ArgDefName(name) => name
         case ArgDefNameValue(name, expr) => {
-          val value = getOrError(expr.run(path, scope))
+          val value = expr.run(path, scope).sureNotNull
           defaultValues.put(name, value)
           name
         }

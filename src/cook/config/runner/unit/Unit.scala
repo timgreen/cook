@@ -46,15 +46,15 @@ trait RunnableUnit {
 
 class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Value = {
     cookConfig.statements.foreach(_.run(path, scope))
-    None
+    NullValue()
   }
 }
 
 class RunnableStatement(val statement: Statement) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = statement match {
+  def run(path: String, scope: Scope): Value = statement match {
     case funcStatement: FuncStatement => funcStatement.run(path, scope)
     case funcDef: FuncDef => {
       if (scope.funcDefinedInParent(funcDef.name)) {
@@ -69,95 +69,91 @@ class RunnableStatement(val statement: Statement) extends RunnableUnit {
                                                 funcDef.returnStatement)
 
       scope.funcs.put(funcDef.name, runnableFuncDef)
-      None
+      NullValue()
     }
   }
 }
 
 class RunnableFuncStatement(val funcStatement: FuncStatement) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = funcStatement match {
+  def run(path: String, scope: Scope): Value = funcStatement match {
     case assginment: Assginment => assginment.run(path, scope)
     case simpleExprItem: SimpleExprItem => simpleExprItem.run(path, scope)
-    case _ => None
+    case _ => NullValue()
   }
 }
 
 class RunnableAssginment(val assginment: Assginment) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Value = {
     if (scope.definedInParent(assginment.id)) {
       // TODO(timgreen): log warning
     }
 
-    assginment.expr.run(path, scope.newChildScope) match {
-      case Some(value) => scope.vars.put(assginment.id, value)
-      case None => {
-        throw new EvalException(
-            "Assginment error: can not assign None to \"%s\"".format(assginment.id))
-      }
+    val value = assginment.expr.run(path, scope)
+    if (value.isNull) {
+      throw new EvalException(
+          "Assginment error: can not assign None to \"%s\"".format(assginment.id))
     }
+    scope.vars.put(assginment.id, value)
 
-    None
+    NullValue()
   }
 }
 
 class RunnableExprItem(val exprItem: ExprItem) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
-    val v = getOrError(exprItem.simpleExprItem.run(path, scope))
-    Some(exprItem.selectorSuffixs.foldLeft(v) {
+  def run(path: String, scope: Scope): Value = {
+    val v = exprItem.simpleExprItem.run(path, scope).sureNotNull
+    exprItem.selectorSuffixs.foldLeft(v) {
       (v, selectorSuffix) => {
-        getOrError(new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope))
+        new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope).sureNotNull
       }
-    })
+    }
   }
 }
 
 class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = simpleExprItem match {
+  def run(path: String, scope: Scope): Value = simpleExprItem match {
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
     case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
     case identifier: Identifier => identifier.run(path, scope)
-    case funcCall: FuncCall => None  // TODO(timgreen): impl
+    case funcCall: FuncCall => NullValue()  // TODO(timgreen): impl
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
-    case _ => None
+    case _ => NullValue()
   }
 }
 
 class RunnableIntegerConstant(val integerConstant: IntegerConstant) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] =
-      Some(NumberValue(integerConstant.int))
+  def run(path: String, scope: Scope): Value = NumberValue(integerConstant.int)
 }
 
 class RunnableStringLiteral(val stringLiteral: StringLiteral) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] =
-      Some(StringValue(stringLiteral.str))
+  def run(path: String, scope: Scope): Value = StringValue(stringLiteral.str)
 }
 
 class RunnableIdentifier(val identifier: Identifier) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] =
+  def run(path: String, scope: Scope): Value =
       scope.get(identifier.id) match {
-        case Some(value) => return Some(value)
+        case Some(value) => value
         case None => throw new EvalException("var \"%s\" is not defined".format(identifier.id))
       }
 }
 
 class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Value = {
     // Steps:
     // 1. check function def
     // 2. eval args into values, & wrapper into ArgList object
     // 3. call function in new scope
     // 4. return result
 
-    // TODO(timgreen): impl buildin
     val runnableFuncDef =
         scope.getFunc(funcCall.name) match {
           case Some(runnableFuncDef) => runnableFuncDef
@@ -171,26 +167,20 @@ class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
 
 class RunnableExprList(val exprList: ExprList) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] =
-      Some(ListValue(exprList.exprs.map {
-        _.run(path, scope.newChildScope) match {
-          case Some(value) => value
-          case None => {
-            // TODO(timgreen): better error message
-            throw new EvalException("None is not allowed in Expr List")
-          }
-        }
-      }))
+  def run(path: String, scope: Scope): Value =
+      ListValue(exprList.exprs.map {
+        _.run(path, scope.newChildScope).sureNotNull
+      })
 }
 
 class RunnableExpr(val expr: Expr) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Value = {
     val it = expr.exprItems.iterator
-    val v = getOrError(it.next.run(path, scope.newChildScope))
-    Some(expr.ops.foldLeft(v) {
-      _.op(_, getOrError(it.next.run(path, scope.newChildScope)))
-    })
+    val v = it.next.run(path, scope.newChildScope).sureNotNull
+    expr.ops.foldLeft(v) {
+      _.op(_, it.next.run(path, scope.newChildScope).sureNotNull)
+    }
   }
 
 }
@@ -198,7 +188,7 @@ class RunnableExpr(val expr: Expr) extends RunnableUnit {
 class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
     extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = selectorSuffix match {
+  def run(path: String, scope: Scope): Value = selectorSuffix match {
     case is: IdSuffix => new RunnableIdSuffix(is, v).run(path, scope)
     case cs: CallSuffix => new RunnableCallSuffix(cs, v).run(path, scope)
   }
@@ -206,14 +196,14 @@ class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
 
 class RunnableIdSuffix(val idSuffix: IdSuffix, val v: Value) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = Some(v.attr(idSuffix.id))
+  def run(path: String, scope: Scope): Value = v.attr(idSuffix.id)
 }
 
 class RunnableCallSuffix(val callSuffix: CallSuffix, val v: Value) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Option[Value] = {
+  def run(path: String, scope: Scope): Value = {
     // TODO(timgreen):
-    None
+    NullValue()
   }
 }
 
@@ -224,14 +214,14 @@ class RunnableFuncDef(
     val statements: Seq[FuncStatement],
     val returnStatement: Option[Expr]) extends RunnableUnit {
 
-  def run(path: String, argsValue: ArgsValue): Option[Value] = {
+  def run(path: String, argsValue: ArgsValue): Value = {
     for (statement <- statements) {
       statement.run(path, argsValue)
     }
 
     returnStatement match {
-      case Some(expr) => Some(getOrError(expr.run(path, scope)))
-      case None => None
+      case Some(expr) => expr.run(path, scope).sureNotNull
+      case None => NullValue()
     }
   }
 }

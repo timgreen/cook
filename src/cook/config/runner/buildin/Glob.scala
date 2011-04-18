@@ -22,7 +22,7 @@ import cook.config.runner.value._
  */
 class Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
 
-  override def run(path: String, argsValue: ArgsValue): Option[Value] = {
+  override def run(path: String, argsValue: ArgsValue): Value = {
     val filters = getOrError(argsValue.get("filters")) match {
       case ListValue(list) => list.map {
         _ match {
@@ -40,7 +40,7 @@ class Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null
 
     val files = dirScanner.getIncludedFiles
 
-    Some(ListValue(files.map { StringValue(_) }))
+    ListValue(files.map { StringValue(_) })
   }
 }
 

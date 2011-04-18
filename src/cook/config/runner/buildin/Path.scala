@@ -17,7 +17,7 @@ import cook.config.runner.value._
  */
 class Path extends RunnableFuncDef("path", Scope.ROOT_SCOPE, PathArgsDef(), null, null) {
 
-  override def run(path: String, argsValue: ArgsValue): Option[Value] = Some(StringValue(path))
+  override def run(path: String, argsValue: ArgsValue): Value = StringValue(path)
 }
 
 object PathArgsDef {

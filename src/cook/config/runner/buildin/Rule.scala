@@ -31,7 +31,7 @@ import cook.target.Targets
  */
 class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null, null) {
 
-  override def run(path: String, argsValue: ArgsValue): Option[Value] = {
+  override def run(path: String, argsValue: ArgsValue): Value = {
     // create rule "path:name" and store it
 
     val name = getStringOrError(argsValue.get("name"))
@@ -51,7 +51,7 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
 
     Targets.push(new Target(name, basePath, input, output, deps, exeCmd))
 
-    None
+    NullValue()
   }
 }
 

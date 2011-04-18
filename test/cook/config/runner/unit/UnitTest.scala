@@ -20,13 +20,13 @@ class UnitTest extends FlatSpec with ShouldMatchers {
   "String" should "have attr 'size'" in {
     val exprItem = ExprItem(StringLiteral("str"), Seq[SelectorSuffix](IdSuffix("size")))
     val result = exprItem.run("", Scope())
-    result.get should be (NumberValue(3))
+    result should be (NumberValue(3))
   }
 
   it should "have attr 'length'" in {
     val exprItem = ExprItem(StringLiteral("123456789"), Seq[SelectorSuffix](IdSuffix("length")))
     val result = exprItem.run("", Scope())
-    result.get should be (NumberValue(9))
+    result should be (NumberValue(9))
   }
 
   it should "report error on unknown attr" in {
@@ -40,7 +40,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val intB = ExprItem(IntegerConstant(9), Seq[SelectorSuffix]())
     val expr = Expr(Seq(intA, intB), Seq("+"))
     val result = expr.run("", Scope())
-    result.get should be (NumberValue(10))
+    result should be (NumberValue(10))
   }
 
   "\"a\" + \"b\"" should "= \"ab\"" in {
@@ -48,7 +48,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val strB = ExprItem(StringLiteral("b"), Seq[SelectorSuffix]())
     val expr = Expr(Seq(strA, strB), Seq("+"))
     val result = expr.run("", Scope())
-    result.get should be (StringValue("ab"))
+    result should be (StringValue("ab"))
   }
 
   "\"a\" + 1" should "= \"a1\"" in {
@@ -56,7 +56,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val strB = ExprItem(IntegerConstant(1), Seq[SelectorSuffix]())
     val expr = Expr(Seq(strA, strB), Seq("+"))
     val result = expr.run("", Scope())
-    result.get should be (StringValue("a1"))
+    result should be (StringValue("a1"))
   }
 
   "List" should "have attr 'length'" in {
@@ -65,7 +65,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val list = ExprList(Seq(Expr(Seq(int1), Seq[String]()), Expr(Seq(int2), Seq[String]())))
     val exprItem = ExprItem(list, Seq[SelectorSuffix](IdSuffix("length")))
     val result = exprItem.run("", Scope())
-    result.get should be (NumberValue(2))
+    result should be (NumberValue(2))
   }
 
   it should "have attr 'size'" in {
@@ -77,7 +77,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
                             Expr(Seq(int3), Seq[String]())))
     val exprItem = ExprItem(list, Seq[SelectorSuffix](IdSuffix("size")))
     val result = exprItem.run("", Scope())
-    result.get should be (NumberValue(3))
+    result should be (NumberValue(3))
   }
 
   "[1, 2]" should "= [1, 2]" in {
@@ -86,7 +86,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val list = ExprList(Seq(Expr(Seq(int1), Seq[String]()), Expr(Seq(int2), Seq[String]())))
     val exprItem = ExprItem(list, Seq[SelectorSuffix]())
     val result = exprItem.run("", Scope())
-    result.get should be (ListValue(Seq[Value](NumberValue(1), NumberValue(2))))
+    result should be (ListValue(Seq[Value](NumberValue(1), NumberValue(2))))
   }
 
   "[1, 2] + 3" should "= [1, 2, 3]" in {
@@ -96,7 +96,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val int3 = ExprItem(IntegerConstant(3), Seq[SelectorSuffix]())
     val expr = Expr(Seq(ExprItem(list, Seq[SelectorSuffix]()), int3), Seq("+"))
     val result = expr.run("", Scope())
-    result.get should be (ListValue(Seq[Value](NumberValue(1), NumberValue(2), NumberValue(3))))
+    result should be (ListValue(Seq[Value](NumberValue(1), NumberValue(2), NumberValue(3))))
   }
 
   "[1, 2] ++ [3, 4]" should "= [1, 2, 3, 4]" in {
@@ -109,7 +109,7 @@ class UnitTest extends FlatSpec with ShouldMatchers {
     val expr = Expr(Seq(ExprItem(listA, Seq[SelectorSuffix]()),
                         ExprItem(listB, Seq[SelectorSuffix]())), Seq("++"))
     val result = expr.run("", Scope())
-    result.get should be (ListValue(Seq[Value](
+    result should be (ListValue(Seq[Value](
         NumberValue(1), NumberValue(2), NumberValue(3), NumberValue(4))))
   }
 }

@@ -5,10 +5,23 @@ import scala.collection.Seq
 import cook.config.runner.EvalException
 
 abstract class Value {
+
   def typeName(): String
+
   def op(o: String, v: Value): Value
+
   def attr(id: String): Value
+
   def isNull = false
+
+  def sureNotNull(): Value = sureNotNull("Null is not allowed in expr")
+
+  def sureNotNull(errorMessage: String): Value = {
+    if (isNull) {
+      throw new EvalException(errorMessage)
+    }
+    this
+  }
 }
 
 case class NullValue() extends Value {
