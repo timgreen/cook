@@ -119,7 +119,7 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
     case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
     case identifier: Identifier => identifier.run(path, scope)
-    case funcCall: FuncCall => funcCall.run(path. scope)
+    case funcCall: FuncCall => funcCall.run(path, scope)
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
     case _ => NullValue()
