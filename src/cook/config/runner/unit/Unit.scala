@@ -201,8 +201,14 @@ class RunnableFuncDef(
     val returnStatement: Option[Expr]) extends RunnableUnit {
 
   def run(path: String, argsValue: ArgsValue): Option[Value] = {
-  // TODO(timgreen):
-    None
+    for (statement <- statements) {
+      statement.run(path, argsValue)
+    }
+
+    returnStatement match {
+      case Some(expr) => Some(getOrError(expr.run(path, scope)))
+      case None => None
+    }
   }
 }
 
