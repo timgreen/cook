@@ -9,7 +9,7 @@ import cook.config.runner.value._
 
 import RunnableUnitWrapper._
 
-abstract class RunnableUnit {
+trait RunnableUnit {
 
   def getOrError(v: Option[Value]): Value = v match {
     case Some(value) => value
@@ -128,19 +128,20 @@ class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Option[Value] = {
     // Steps:
-    // 1. eval args into values, & wrapper into ArgList object
-    // 2. check function def
+    // 1. check function def
+    // 2. eval args into values, & wrapper into ArgList object
     // 3. call function in new scope
     // 4. return result
 
-    val args = ArgsValue(funcCall.args, path, scope)
-
     // TODO(timgreen): impl buildin
+    val runnableFuncDef =
+        scope.getFunc(funcCall.name) match {
+          case Some(runnableFuncDef) => runnableFuncDef
+          case None => throw new EvalException("func \"%s\" is not defined".format(funcCall.name))
+        }
 
-    scope.getFunc(funcCall.name) match {
-      case Some(runnableFuncDef) => return runnableFuncDef.run(path, args)
-      case None => throw new EvalException("func \"%s\" is not defined".format(funcCall.name))
-    }
+    val args = ArgsValue(funcCall.args, runnableFuncDef, path, scope)
+    runnableFuncDef.run(path, args)
   }
 }
 
