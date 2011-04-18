@@ -15,8 +15,11 @@ object FileUtil {
       dir = dir.getParentFile
     } while (dir != null)
 
-    throw new CookRuntimeExcetion(
+    throw new FileNotFoundException(
         "Can not find Cook Build Root, from dir %s".format(currentDir.getPath))
   }
+
+  private[util]
+  def isRootDir(dir: File): Boolean = new File(dir, COOK_ROOT_FILENAME).exists
 
 }

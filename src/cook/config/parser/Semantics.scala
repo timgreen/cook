@@ -1,7 +1,7 @@
 package cook.config.parser
 
 import scala.collection.Seq
-import scala.collection.mutable.Seq
+import scala.collection.mutable.{ Seq => MutableSeq }
 
 import cook.config.parser.unit._
 
@@ -166,10 +166,10 @@ class Semantics extends mouse.runtime.SemanticsBase {
         }
 
     var i = 4
-    val statements = new Seq[FuncStatement]
+    val statements = MutableSeq[FuncStatement]()
     while (!rhs(i).isA("ReturnStatement") && !rhs(i).isA("RWING")) {
       if (rhs(i).isA("FuncStatement")) {
-        statements += rhs(i).asInstanceOf[FuncStatement]
+        statements :+ rhs(i).asInstanceOf[FuncStatement]
       }
       i = i + 1
     }

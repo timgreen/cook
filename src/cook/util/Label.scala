@@ -3,7 +3,8 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
-import scala.collection.mutable.Seq
+import scala.collection.Seq
+import scala.collection.mutable.{ Seq => MutableSeq }
 
 abstract class Label {
   protected var hashObj: String = null
@@ -49,17 +50,15 @@ class TargetLabel(pathFromRoot: Seq[String], name: String) extends Label {
     // "//package_a/package_b/package_c"
     // =
     // "//package_a/package_b/package_c:package_c"
-    val t = new Seq[String]
-    t.appendAll(targetFullname.drop(2).split('/'))
-    t.append(t.last)
+    var t = MutableSeq[String]()
+    t ++= (targetFullname.drop(2).split('/'))
+    t :+ t.last
   }
 
   def targetName = pathSeq.last
 
   val configFilename: String = {
-    val p = pathSeq.clone
-    p(p.length - 1) = "COOK"
-    p.mkString("/")
+    (pathSeq.take(pathSeq.length - 1) :+ "COOK").mkString("/")
   }
   val config = new File(configFilename)
 
