@@ -23,6 +23,12 @@ object FileUtil {
         "Can not find Cook Build Root, from dir %s".format(currentDir.getPath))
   }
 
+  def apply(filename: String): File = getFileFromRoot(filename)
+
+  def getFileFromRoot(filename: String): File = new File(root, filename)
+
+  def getRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
+
   private[util]
   var root: File = null
 

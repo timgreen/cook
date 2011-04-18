@@ -1,4 +1,4 @@
 scala_lib(
   name = "util",
-  srcs = [ "Label.scala" ]
+  srcs = glob([ "*.scala" ])
 )
