@@ -119,7 +119,7 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case integerConstant: IntegerConstant => integerConstant.run(path, scope)
     case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
     case identifier: Identifier => identifier.run(path, scope)
-    case funcCall: FuncCall => NullValue()  // TODO(timgreen): impl
+    case funcCall: FuncCall => funcCall.run(path. scope)
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
     case _ => NullValue()
@@ -169,7 +169,7 @@ class RunnableExprList(val exprList: ExprList) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value =
       ListValue(exprList.exprs.map {
-        _.run(path, scope.newChildScope).sureNotNull
+        _.run(path, scope).sureNotNull
       })
 }
 
@@ -177,9 +177,9 @@ class RunnableExpr(val expr: Expr) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value = {
     val it = expr.exprItems.iterator
-    val v = it.next.run(path, scope.newChildScope).sureNotNull
+    val v = it.next.run(path, scope).sureNotNull
     expr.ops.foldLeft(v) {
-      _.op(_, it.next.run(path, scope.newChildScope).sureNotNull)
+      _.op(_, it.next.run(path, scope).sureNotNull)
     }
   }
 

@@ -10,8 +10,6 @@ class Scope(val vars: HashMap[String, Value],
             val funcs: HashMap[String, RunnableFuncDef],
             val parent: Scope) {
 
-  def newChildScope = Scope(this)
-
   def definedInParent(id: String) = (get(parent, id) != None)
 
   def get(id: String): Option[Value] = get(this, id)
