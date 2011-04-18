@@ -8,6 +8,19 @@ abstract class Value {
   def typeName(): String
   def op(o: String, v: Value): Value
   def attr(id: String): Value
+  def isNull = false
+}
+
+case class NullValue() extends Value {
+
+  override def typeName = "Null"
+  override def op(o: String, v: Value): Value = {
+    throw new EvalException("Unsupportted operator \"%s\" on Null".format(o))
+  }
+  override def attr(id: String): Value = {
+    throw new EvalException("Unsupportted attr \"%s\" on Null".format(id))
+  }
+  override def isNull = true
 }
 
 case class NumberValue(int: Int) extends Value {
@@ -98,4 +111,7 @@ case class ListValue(list: Seq[Value]) extends Value {
   }
 }
 
+object ListValue {
 
+  def apply(): ListValue = ListValue(Seq[Value]())
+}

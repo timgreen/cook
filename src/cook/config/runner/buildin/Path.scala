@@ -1,14 +1,7 @@
 package cook.config.runner.buildin
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 
-import java.io.File
-import java.io.FilenameFilter
-
-import org.apache.tools.ant.DirectoryScanner
-
-import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit._
 import cook.config.runner.value._

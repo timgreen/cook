@@ -18,6 +18,28 @@ trait RunnableUnit {
       throw new EvalException("None is not allowed in expr")
     }
   }
+
+  def getStringOrError(v: Option[Value]): String = v match {
+    case Some(StringValue(str)) => str
+    case None => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need StringValue here")
+    }
+  }
+
+  def getListStringOrError(v: Option[Value]): Seq[String] = v match {
+    case Some(ListValue(list)) => {
+      return list.map( _ match {
+        case StringValue(str) => str
+        case _ => {
+          // TODO(timgreen): better error message
+          throw new EvalException("Need List StringValue here")
+        }
+      })
+    }
+    // TODO(timgreen): better error message
+    throw new EvalException("Need List StringValue here")
+  }
 }
 
 class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {
