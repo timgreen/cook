@@ -10,6 +10,7 @@ import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit._
 import cook.config.runner.value._
+import cook.util.FileUtil
 
 /**
  * Buildin function glob.
@@ -35,7 +36,7 @@ class Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null
 
     val dirScanner = new DirectoryScanner
     dirScanner.setIncludes(filters.toArray)
-    dirScanner.setBasedir(path)
+    dirScanner.setBasedir(FileUtil(path))
     dirScanner.scan
 
     val files = dirScanner.getIncludedFiles

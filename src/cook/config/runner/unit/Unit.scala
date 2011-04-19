@@ -46,6 +46,10 @@ trait RunnableUnit {
 
 class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {
 
+  /**
+   *
+   * @param path  relative path from COOK_ROOT
+   */
   def run(path: String, scope: Scope): Value = {
     cookConfig.statements.foreach(_.run(path, scope))
     NullValue()

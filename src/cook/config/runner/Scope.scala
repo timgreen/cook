@@ -10,9 +10,10 @@ class Scope(val vars: HashMap[String, Value],
             val funcs: HashMap[String, RunnableFuncDef],
             val parent: Scope) {
 
-  def merge(toMerge: Scope) {
+  def merge(toMerge: Scope): Scope = {
     vars ++= toMerge.vars
     funcs ++= toMerge.funcs
+    this
   }
 
   def definedInParent(id: String) = (get(parent, id) != None)
