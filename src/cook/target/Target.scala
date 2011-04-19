@@ -61,7 +61,7 @@ class Target(
   }
 
   def run(cmds: Seq[String]) {
-    val pb = new ProcessBuilder(java.util.Arrays.asList(cmds.toArray: _*))
+    val pb = new ProcessBuilder(cmds: _*)
     pb.directory(FileUtil(basePath))
     pb.start
   }
