@@ -14,7 +14,7 @@ object CookParser {
   def parse(file: File): CookConfig = {
     val parser = new Parser
     if (!parser.parse(new SourceFile(file.getPath))) {
-      // TODO(timgreen):
+      // TODO(timgreen): wrapper parser error
       throw new ParserErrorException(null)
     }
     parser.semantics.getConfig
