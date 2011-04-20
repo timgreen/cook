@@ -67,7 +67,7 @@ class Target(
   }
 }
 
-object Targets {
+object TargetManager {
 
   val targets = new HashMap[String, Target]
 

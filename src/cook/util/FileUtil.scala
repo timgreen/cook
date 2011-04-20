@@ -27,7 +27,18 @@ object FileUtil {
 
   def getFileFromRoot(filename: String): File = new File(root, filename)
 
-  def getRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
+  def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
+
+  def relativeDirToRoot(file: File): String = {
+    val absPath =
+        if (!file.isDirectory) {
+          file.getParentFile.getAbsolutePath
+        } else {
+          file.getAbsolutePath
+        }
+
+    absPath.drop(root.getAbsolutePath.length + 1)
+  }
 
   private[util]
   var root: File = null

@@ -4,7 +4,8 @@ import scala.collection.mutable.HashMap
 
 import java.io.File
 
-import cook.config.parser.CookParser
+import cook.config.runner.ConfigType
+import cook.config.runner.CookRunner
 import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit.RunnableUnitWrapper._
@@ -33,8 +34,7 @@ class Include extends RunnableFuncDef("include", Scope.ROOT_SCOPE, IncludeArgsDe
         }
 
     val cooki = FileUtil(pathFromRoot)
-    val scope = Scope()
-    CookParser.parse(cooki).run(path, scope)
+    val scope = CookRunner.run(cooki, ConfigType.cooki)
     // NOTE(timgreen): argsValue.parent is out scope, the caller's scope
     argsValue.parent.merge(scope)
 

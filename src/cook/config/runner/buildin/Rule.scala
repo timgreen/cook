@@ -9,7 +9,7 @@ import cook.config.runner.Scope
 import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.target.Target
-import cook.target.Targets
+import cook.target.TargetManager
 import cook.util.FileUtil
 
 /**
@@ -49,7 +49,7 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
           case _ => null  // ignore
         }
 
-    Targets.push(new Target(name, basePath, cmds, inputs, outputs, deps, exeCmds))
+    TargetManager.push(new Target(name, basePath, cmds, inputs, outputs, deps, exeCmds))
 
     NullValue()
   }
