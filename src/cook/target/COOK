@@ -1,0 +1,9 @@
+scala_lib(
+  name = "target",
+  srcs = glob([
+      "*.scala",
+  ]),
+  deps = [
+      "//src/cook/util",
+  ]
+)

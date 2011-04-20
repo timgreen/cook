@@ -3,8 +3,6 @@ package cook.target
 import java.io.File
 import java.util.Date
 
-import scala.collection.mutable.HashMap
-
 import cook.util.FileUtil
 
 class Target(
@@ -66,17 +64,3 @@ class Target(
     pb.start
   }
 }
-
-object TargetManager {
-
-  val targets = new HashMap[String, Target]
-
-  def push(t: Target) {
-    targets.put(t.name, t)
-  }
-
-  def hasTarget(name: String) = targets.contains(name)
-
-}
-
-class TargetException(error: String) extends RuntimeException
