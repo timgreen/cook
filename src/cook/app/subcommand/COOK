@@ -1,0 +1,6 @@
+scala_lib(
+  name = "subcommand",
+  srcs = glob([
+    "*.scala"
+  ])
+)
