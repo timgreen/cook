@@ -26,62 +26,38 @@ class FileLabel(pathFromRoot: Seq[String], name: String) extends Label {
   hashObj = filename
 }
 
-class TargetLabel(pathFromRoot: Seq[String], name: String) extends Label {
-
-  val isRootLabel = false
+class TargetLabel(pathFromRoot: String, name: String) extends Label {
 
   /**
    * "//package_a/package_b/package_c:target_name"
    * or
    * "//package_a/package_b/package_c"
    */
-  val targetFullname: String = if (name.startsWith("//")) {
-    name
-  } else {
-    "//%s/%s".format(pathFromRoot.mkString("/"), name)
-  }
+  val targetName =
+      if (name.startsWith("//")) {
+        name.drop(2)
+      } else {
+        "%s/%s".format(pathFromRoot, name)
+      }
 
-  hashObj = targetFullname
+  val targetFullname =
+      if (targetName.indexOf(':') != -1) {
+        // "//package_a/package_b/package_c:target_name"
+        targetName
+      } else {
+        // "//package_a/package_b/package_c"
+        // =
+        // "//package_a/package_b/package_c:package_c"
+        val r = "^(.*/)?([^/]+)$".r
+        val r(_, name) = targetName
+        targetName + ":" + name
+      }
 
-  val pathSeq: Seq[String] = if (targetFullname.indexOf(':') != -1) {
-    // "//package_a/package_b/package_c:target_name"
-    targetFullname.drop(2).split(Array(':', '/')).toSeq
-  } else {
-    // "//package_a/package_b/package_c"
-    // =
-    // "//package_a/package_b/package_c:package_c"
-    var t = MutableSeq[String]()
-    t ++= (targetFullname.drop(2).split('/'))
-    t :+ t.last
-  }
-
-  def targetName = pathSeq.last
-
-  val configFilename: String = {
-    (pathSeq.take(pathSeq.length - 1) :+ "COOK").mkString("/")
-  }
+  val configFilename: String = targetFullname.split(":", 1)(0) + "/COOK"
   val config = new File(configFilename)
 
   if (!config.exists) {
     throw new FileNotFoundException(config.getPath)
   }
-}
 
-
-object Label {
-
-  def apply(pathFromRoot: Seq[String], name: String): Label = {
-    if ("//|:".r.findPrefixOf(name) != None) {
-      new TargetLabel(pathFromRoot, name)
-    } else {
-      new FileLabel(pathFromRoot, name)
-    }
-  }
-
-  /**
-   * Special TargetLabel stand for "COOK_ROOT" file
-   */
-  val ROOT_LABEL = new TargetLabel(Seq(), "COOK_ROOT") {
-    override val isRootLabel = true
-  }
 }

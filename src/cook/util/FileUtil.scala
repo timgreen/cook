@@ -29,12 +29,13 @@ object FileUtil {
 
   def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
 
+  def relativeDirToRoot(filename: String): String = relativeDirToRoot(new File(filename))
   def relativeDirToRoot(file: File): String = {
     val absPath =
-        if (!file.isDirectory) {
-          file.getParentFile.getAbsolutePath
-        } else {
+        if (file.isDirectory) {
           file.getAbsolutePath
+        } else {
+          file.getParentFile.getAbsolutePath
         }
 
     absPath.drop(root.getAbsolutePath.length + 1)
