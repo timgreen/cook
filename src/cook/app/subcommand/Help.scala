@@ -1,6 +1,6 @@
 package cook.app.subcommand
 
-class Help extends SubCommand("help") {
+object Help extends SubCommand("help") {
 
   override def run(args: Array[String]) {
     if (args.isEmpty) {

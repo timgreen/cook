@@ -5,7 +5,7 @@ import java.io.File
 import cook.util._
 import cook.builder._
 
-class Build extends SubCommand("build") {
+object Build extends SubCommand("build") {
 
   override def run(args: Array[String]) {
     if (args.isEmpty) {
