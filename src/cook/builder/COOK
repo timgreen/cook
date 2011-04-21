@@ -1,0 +1,11 @@
+scala_lib(
+  name = "builder",
+  srcs = [
+      "Builder.scala"
+  ],
+  deps = [
+      "src/cook/util",
+      "src/cook/config/parser",
+      "src/cook/config/runner",
+  ]
+)

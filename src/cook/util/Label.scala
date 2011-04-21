@@ -53,7 +53,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
         targetName + ":" + name
       }
 
-  val configFilename: String = targetFullname.split(":", 1)(0) + "/COOK"
+  val configFilename: String = targetFullname.split(":")(0) + "/COOK"
   val config = new File(configFilename)
 
   if (!config.exists) {

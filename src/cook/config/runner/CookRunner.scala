@@ -19,6 +19,8 @@ object CookRunner {
   import ConfigType._
 
   def run(configFile: File, configType: ConfigType): Scope = {
+    // TODO(timgreen): run COOK_ROOT
+
     if (configToScopeMap.contains(configFile.getPath)) {
       return configToScopeMap(configFile.getPath)
     }
