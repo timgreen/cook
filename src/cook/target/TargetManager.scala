@@ -14,15 +14,17 @@ object TargetManager {
     targets.put(t.name, t)
   }
 
-  def getTarget(name: String): Target = {
-    if (!hasTarget(name)) {
-      val configFile = new TargetLabel(null, name).config
-      CookRunner.run(configFile, ConfigType.COOK)
+  def getTarget(targetLabel: TargetLabel): Target = {
+    if (!hasTarget(targetLabel.targetFullname)) {
+      CookRunner.run(targetLabel.config, ConfigType.COOK)
     }
 
-    targets.get(name) match {
+    targets.get(targetLabel.targetFullname) match {
       case Some(target) => target
-      case None => throw new TargetException("Target \"%s\" is not defined".format(name))
+      case None => {
+        throw new TargetException(
+            "Target \"%s\" is not defined".format(targetLabel.targetFullname))
+      }
     }
   }
 

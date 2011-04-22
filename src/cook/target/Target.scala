@@ -5,7 +5,7 @@ import java.util.Date
 
 import org.apache.tools.ant.DirectoryScanner
 
-import cook.util.FileUtil
+import cook.util._
 
 class Target(
     val name: String,
@@ -56,6 +56,12 @@ class Target(
 
   def outputDir(): File = {
     FileUtil("%s/%s/%s%s".format(Target.COOK_BUILD, basePath, Target.OUTPUT_PREFIX, name))
+  }
+
+  def depTargets(): Seq[TargetLabel] = {
+    deps.map {
+      new TargetLabel(basePath, _)
+    }
   }
 
   private[target]

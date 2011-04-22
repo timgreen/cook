@@ -4,8 +4,7 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.Stack
 
-import cook.config.runner.ConfigType
-import cook.config.runner.CookRunner
+import cook.target._
 import cook.util._
 
 object Builder {
@@ -17,13 +16,15 @@ object Builder {
       labelsProccessing.push(targetLabel)
       labelsProccessingSet += targetLabel.targetFullname
       buildOneTarget(targetLabel)
+      labelsProccessing.pop
     }
   }
 
   def buildOneTarget(targetLabel: TargetLabel) {
-    CookRunner.run(targetLabel.config, ConfigType.COOK)
-    // TODO(timgreen)
-    println("run target: %s".format(targetLabel.targetFullname))
+    val target = TargetManager.getTarget(targetLabel)
+    println("analysis target: %s".format(targetLabel.targetFullname))
+
+    target.depTargets.foreach { buildStack.push(_) }
   }
 
   val buildStack = new Stack[TargetLabel]

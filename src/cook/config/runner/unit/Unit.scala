@@ -77,6 +77,7 @@ class RunnableStatement(val statement: Statement) extends RunnableUnit {
       scope.funcs.put(funcDef.name, runnableFuncDef)
       NullValue()
     }
+    case _ => throw new EvalException("this should never happen")
   }
 }
 
@@ -85,7 +86,7 @@ class RunnableFuncStatement(val funcStatement: FuncStatement) extends RunnableUn
   def run(path: String, scope: Scope): Value = funcStatement match {
     case assginment: Assginment => assginment.run(path, scope)
     case simpleExprItem: SimpleExprItem => simpleExprItem.run(path, scope)
-    case _ => NullValue()
+    case _ => throw new EvalException("this should never happen")
   }
 }
 
@@ -128,7 +129,7 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case funcCall: FuncCall => funcCall.run(path, scope)
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
-    case _ => NullValue()
+    case _ => throw new EvalException("this should never happen")
   }
 }
 
@@ -167,6 +168,7 @@ class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
         }
 
     val args = ArgsValue(funcCall.args, runnableFuncDef, path, scope)
+
     runnableFuncDef.run(path, args)
   }
 }
@@ -197,6 +199,7 @@ class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
   def run(path: String, scope: Scope): Value = selectorSuffix match {
     case is: IdSuffix => new RunnableIdSuffix(is, v).run(path, scope)
     case cs: CallSuffix => new RunnableCallSuffix(cs, v).run(path, scope)
+    case _ => throw new EvalException("this should never happen")
   }
 }
 
