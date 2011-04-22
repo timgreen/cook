@@ -47,7 +47,31 @@ object ArgsValue extends RunnableUnit {
         case _ => throw new EvalException(
             "name is required in named-args func call \"%s\"".format(runnableFuncDef.name))
       }
+
+      val argsUnknown = names -- runnableFuncDef.argsDef.names
+      if (argsUnknown.nonEmpty) {
+        throw new EvalException(
+            "Found unknown arg(s) in func call \"%s\": %s",
+            runnableFuncDef.name,
+            argsUnknown.mkString(", "))
+      }
+
+      val argsMissing = runnableFuncDef.argsDef.names.toSet -- values.keys
+      if (argsMissing.nonEmpty) {
+        throw new EvalException(
+            "Miss required arg(s) in func call \"%s\": %s",
+            runnableFuncDef.name,
+            argsMissing.mkString(", "))
+      }
+
     } else {  // Full list
+      if (args.length != runnableFuncDef.argsDef.names.length) {
+        throw new EvalException(
+          "Wrong arg number in fulllist-args func call \"%s\", except %d but got %d".format(
+              runnableFuncDef.name,
+              runnableFuncDef.argsDef.names.length,
+              args.length))
+      }
       val nameIter = runnableFuncDef.argsDef.names.iterator
       for (arg <- args) {
         val name = nameIter.next
