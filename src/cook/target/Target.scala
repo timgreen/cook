@@ -92,6 +92,9 @@ class Target(
     mkOutputDir
     val pb = new ProcessBuilder(cmds: _*)
     pb.directory(outputDir)
+    val env = pb.environment
+    env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
+    env.put("INPUTS", inputs.map(_.getAbsolutePath).mkString(" "))
     pb.start
   }
 
