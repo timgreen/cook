@@ -30,10 +30,10 @@ case class NullValue() extends Value {
 
   override def typeName = "Null"
   override def op(o: String, v: Value): Value = {
-    throw new EvalException("Unsupportted operator \"%s\" on Null".format(o))
+    throw new EvalException("Unsupportted operator \"%s\" on Null", o)
   }
   override def attr(id: String): Value = {
-    throw new EvalException("Unsupportted attr \"%s\" on Null".format(id))
+    throw new EvalException("Unsupportted attr \"%s\" on Null", id)
   }
   override def isNull = true
   override def get(): Any = null
@@ -51,18 +51,17 @@ case class NumberValue(int: Int) extends Value {
         case "*" => NumberValue(int * i)
         case "/" => NumberValue(int / i)
         case _ => {
-          throw new EvalException("Unsupportted operator \"%s\" on (Number op Number)".format(o))
+          throw new EvalException("Unsupportted operator \"%s\" on (Number op Number)", o)
         }
       }
     }
     case _ => {
-      throw new EvalException(
-        "Operation \"%s\" on (Number op %s) is not supportted".format(o, v.typeName))
+      throw new EvalException("Operation \"%s\" on (Number op %s) is not supportted", o, v.typeName)
     }
   }
 
   override def attr(id: String): Value = id match {
-    case _ => throw new EvalException("attr \"%s\" is not supportted by Number".format(id))
+    case _ => throw new EvalException("attr \"%s\" is not supportted by Number", id)
   }
 
   override def get(): Any = int
@@ -78,8 +77,7 @@ case class StringValue(str: String) extends Value {
         case StringValue(s) => s
         case NumberValue(i) => i.toString
         case _ => {
-          throw new EvalException(
-              "Unsupportted operator \"+\" on (String op %s)".format(v.typeName))
+          throw new EvalException("Unsupportted operator \"+\" on (String op %s)", v.typeName)
         }
       }
       StringValue(str + s)
@@ -90,21 +88,20 @@ case class StringValue(str: String) extends Value {
           l.map { _.get }
         }
         case _ => {
-          throw new EvalException(
-              "Unsupportted operator \"%\" on (String op %s)".format(v.typeName))
+          throw new EvalException("Unsupportted operator \"%\" on (String op %s)", v.typeName)
         }
       }
       StringValue(str.format(list: _*))
     }
     case _ => {
-      throw new EvalException("Unsupportted operator \"%s\" on (String op String)".format(o))
+      throw new EvalException("Unsupportted operator \"%s\" on (String op String)", o)
     }
   }
 
   override def attr(id: String): Value = id match {
     case "size" => NumberValue(str.size)
     case "length" => NumberValue(str.length)
-    case _ => throw new EvalException("attr \"%s\" is not supportted by String".format(id))
+    case _ => throw new EvalException("attr \"%s\" is not supportted by String", id)
   }
 
   override def get(): Any = str
@@ -120,20 +117,19 @@ case class ListValue(list: Seq[Value]) extends Value {
       v match {
         case ListValue(l) => ListValue(list ++ l)
         case _ => {
-          throw new EvalException(
-              "Operation \"++\" on (List op %s) is not supportted".format(v.typeName))
+          throw new EvalException("Operation \"++\" on (List op %s) is not supportted", v.typeName)
         }
       }
     }
     case _ => {
-          throw new EvalException("Unsupportted operator \"%s\" on (List op %s)".format(o, v))
+          throw new EvalException("Unsupportted operator \"%s\" on (List op %s)", o, v)
     }
   }
 
   override def attr(id: String): Value = id match {
     case "size" => NumberValue(list.size)
     case "length" => NumberValue(list.length)
-    case _ => throw new EvalException("attr \"%s\" is not supportted by List".format(id))
+    case _ => throw new EvalException("attr \"%s\" is not supportted by List", id)
   }
 
   override def get(): Any = list

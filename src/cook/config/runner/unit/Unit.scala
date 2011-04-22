@@ -99,8 +99,7 @@ class RunnableAssginment(val assginment: Assginment) extends RunnableUnit {
 
     val value = assginment.expr.run(path, scope)
     if (value.isNull) {
-      throw new EvalException(
-          "Assginment error: can not assign None to \"%s\"".format(assginment.id))
+      throw new EvalException("Assginment error: can not assign None to \"%s\"", assginment.id)
     }
     scope.vars.put(assginment.id, value)
 
@@ -148,7 +147,7 @@ class RunnableIdentifier(val identifier: Identifier) extends RunnableUnit {
   def run(path: String, scope: Scope): Value =
       scope.get(identifier.id) match {
         case Some(value) => value
-        case None => throw new EvalException("var \"%s\" is not defined".format(identifier.id))
+        case None => throw new EvalException("var \"%s\" is not defined", identifier.id)
       }
 }
 
@@ -164,7 +163,7 @@ class RunnableFuncCall(val funcCall: FuncCall) extends RunnableUnit {
     val runnableFuncDef =
         scope.getFunc(funcCall.name) match {
           case Some(runnableFuncDef) => runnableFuncDef
-          case None => throw new EvalException("func \"%s\" is not defined".format(funcCall.name))
+          case None => throw new EvalException("func \"%s\" is not defined", funcCall.name)
         }
 
     val args = ArgsValue(funcCall.args, runnableFuncDef, path, scope)

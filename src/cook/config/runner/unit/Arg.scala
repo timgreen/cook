@@ -37,15 +37,17 @@ object ArgsValue extends RunnableUnit {
         case ArgNamedValue(name, expr) => {
           if (names.contains(name)) {
             throw new EvalException(
-                "dulpicated name \"%s\", in named-args func call \"%s\""
-                .format(name, runnableFuncDef.name))
+                "dulpicated name \"%s\", in named-args func call \"%s\"",
+                name,
+                runnableFuncDef.name)
           }
           names += name
           val value = expr.run(path, scope).sureNotNull
           values.put(name, value)
         }
         case _ => throw new EvalException(
-            "name is required in named-args func call \"%s\"".format(runnableFuncDef.name))
+            "name is required in named-args func call \"%s\"",
+            runnableFuncDef.name)
       }
 
       val argsUnknown = names -- runnableFuncDef.argsDef.names
@@ -67,10 +69,10 @@ object ArgsValue extends RunnableUnit {
     } else {  // Full list
       if (args.length != runnableFuncDef.argsDef.names.length) {
         throw new EvalException(
-          "Wrong arg number in fulllist-args func call \"%s\", except %d but got %d".format(
-              runnableFuncDef.name,
-              runnableFuncDef.argsDef.names.length,
-              args.length))
+            "Wrong arg number in fulllist-args func call \"%s\", except %d but got %d",
+            runnableFuncDef.name,
+            runnableFuncDef.argsDef.names.length,
+            args.length)
       }
       val nameIter = runnableFuncDef.argsDef.names.iterator
       for (arg <- args) {
@@ -80,8 +82,11 @@ object ArgsValue extends RunnableUnit {
           case ArgNamedValue(argName, expr) => {
             if (argName != name) {
               throw new EvalException(
-                  ("Wrong order for arg name \"%s\", in fulllist-args func call \"%s\"," +
-                    " should be \"%s\"").format(argName, runnableFuncDef.name, name))
+                  "Wrong order for arg name \"%s\", in fulllist-args func call \"%s\", "
+                  + "should be \"%s\"",
+                  argName,
+                  runnableFuncDef.name,
+                  name)
             }
             expr
           }

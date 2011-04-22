@@ -34,7 +34,7 @@ object CookRunner {
     // b. cooki can not contain "include" command
 
     if (!configFile.exists) {
-      throw new EvalException("Cook Config file \"%s\" not found".format(configFile.getPath))
+      throw new EvalException("Cook Config file \"%s\" not found", configFile.getPath)
     }
 
     val scope = Scope()
