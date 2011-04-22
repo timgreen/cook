@@ -19,7 +19,9 @@ object CookRunner {
   import ConfigType._
 
   def run(configFile: File, configType: ConfigType): Scope = {
-    // TODO(timgreen): run COOK_ROOT
+    if (configType == COOK) {
+      checkAddCookRootScope
+    }
 
     if (configToScopeMap.contains(configFile.getPath)) {
       return configToScopeMap(configFile.getPath)
@@ -42,4 +44,13 @@ object CookRunner {
 
   private[runner]
   val configToScopeMap: HashMap[String, Scope] = new HashMap[String, Scope]
+
+  def checkAddCookRootScope() {
+    val cookRoot = FileUtil.getCookRootFile
+    if (configToScopeMap.contains(cookRoot.getPath)) {
+      return
+    }
+
+    Scope.ROOT_SCOPE.merge(run(cookRoot, COOK_ROOT))
+  }
 }

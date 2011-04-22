@@ -7,6 +7,7 @@ object FileUtil {
 
   val COOK_ROOT_FILENAME = "COOK_ROOT"
 
+  def findRootDir(): File = findRootDir(new File(System.getProperty("user.dir")))
   def findRootDir(currentDir: File): File = {
     if (root != null) return root
 
@@ -25,7 +26,7 @@ object FileUtil {
 
   def apply(filename: String): File = getFileFromRoot(filename)
 
-  def getFileFromRoot(filename: String): File = new File(findRootDir(new File(filename)), filename)
+  def getFileFromRoot(filename: String): File = new File(findRootDir(), filename)
 
   def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
 
