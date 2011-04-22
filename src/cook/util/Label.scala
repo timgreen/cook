@@ -6,6 +6,8 @@ import java.io.FileNotFoundException
 import scala.collection.Seq
 import scala.collection.mutable.{ Seq => MutableSeq }
 
+import cook.util._
+
 abstract class Label {
   protected var hashObj: String = null
 
@@ -54,7 +56,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
       }
 
   val configFilename: String = targetFullname.split(":")(0) + "/COOK"
-  val config = new File(configFilename)
+  val config = FileUtil(configFilename)
 
   if (!config.exists) {
     throw new FileNotFoundException(config.getPath)

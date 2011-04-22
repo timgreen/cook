@@ -25,7 +25,7 @@ object FileUtil {
 
   def apply(filename: String): File = getFileFromRoot(filename)
 
-  def getFileFromRoot(filename: String): File = new File(root, filename)
+  def getFileFromRoot(filename: String): File = new File(findRootDir(new File(filename)), filename)
 
   def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
 
@@ -38,7 +38,7 @@ object FileUtil {
           file.getParentFile.getAbsolutePath
         }
 
-    absPath.drop(root.getAbsolutePath.length + 1)
+    absPath.drop(findRootDir(file).getAbsolutePath.length + 1)
   }
 
   private[util]
@@ -48,6 +48,7 @@ object FileUtil {
 
   def setRoot(root: File) {
     this.root = root.getAbsoluteFile
+    println("COOK_ROOT dir is " + this.root.getAbsolutePath)
   }
 
 }

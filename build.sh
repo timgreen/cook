@@ -54,8 +54,14 @@ clear() {
   rm -fr $GEN_DIR $BUILD_DIR $BIN_DIR
 }
 
+run() {
+  build
+  java -cp $CP:$BUILD_DIR cook.app.Main build "src/cook/config/parser"
+}
+
 main() {
-  runTest
+  #runTest
+  run
 }
 
 main
