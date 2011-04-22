@@ -169,7 +169,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
     val statements = MutableSeq[FuncStatement]()
     while (!rhs(i).isA("ReturnStatement") && !rhs(i).isA("RWING")) {
       if (rhs(i).isA("FuncStatement")) {
-        statements :+ rhs(i).asInstanceOf[FuncStatement]
+        statements :+ rhs(i).get.asInstanceOf[FuncStatement]
       }
       i = i + 1
     }
