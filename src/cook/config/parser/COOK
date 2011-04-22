@@ -4,6 +4,7 @@ include("genpeg")
 genpeg_java(
   name = "gen_parser",
   src = "cook.peg",
+  package = "cook.config.parser",
 )
 
 scala_lib(

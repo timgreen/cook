@@ -1,8 +1,16 @@
 # Genrule for genpeg
 #
-# Generate java file from peg define
+# Generate java file from peg defines
 
-def genpeg_java(src, parser = "Parser", semantics = "Semantics") {
-  # generated_java = path + name + ".java"
-  # rule(cmd = "java -cp $CP mouse.Generate -G $src -p cook.parser -P ConfigParser -S ConfigSemantics -D $GEN_DIR/cook/parser/")
+def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Semantics") {
+
+  cp = "TODO(timgreen)"
+  cmd = "java -cp %s mouse.Generate -G $INPUTS -p %s -P %s -S %s -D $OUTPUT_DIR"
+  cmd = cmd % [ cp, src, package, parserName, semanticsName]
+
+  rule(
+      name = name,
+      inputs = [ src ],
+      cmds = [ cmd ]
+  )
 }
