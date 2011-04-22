@@ -34,11 +34,6 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
 
     val name = getStringOrError(argsValue.get("name"))
     val cmds = getListStringOrError(argsValue.get("cmds"))
-    val basePath = argsValue.get("path") match {
-      case Some(StringValue(str)) => str
-      case Some(NullValue()) => path
-      case _ => throw new EvalException("param \"path\" should be StringValue")
-    }
     val inputs = getListStringOrError(argsValue.get("inputs")).map { FileUtil(_) }
     val deps = getListStringOrError(argsValue.get("deps"))
     val exeCmds =
@@ -48,7 +43,9 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
           case _ => null  // ignore
         }
 
-    TargetManager.push(new Target(name, basePath, cmds, inputs, deps, exeCmds))
+    var fullname = "%s:%s".format(path, name)
+    println("Create target \"%s\"".format(fullname))
+    TargetManager.push(new Target(path, name, cmds, inputs, deps, exeCmds))
 
     NullValue()
   }
@@ -62,7 +59,6 @@ object RuleArgsDef {
     defaultValues.put("inputs", ListValue())
     defaultValues.put("exeCmds", NullValue())
     defaultValues.put("deps", ListValue())
-    defaultValues.put("path", NullValue())
 
     new ArgsDef(names, defaultValues)
   }

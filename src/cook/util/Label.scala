@@ -34,12 +34,18 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
    * "//package_a/package_b/package_c:target_name"
    * or
    * "//package_a/package_b/package_c"
+   * or
+   * "package_c:target_name"
+   * or
+   * "package_c"
+   * or
+   * ":target_name"
    */
   val targetName =
       if (name.startsWith("//")) {
         name.drop(2)
       } else {
-        "%s/%s".format(pathFromRoot, name)
+        "%s%s".format(pathFromRoot, name)
       }
 
   val targetFullname =

@@ -11,7 +11,7 @@ object TargetManager {
   val targets = new HashMap[String, Target]
 
   def push(t: Target) {
-    targets.put(t.name, t)
+    targets.put(t.fullname, t)
   }
 
   def getTarget(targetLabel: TargetLabel): Target = {

@@ -8,12 +8,16 @@ import org.apache.tools.ant.DirectoryScanner
 import cook.util._
 
 class Target(
+    val path: String,
     val name: String,
-    val basePath: String,
     val cmds: Seq[String],
     val inputs: Seq[File],
     val deps: Seq[String],
     val exeCmds: Seq[String]) {
+
+  def fullname(): String = {
+    path + ":" + name
+  }
 
   /**
    * Only executeable target can be run by "cook run"
@@ -55,12 +59,12 @@ class Target(
   }
 
   def outputDir(): File = {
-    FileUtil("%s/%s/%s%s".format(Target.COOK_BUILD, basePath, Target.OUTPUT_PREFIX, name))
+    FileUtil("%s/%s/%s%s".format(Target.COOK_BUILD, path, Target.OUTPUT_PREFIX, name))
   }
 
   def depTargets(): Seq[TargetLabel] = {
     deps.map {
-      new TargetLabel(basePath, _)
+      new TargetLabel(path, _)
     }
   }
 
@@ -85,8 +89,9 @@ class Target(
   }
 
   def run(cmds: Seq[String]) {
+    mkOutputDir
     val pb = new ProcessBuilder(cmds: _*)
-    pb.directory(FileUtil(basePath))
+    pb.directory(outputDir)
     pb.start
   }
 
