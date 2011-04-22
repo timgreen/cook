@@ -49,6 +49,8 @@ object Scope {
   private def initRootScope {
     ROOT_SCOPE.funcs.put("glob", new Glob)
     ROOT_SCOPE.funcs.put("path", new Path)
+    ROOT_SCOPE.funcs.put("include", new Include)
+    ROOT_SCOPE.funcs.put("rule", new Rule)
   }
 
   initRootScope
