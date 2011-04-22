@@ -40,7 +40,6 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
       case _ => throw new EvalException("param \"path\" should be StringValue")
     }
     val inputs = getListStringOrError(argsValue.get("inputs")).map { FileUtil(_) }
-    val outputs = getListStringOrError(argsValue.get("ouptuts")).map { FileUtil(_) }
     val deps = getListStringOrError(argsValue.get("deps"))
     val exeCmds =
         try {
@@ -49,7 +48,7 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
           case _ => null  // ignore
         }
 
-    TargetManager.push(new Target(name, basePath, cmds, inputs, outputs, deps, exeCmds))
+    TargetManager.push(new Target(name, basePath, cmds, inputs, deps, exeCmds))
 
     NullValue()
   }
@@ -58,10 +57,9 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
 object RuleArgsDef {
 
   def apply(): ArgsDef = {
-    val names = Seq[String]("name", "inputs", "outputs", "cmds", "exeCmds", "deps")
+    val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps")
     val defaultValues = new HashMap[String, Value]
     defaultValues.put("inputs", ListValue())
-    defaultValues.put("outputs", ListValue())
     defaultValues.put("exeCmds", NullValue())
     defaultValues.put("deps", ListValue())
     defaultValues.put("path", NullValue())
