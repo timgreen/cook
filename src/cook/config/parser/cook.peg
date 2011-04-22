@@ -11,7 +11,7 @@ FuncCall        = Identifier LPAR ArgList? RPAR                           {funcC
 
 Assginment      = !Keyword Identifier EQU Expr                            {assginment} ;
 
-Expr            = ExprItem ( ( PLUS / MINUS ) ExprItem )*                 {expr} ;
+Expr            = ExprItem ( Operation ExprItem )*                        {expr} ;
 
 ExprItem        = SimpleExprItem ( SelectorSuffix )*                      {exprItem} ;
 
@@ -51,7 +51,7 @@ ReturnStatement = RETURN Expr                                             {retur
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / RULE ) ;
+Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / RULE ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
@@ -59,8 +59,16 @@ RETURN   = "return"   ! IdChar Spacing ;
 INCLUDE  = "include"  ! IdChar Spacing ;
 SUBCLUDE = "subclude" ! IdChar Spacing ;
 GLOB     = "glob"     ! IdChar Spacing ;
+PATH     = "path"     ! IdChar Spacing ;
+ECHO     = "echo"     ! IdChar Spacing ;
 
 RULE     = "rule"     ! IdChar Spacing ;
+
+//-------------------------------------------------------------------------
+//  Operation
+//-------------------------------------------------------------------------
+
+Operation = ( PLUS / MINUS / INC / STAR / DIV / MOD );
 
 //-------------------------------------------------------------------------
 //  Constant
@@ -140,6 +148,10 @@ RWING      =  "}"         Spacing ;
 
 PLUS       =  "+"  ![+=]  Spacing ;
 MINUS      =  "-"  ![\-=>]Spacing ;
+INC        =  "++"        Spacing ;
+STAR       =  "*"         Spacing ;
+DIV        =  "/"  ![=]   Spacing ;
+MOD        =  "%"  ![=>]  Spacing ;
 
 
 DOT        =  "."         Spacing ;
