@@ -6,7 +6,7 @@ def java_lib(name, srcs, deps = []) {
       inputs = srcs,
       deps = deps,
       cmds = [
-          "CP=`printf ,%s ${DEP_OUTPUT_DIRS[@]}`",
+          "CP=`printf :%s ${DEP_OUTPUT_DIRS[@]}`",
           "javac -d $OUTPUT_OUT -cp $CP $INPUTS"
       ]
   )
