@@ -3,7 +3,6 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
-import scala.collection.Seq
 import scala.collection.mutable.{ Seq => MutableSeq }
 
 import cook.util._
@@ -20,12 +19,26 @@ abstract class Label {
   }
 }
 
-class FileLabel(pathFromRoot: Seq[String], name: String) extends Label {
-  val filename = "%s/%s".format(pathFromRoot.mkString("/"), name)
-  val file = new File(filename)
-  throw new FileNotFoundException(file.getPath)
+class FileLabel(pathFromRoot: String, name: String) extends Label {
 
-  hashObj = filename
+  /**
+   * "//package_a/package_b/package_c/filename"
+   * or
+   * "filename"
+   */
+  val filename =
+      if (name.startsWith("//")) {
+        name.drop(2)
+      } else {
+        "%s/%s".format(pathFromRoot, name)
+      }
+  val file = FileUtil(filename)
+
+  if (!file.exists) {
+    throw new FileNotFoundException(file.getPath)
+  }
+
+  hashObj = "F" + filename
 }
 
 class TargetLabel(pathFromRoot: String, name: String) extends Label {
@@ -68,4 +81,5 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
     throw new FileNotFoundException(config.getPath)
   }
 
+  hashObj = "T" + configFilename
 }

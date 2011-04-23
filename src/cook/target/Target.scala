@@ -3,6 +3,8 @@ package cook.target
 import java.io.File
 import java.util.Date
 
+import scala.collection.immutable.VectorBuilder
+
 import org.apache.tools.ant.DirectoryScanner
 
 import cook.util._
@@ -11,7 +13,7 @@ class Target(
     val path: String,
     val name: String,
     val cmds: Seq[String],
-    val inputs: Seq[File],
+    val inputs: Seq[String],
     val deps: Seq[String],
     val exeCmds: Seq[String]) {
 
@@ -37,7 +39,7 @@ class Target(
     // 3. check whether all output is generated
 
     val currentTimestamp = new Date().getTime
-    checkIntputs()
+    inputFiles = prepareInputFiles(inputs)
     if (isBuilded) {
       throw new TargetException(
           "One target should never been build twice: target \"%s\"".format(name))
@@ -46,7 +48,7 @@ class Target(
     isBuilded = true
   }
 
-  def outputs(): Seq[String] = {
+  def outputs(): Seq[File] = {
     if (!isBuilded) {
       throw new TargetException(
           "Outputs will become available after build: target \"%s\"".format(name))
@@ -55,7 +57,9 @@ class Target(
     val ds = new DirectoryScanner
     ds.setBasedir(outputDir)
     ds.scan
-    ds.getIncludedFiles.toSeq
+    ds.getIncludedFiles.map {
+      new File(outputDir, _)
+    }
   }
 
   def outputDir(): File = {
@@ -69,8 +73,25 @@ class Target(
   }
 
   private[target]
-  def checkIntputs() {
-    checkFiles(inputs)
+  var inputFiles: Seq[File] = null
+  /**
+   * Convert Seq[String] to Seq[File]
+   */
+  def prepareInputFiles(inputs: Seq[String]): Seq[File] = {
+    val inputFilesBuilder = new VectorBuilder[File]
+
+    for (i <- inputs) yield {
+      if (i.indexOf(':') == -1) {
+        inputFilesBuilder += new FileLabel(path, i).file
+      } else {
+        val target = TargetManager.getTarget(new TargetLabel(path, i))
+        inputFilesBuilder ++= target.outputs
+      }
+    }
+
+    checkFiles(inputFiles)
+
+    inputFilesBuilder.result
   }
 
   def mkOutputDir() {
@@ -81,7 +102,7 @@ class Target(
   }
 
   def checkFiles(files: Seq[File]) {
-    for (f <- inputs) {
+    for (f <- files) {
       if (!f.exists) {
         throw new TargetException("Required input file \"%s\" not exists".format(f.getPath))
       }
@@ -94,7 +115,7 @@ class Target(
     pb.directory(outputDir)
     val env = pb.environment
     env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
-    env.put("INPUTS", inputs.map(_.getAbsolutePath).mkString(" "))
+    env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString(" "))
     pb.start
   }
 

@@ -33,7 +33,7 @@ class Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDe
 
     val name = getStringOrError(argsValue.get("name"))
     val cmds = getListStringOrError(argsValue.get("cmds"))
-    val inputs = getListStringOrError(argsValue.get("inputs")).map { FileUtil(_) }
+    val inputs = getListStringOrError(argsValue.get("inputs"))
     val deps = getListStringOrError(argsValue.get("deps"))
     val exeCmds =
         try {
