@@ -15,6 +15,7 @@ class Target(
     val cmds: Seq[String],
     val inputs: Seq[String],
     val deps: Seq[String],
+    val tools: Seq[String],
     val exeCmds: Seq[String]) {
 
   def fullname(): String = {
@@ -40,6 +41,7 @@ class Target(
 
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
+    // TODO(timgreen): check tools
     if (isBuilded) {
       throw new TargetException(
           "One target should never been build twice: target \"%s\"".format(name))
