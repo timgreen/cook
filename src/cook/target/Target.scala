@@ -74,6 +74,7 @@ class Target(
 
   private[target]
   var inputFiles: Seq[File] = null
+
   /**
    * Convert Seq[String] to Seq[File]
    */

@@ -3,8 +3,6 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
-import scala.collection.mutable.{ Seq => MutableSeq }
-
 import cook.util._
 
 abstract class Label {
