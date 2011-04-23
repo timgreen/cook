@@ -50,7 +50,7 @@ object Scope {
     ROOT_SCOPE.funcs.put("glob",    new Glob)
     ROOT_SCOPE.funcs.put("path",    new Path)
     ROOT_SCOPE.funcs.put("include", new Include)
-    ROOT_SCOPE.funcs.put("rule",    new Rule)
+    ROOT_SCOPE.funcs.put("genrule", new Genrule)
     ROOT_SCOPE.funcs.put("echo",    new Echo)
   }
 

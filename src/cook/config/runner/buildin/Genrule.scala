@@ -13,21 +13,20 @@ import cook.target.TargetManager
 import cook.util.FileUtil
 
 /**
- * Buildin function rule.
+ * Buildin function genrule.
  *
  * return none
  *
  * Example:
  *
- * rule(
+ * genrule(
  *     name = "testTarget",
  *     path = path,
  *     input = [ "a" ],
- *     output = [ "b" ],
- *     cmd = "cat a > b"
+ *     cmds = [ "cat $INPUTS > b" ]
  * )
  */
-class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null, null) {
+class Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     // create rule "path:name" and store it
@@ -51,7 +50,7 @@ class Rule extends RunnableFuncDef("rule", Scope.ROOT_SCOPE, RuleArgsDef(), null
   }
 }
 
-object RuleArgsDef {
+object GenruleArgsDef {
 
   def apply(): ArgsDef = {
     val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps")

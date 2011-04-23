@@ -13,19 +13,13 @@ import cook.target.TargetManager
 import cook.util.FileUtil
 
 /**
- * Buildin function rule.
+ * Buildin function echo.
  *
  * return none
  *
  * Example:
  *
- * rule(
- *     name = "testTarget",
- *     path = path,
- *     input = [ "a" ],
- *     output = [ "b" ],
- *     cmd = "cat a > b"
- * )
+ * echo("hello")
  */
 class Echo extends RunnableFuncDef("echo", Scope.ROOT_SCOPE, EchoArgsDef(), null, null) {
 

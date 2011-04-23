@@ -30,8 +30,8 @@ object CookRunner {
     println("CookRunner run \"%s\"".format(configFile.getPath))
 
     // TODO(timgreen): check if config type match the content
-    // a. COOK_ROOT can not have function define or call "rule" function
-    // b. cooki can not contain "include" command
+    // a. COOK_ROOT can only call function "include"
+    // b. cooki can not call function "include"
 
     if (!configFile.exists) {
       throw new EvalException("Cook Config file \"%s\" not found", configFile.getPath)
