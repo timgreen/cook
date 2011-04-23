@@ -1,0 +1,4 @@
+# include default rules
+
+include("//rules/scala")
+include("//rules/java")

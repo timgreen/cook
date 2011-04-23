@@ -1,0 +1,13 @@
+
+def java_lib(name, srcs, deps = []) {
+
+  genrule(
+      name = name,
+      inputs = srcs,
+      deps = deps,
+      cmds = [
+          "CP=`printf ,%s ${DEP_OUTPUT_DIRS[@]}`",
+          "javac -d $OUTPUT_OUT -cp $CP $INPUTS"
+      ]
+  )
+}
