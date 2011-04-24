@@ -43,7 +43,7 @@ object Analyze extends SubCommand("analyze") {
 
     for (t <- targets) {
       for (dep <- t.depTargets) {
-        val link = "\"%s\" -> \"%s\"".format(t.targetName, dep.targetName)
+        val link = "\"%s\"->\"%s\"".format(t.targetName, dep.targetName)
         digraphBuilder += link
       }
     }
