@@ -22,7 +22,7 @@ import cook.util.FileUtil
  * include("scala")
  * include("subdir/scala")
  */
-class Include extends RunnableFuncDef("include", Scope.ROOT_SCOPE, IncludeArgsDef(), null, null) {
+object Include extends RunnableFuncDef("include", Scope.ROOT_SCOPE, IncludeArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     val filename = getStringOrError(argsValue.get("filename"))

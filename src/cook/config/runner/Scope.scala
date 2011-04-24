@@ -47,11 +47,11 @@ object Scope {
   val ROOT_SCOPE: Scope = apply(null)
 
   private def initRootScope {
-    ROOT_SCOPE.funcs.put("glob",    new Glob)
-    ROOT_SCOPE.funcs.put("path",    new Path)
-    ROOT_SCOPE.funcs.put("include", new Include)
-    ROOT_SCOPE.funcs.put("genrule", new Genrule)
-    ROOT_SCOPE.funcs.put("echo",    new Echo)
+    ROOT_SCOPE.funcs.put("glob",    Glob)
+    ROOT_SCOPE.funcs.put("path",    Path)
+    ROOT_SCOPE.funcs.put("include", Include)
+    ROOT_SCOPE.funcs.put("genrule", Genrule)
+    ROOT_SCOPE.funcs.put("echo",    Echo)
   }
 
   initRootScope

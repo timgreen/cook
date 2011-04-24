@@ -21,7 +21,7 @@ import cook.util.FileUtil
  *
  * glob(["*.java"])
  */
-class Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
+object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     val filters = getOrError(argsValue.get("filters")) match {

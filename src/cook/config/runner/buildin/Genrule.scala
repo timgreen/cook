@@ -26,7 +26,7 @@ import cook.util.FileUtil
  *     cmds = [ "cat $INPUTS > b" ]
  * )
  */
-class Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDef(), null, null) {
+object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     // create rule "path:name" and store it
