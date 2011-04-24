@@ -17,7 +17,8 @@ object SubCommand {
 
   private[subcommand]
   val commands = HashMap[String, SubCommand](
-    "help" -> Help,
-    "build" -> Build
+    "help"  -> Help,
+    "build" -> Build,
+    "clean" -> Clean
   )
 }

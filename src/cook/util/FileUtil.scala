@@ -55,6 +55,9 @@ object FileUtil {
     FileUtil("%s/%s/%s%s".format(COOK_GEN, path, OUTPUT_PREFIX, targetName))
   }
 
+  def cookBuildDir = FileUtil(COOK_BUILD)
+  def cookGenerateDir = FileUtil(COOK_GEN)
+
   private[util]
   var root: File = null
 
