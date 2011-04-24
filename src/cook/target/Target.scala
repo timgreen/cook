@@ -82,11 +82,8 @@ class Target(
    */
   def depTargets(): Seq[TargetLabel] = {
     val depsBuilder = new VectorBuilder[TargetLabel]
-    deps.foreach {
-      depsBuilder += new TargetLabel(path, _)
-    }
     for (
-      i <- (inputs ++ tools)
+      i <- (deps ++ inputs ++ tools)
       if (i.indexOf(":") != -1)
     ) {
       depsBuilder += new TargetLabel(path, i)
@@ -153,28 +150,27 @@ class Target(
 
   def runCmds(cmds: Seq[String]) {
     mkOutputDir
-    val pb = new ProcessBuilder("/bin/bash", "-i", "-c", cmds.mkString(";"))
+    val splitArrayValueCmds = Seq[String](
+      "OLD_IFS=\"$IFS\"",
+      "IFS=\"|\"",
+      "INPUTS=( $INPUTS )",
+      "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
+      "TOOLS=( $TOOLS )",
+      "IFS=\"$OLD_IFS\""
+    )
+    val pb = new ProcessBuilder(
+        "/bin/bash", "-i", "-c",
+        (splitArrayValueCmds ++ cmds).mkString(";"))
     pb.directory(outputDir)
+    pb.redirectErrorStream(true)
     val env = pb.environment
     env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
-    env.put("INPUTS", BashArray(inputFiles.map(_.getAbsolutePath)))
-    env.put("DEP_OUTPUT_DIRS", BashArray(depOutputDirs.map(_.getAbsolutePath)))
-    env.put("TOOLS", BashArray(toolFiles.map(_.getAbsolutePath)))
+    // TODO(timgreen): figure out a better way to pass array values
+    env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
+    env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
+    env.put("TOOLS", toolFiles.map(_.getAbsolutePath).mkString("|"))
     pb.start
   }
 
   var isBuilded = false
-}
-
-/**
- * TODO(timgreen): merge into shell util
- */
-object BashArray {
-
-  def apply(values: Seq[String]): String = {
-    val v = values.map((s) => {
-      "\"%s\"".format("""["\\]""".r.replaceAllIn(s, (m) => "\\" + m.toString))
-    }).mkString(" ")
-    "(%s)".format(v)
-  }
 }

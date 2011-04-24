@@ -1,13 +1,16 @@
 
-def scala_lib(name, srcs, deps = []) {
+def scala_lib(name, srcs, deps = [], cp = []) {
 
   genrule(
       name = name,
       inputs = srcs,
       deps = deps,
+      tools = cp,
       cmds = [
-          "CP=`printf :%s ${DEP_OUTPUT_DIRS[@]}`",
-          "scalac -d $OUTPUT_DIR -cp $CP $INPUTS"
-      ]
+          "CP=(${DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
+          "IFS=\":\"",
+          "CP=$CP",
+          "scalac -d $OUTPUT_DIR -cp $CP ${INPUTS[*]}",
+      ],
   )
 }
