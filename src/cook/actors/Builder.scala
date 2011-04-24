@@ -32,5 +32,3 @@ object Builder {
   val labelsProccessingSet = new HashSet[String]
   val labelsProccessed = new HashSet[String]
 }
-
-class CookRuntimeExcetion(message: String) extends RuntimeException

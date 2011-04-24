@@ -1,7 +1,5 @@
 package cook.app.subcommand
 
-import java.io.File
-
 import cook.util._
 import cook.actors._
 
