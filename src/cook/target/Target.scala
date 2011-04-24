@@ -67,7 +67,7 @@ class Target(
   }
 
   def outputDir(): File = {
-    FileUtil("%s/%s/%s%s".format(Target.COOK_BUILD, path, Target.OUTPUT_PREFIX, name))
+    FileUtil.getBuildOutputDir(path, name)
   }
 
   def depTargets(): Seq[TargetLabel] = {
@@ -146,13 +146,6 @@ class Target(
   }
 
   var isBuilded = false
-}
-
-object Target {
-
-  val OUTPUT_PREFIX = "COOK_TARGET_"
-  val COOK_GEN = "cook_gen"
-  val COOK_BUILD = "cook_build"
 }
 
 /**

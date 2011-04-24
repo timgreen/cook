@@ -7,6 +7,11 @@ object FileUtil {
 
   val COOK_ROOT_FILENAME = "COOK_ROOT"
 
+  val COOK_GEN = "cook_gen"
+  val COOK_BUILD = "cook_build"
+
+  val OUTPUT_PREFIX = "COOK_TARGET_"
+
   def findRootDir(): File = findRootDir(new File(System.getProperty("user.dir")))
   def findRootDir(currentDir: File): File = {
     if (root != null) return root
@@ -40,6 +45,14 @@ object FileUtil {
         }
 
     absPath.drop(findRootDir(file).getAbsolutePath.length + 1)
+  }
+
+  def getBuildOutputDir(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s".format(COOK_BUILD, path, OUTPUT_PREFIX, targetName))
+  }
+
+  def getGenerateOutputDir(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s".format(COOK_GEN, path, OUTPUT_PREFIX, targetName))
   }
 
   private[util]
