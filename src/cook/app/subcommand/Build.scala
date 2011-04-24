@@ -3,7 +3,7 @@ package cook.app.subcommand
 import java.io.File
 
 import cook.util._
-import cook.builder._
+import cook.actors._
 
 object Build extends SubCommand("build") {
 

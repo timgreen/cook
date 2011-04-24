@@ -1,4 +1,4 @@
-package cook.builder
+package cook.actors
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
