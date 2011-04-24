@@ -117,9 +117,9 @@ class Target(
   }
 
   def mkOutputDir() {
-    if (!outputDir.mkdirs) {
+    if (!outputDir.isDirectory && !outputDir.mkdirs) {
       throw new TargetException(
-          "Can not create output dir for target \"%s\": %s".format(outputDir.getPath, name))
+          "Can not create output dir for target \"%s\": %s".format(name, outputDir.getPath))
     }
   }
 
@@ -173,7 +173,7 @@ object BashArray {
 
   def apply(values: Seq[String]): String = {
     val v = values.map((s) => {
-      "\"%s\"".format("[\"\\]".r.replaceAllIn(s, (m) => "\\" + m.toString))
+      "\"%s\"".format("""["\\]""".r.replaceAllIn(s, (m) => "\\" + m.toString))
     }).mkString(" ")
     "(%s)".format(v)
   }
