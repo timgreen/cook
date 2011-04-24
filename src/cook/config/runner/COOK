@@ -12,6 +12,6 @@ scala_lib(
   ]),
   deps = [
       ":exception",
-      "//src/cook/config/runner/value"
+      "//src/cook/config/runner/value:value"
   ]
 )

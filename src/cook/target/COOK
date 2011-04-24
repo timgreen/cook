@@ -4,6 +4,6 @@ scala_lib(
       "*.scala",
   ]),
   deps = [
-      "//src/cook/util",
+      "//src/cook/util:util",
   ]
 )

@@ -5,7 +5,7 @@ scala_lib(
   ],
   deps = [
       "src/cook/util",
-      "src/cook/config/parser",
-      "src/cook/config/runner",
+      "src/cook/config/parser:parser",
+      "src/cook/config/runner:parser",
   ]
 )
