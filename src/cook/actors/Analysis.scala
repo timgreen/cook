@@ -30,8 +30,8 @@ object Analysis {
 
     val target = TargetManager.getTarget(targetLabel)
     targets += target
-    labelsProccessing.push(target.fullname)
-    labelsProccessingSet += target.fullname
+    labelsProccessing.push(target.targetName)
+    labelsProccessingSet += target.targetName
     for (dep <- target.depTargets) {
       if (labelsProccessingSet.contains(dep.targetName)) {
         // TODO(timgreen): better error message
@@ -45,6 +45,6 @@ object Analysis {
     }
 
     labelsProccessingSet -= labelsProccessing.pop
-    labelsProccessed += target.fullname
+    labelsProccessed += target.targetName
   }
 }

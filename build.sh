@@ -54,7 +54,7 @@ clear() {
 
 run() {
   build
-  java -cp $CP:$BUILD_DIR cook.app.Main build "src/cook/config/parser:parser"
+  java -cp $CP:$BUILD_DIR cook.app.Main analyze "src/cook/config/parser:parser"
 }
 
 main() {

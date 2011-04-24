@@ -19,7 +19,7 @@ class Target(
     val exeCmds: Seq[String],
     val isGenerateTarget: Boolean) {
 
-  def fullname(): String = {
+  def targetName(): String = {
     path + ":" + name
   }
 
@@ -75,10 +75,23 @@ class Target(
     }
   }
 
+  /**
+   * Return dependence targets.
+   *
+   * Dependence come from "deps", "inputs", "tools"
+   */
   def depTargets(): Seq[TargetLabel] = {
-    deps.map {
-      new TargetLabel(path, _)
+    val depsBuilder = new VectorBuilder[TargetLabel]
+    deps.foreach {
+      depsBuilder += new TargetLabel(path, _)
     }
+    for (
+      i <- (inputs ++ tools)
+      if (i.indexOf(":") != -1)
+    ) {
+      depsBuilder += new TargetLabel(path, i)
+    }
+    depsBuilder.result
   }
 
   private[target]
