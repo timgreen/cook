@@ -48,7 +48,7 @@ class Target(
       throw new TargetException(
           "One target should never been build twice: target \"%s\"".format(name))
     }
-    run(cmds)
+    runCmds(cmds)
     isBuilded = true
   }
 
@@ -133,7 +133,7 @@ class Target(
     }
   }
 
-  def run(cmds: Seq[String]) {
+  def runCmds(cmds: Seq[String]) {
     mkOutputDir
     val pb = new ProcessBuilder(cmds: _*)
     pb.directory(outputDir)
