@@ -41,6 +41,8 @@ class Target(
 
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
+    depOutputDirs = prepareDepOutputDirs(deps)
+    toolFiles = prepareToolFiles(tools)
     // TODO(timgreen): check tools
     if (isBuilded) {
       throw new TargetException(
@@ -76,25 +78,24 @@ class Target(
 
   private[target]
   var inputFiles: Seq[File] = null
+  var depOutputDirs: Seq[File] = null
+  var toolFiles: Seq[File] = null
+
+  def prepareInputFiles(inputs: Seq[String]) = labelToFiles(inputs)
+  def prepareToolFiles(tools: Seq[String]) = labelToFiles(tools)
 
   /**
-   * Convert Seq[String] to Seq[File]
+   * Get dep targets output dirs.
    */
-  def prepareInputFiles(inputs: Seq[String]): Seq[File] = {
-    val inputFilesBuilder = new VectorBuilder[File]
+  def prepareDepOutputDirs(deps: Seq[String]) : Seq[File] = {
+    val depOutputDirsBuilder = new VectorBuilder[File]
 
-    for (i <- inputs) yield {
-      if (i.indexOf(':') == -1) {
-        inputFilesBuilder += new FileLabel(path, i).file
-      } else {
-        val target = TargetManager.getTarget(new TargetLabel(path, i))
-        inputFilesBuilder ++= target.outputs
-      }
+    for (t <- deps) {
+      val target = TargetManager.getTarget(new TargetLabel(path, t))
+      depOutputDirsBuilder += target.outputDir
     }
 
-    checkFiles(inputFiles)
-
-    inputFilesBuilder.result
+    depOutputDirsBuilder.result
   }
 
   def mkOutputDir() {
@@ -102,6 +103,26 @@ class Target(
       throw new TargetException(
           "Can not create output dir for target \"%s\": %s".format(outputDir.getPath, name))
     }
+  }
+
+  /**
+   * Convert Seq[label: String] to Seq[File]
+   */
+  def labelToFiles(labels: Seq[String]): Seq[File] = {
+    val filesBuilder = new VectorBuilder[File]
+
+    for (l <- labels) {
+      if (l.indexOf(':') == -1) {
+        filesBuilder += new FileLabel(path, l).file
+      } else {
+        val target = TargetManager.getTarget(new TargetLabel(path, l))
+        filesBuilder ++= target.outputs
+      }
+    }
+
+    val files = filesBuilder.result
+    checkFiles(files)
+    files
   }
 
   def checkFiles(files: Seq[File]) {
@@ -118,7 +139,9 @@ class Target(
     pb.directory(outputDir)
     val env = pb.environment
     env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
-    env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString(" "))
+    env.put("INPUTS", BashArray(inputFiles.map(_.getAbsolutePath)))
+    env.put("DEP_OUTPUT_DIRS", BashArray(depOutputDirs.map(_.getAbsolutePath)))
+    env.put("TOOLS", BashArray(toolFiles.map(_.getAbsolutePath)))
     pb.start
   }
 
@@ -130,4 +153,17 @@ object Target {
   val OUTPUT_PREFIX = "COOK_TARGET_"
   val COOK_GEN = "cook_gen"
   val COOK_BUILD = "cook_build"
+}
+
+/**
+ * TODO(timgreen): merge into shell util
+ */
+object BashArray {
+
+  def apply(values: Seq[String]): String = {
+    val v = values.map((s) => {
+      "\"%s\"".format("[\"\\]".r.replaceAllIn(s, (m) => "\\" + m.toString))
+    }).mkString(" ")
+    "(%s)".format(v)
+  }
 }
