@@ -14,7 +14,7 @@ object Builder {
     while (buildStack.nonEmpty) {
       val targetLabel = buildStack.pop
       labelsProccessing.push(targetLabel)
-      labelsProccessingSet += targetLabel.targetFullname
+      labelsProccessingSet += targetLabel.targetName
       buildOneTarget(targetLabel)
       labelsProccessing.pop
     }
@@ -22,7 +22,7 @@ object Builder {
 
   def buildOneTarget(targetLabel: TargetLabel) {
     val target = TargetManager.getTarget(targetLabel)
-    println("analysis target: %s".format(targetLabel.targetFullname))
+    println("analysis target: %s".format(targetLabel.targetName))
 
     target.depTargets.foreach { buildStack.push(_) }
   }

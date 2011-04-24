@@ -44,11 +44,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
   /**
    * "//package_a/package_b/package_c:target_name"
    * or
-   * "//package_a/package_b/package_c"
-   * or
    * "package_c:target_name"
-   * or
-   * "package_c"
    * or
    * ":target_name"
    */
@@ -59,20 +55,11 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
         "%s%s".format(pathFromRoot, name)
       }
 
-  val targetFullname =
-      if (targetName.indexOf(':') != -1) {
-        // "//package_a/package_b/package_c:target_name"
-        targetName
-      } else {
-        // "//package_a/package_b/package_c"
-        // =
-        // "//package_a/package_b/package_c:package_c"
-        val r = "^(.*/)?([^/]+)$".r
-        val r(_, name) = targetName
-        targetName + ":" + name
-      }
+  if (targetName.indexOf(':') == -1) {
+    throw new CookBaseExceptioin("Target name must contain \":\", invalid name \"%s\"", targetName)
+  }
 
-  val configFilename: String = targetFullname.split(":")(0) + "/COOK"
+  val configFilename: String = targetName.split(":")(0) + "/COOK"
   val config = FileUtil(configFilename)
 
   if (!config.exists) {

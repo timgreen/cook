@@ -15,15 +15,15 @@ object TargetManager {
   }
 
   def getTarget(targetLabel: TargetLabel): Target = {
-    if (!hasTarget(targetLabel.targetFullname)) {
+    if (!hasTarget(targetLabel.targetName)) {
       CookRunner.run(targetLabel.config, ConfigType.COOK)
     }
 
-    targets.get(targetLabel.targetFullname) match {
+    targets.get(targetLabel.targetName) match {
       case Some(target) => target
       case None => {
         throw new TargetException(
-            "Target \"%s\" is not defined".format(targetLabel.targetFullname))
+            "Target \"%s\" is not defined".format(targetLabel.targetName))
       }
     }
   }
