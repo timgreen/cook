@@ -24,7 +24,7 @@ object Analyze extends SubCommand("analyze") {
     val currentDir = FileUtil.relativeDirToRoot(System.getProperty("user.dir"))
     val targetLabel = new TargetLabel(currentDir, args(0))
 
-    Analysis.analyze(targetLabel)
+    val targets = Analysis.analyze(targetLabel)
   }
 
   def help() {
