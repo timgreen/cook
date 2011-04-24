@@ -153,7 +153,7 @@ class Target(
 
   def runCmds(cmds: Seq[String]) {
     mkOutputDir
-    val pb = new ProcessBuilder(cmds: _*)
+    val pb = new ProcessBuilder("/bin/bash", "-i", "-c", cmds.mkString(";"))
     pb.directory(outputDir)
     val env = pb.environment
     env.put("OUTPUT_DIR", outputDir.getAbsolutePath)

@@ -12,7 +12,7 @@ scala_lib(
   srcs = [
       "CookParser.scala",
       "Semantics.scala",
-      "unit/CookUnit.scala",
+      "unit/Unit.scala",
       ":gen_parser",
   ]
 )
