@@ -7,7 +7,6 @@ SRC=$ROOT/src
 TEST=$ROOT/test
 GEN_DIR=$ROOT/cook_gen
 BUILD_DIR=$ROOT/cook_build
-BIN_DIR=$ROOT/cook_bin
 
 CP=$LIB/Mouse-1.3.jar:$LIB/scala-library.jar:$LIB/ant.jar
 RUNTIM_CP=$LIB/Mouse-1.3.runtime.jar
@@ -17,7 +16,6 @@ SCALA_TEST_CP=$LIB/scalatest-1.3.jar
 mkBuildDir() {
   mkdir -p $GEN_DIR
   mkdir -p $BUILD_DIR
-  mkdir -p $BIN_DIR
 }
 
 testPeg() {
@@ -51,7 +49,7 @@ runTest() {
 }
 
 clear() {
-  rm -fr $GEN_DIR $BUILD_DIR $BIN_DIR
+  rm -fr $GEN_DIR $BUILD_DIR
 }
 
 run() {

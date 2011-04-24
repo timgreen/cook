@@ -27,6 +27,14 @@ trait RunnableUnit {
     }
   }
 
+  def getNumberOrError(v: Option[Value]): Int = v match {
+    case Some(NumberValue(int)) => int
+    case None => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need NumberValue here")
+    }
+  }
+
   def getListStringOrError(v: Option[Value]): Seq[String] = v match {
     case Some(ListValue(list)) => {
       return list.map( _ match {

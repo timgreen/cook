@@ -42,10 +42,12 @@ class Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDe
         } catch {
           case _ => null  // ignore
         }
+    val isGenerateTarget = getNumberOrError(argsValue.get("isGenerateTarget"))
 
     var fullname = "%s:%s".format(path, name)
     println("Create target \"%s\"".format(fullname))
-    TargetManager.push(new Target(path, name, cmds, inputs, deps, tools, exeCmds))
+    TargetManager.push(
+        new Target(path, name, cmds, inputs, deps, tools, exeCmds, isGenerateTarget == 1))
 
     NullValue()
   }
@@ -54,12 +56,13 @@ class Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDe
 object GenruleArgsDef {
 
   def apply(): ArgsDef = {
-    val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps", "tools")
+    val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps", "tools", "isGenerateTarget")
     val defaultValues = new HashMap[String, Value]
     defaultValues.put("inputs", ListValue())
     defaultValues.put("exeCmds", NullValue())
     defaultValues.put("deps", ListValue())
     defaultValues.put("tools", ListValue())
+    defaultValues.put("isGenerateTarget", NumberValue(0))
 
     new ArgsDef(names, defaultValues)
   }

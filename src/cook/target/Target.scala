@@ -16,7 +16,8 @@ class Target(
     val inputs: Seq[String],
     val deps: Seq[String],
     val tools: Seq[String],
-    val exeCmds: Seq[String]) {
+    val exeCmds: Seq[String],
+    val isGenerateTarget: Boolean) {
 
   def fullname(): String = {
     path + ":" + name
@@ -67,7 +68,11 @@ class Target(
   }
 
   def outputDir(): File = {
-    FileUtil.getBuildOutputDir(path, name)
+    if (isGenerateTarget) {
+      FileUtil.getGenerateOutputDir(path, name)
+    } else {
+      FileUtil.getBuildOutputDir(path, name)
+    }
   }
 
   def depTargets(): Seq[TargetLabel] = {
