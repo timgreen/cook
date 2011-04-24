@@ -1,3 +1,5 @@
 package cook.config.runner
 
-class EvalException(error: String, args: Any*) extends RuntimeException(error.format(args: _*))
+import cook.util.CookBaseException
+
+class EvalException(error: String, args: Any*) extends CookBaseException(error, args)

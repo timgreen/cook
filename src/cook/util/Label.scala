@@ -56,7 +56,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
       }
 
   if (targetName.indexOf(':') == -1) {
-    throw new CookBaseExceptioin("Target name must contain \":\", invalid name \"%s\"", targetName)
+    throw new CookBaseException("Target name must contain \":\", invalid name \"%s\"", targetName)
   }
 
   val configFilename: String = targetName.split(":")(0) + "/COOK"

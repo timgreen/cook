@@ -1,3 +1,5 @@
 package cook.target
 
-class TargetException(error: String) extends RuntimeException(error)
+import cook.util.CookBaseException
+
+class TargetException(error: String, args: Any*) extends CookBaseException(error, args)

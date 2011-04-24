@@ -1,3 +1,3 @@
 package cook.util
 
-class CookBaseExceptioin(error: String, args: Any*) extends RuntimeException(error.format(args: _*))
+class CookBaseException(error: String, args: Any*) extends RuntimeException(error.format(args: _*))
