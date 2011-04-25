@@ -50,7 +50,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
         }
     val ops =
         for (i <- 1 until rhsSize if i % 2 == 1) yield {
-          rhs(i).text.substring(0, 1)
+          rhs(i).text.trim
         }
     lhs.put(new Expr(exprItems, ops))
   }
