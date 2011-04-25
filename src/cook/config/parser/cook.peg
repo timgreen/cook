@@ -16,9 +16,9 @@ Expr            = ExprItem ( Operation ExprItem )*                        {expr}
 ExprItem        = SimpleExprItem ( SelectorSuffix )*                      {exprItem} ;
 
 SimpleExprItem  = ( IntegerConstant
-                  / StringLiteral ![.]
-                  / Identifier ![.(]
+                  / StringLiteral
                   / FuncCall
+                  / Identifier ![(]
                   / LBRK ExprList? RBRK
                   / LPAR Expr RPAR
                   )                                                       {simpleExprItem} ;
