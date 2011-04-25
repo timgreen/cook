@@ -8,8 +8,8 @@ def scala_lib(name, srcs, deps = [], cp = []) {
       tools = cp,
       cmds = [
           "CP=(${DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
-          "IFS=\":\"",
-          "CP=$CP",
+          "CP=$(printf :%s ${CP[*]})",
+          "CP=${CP:1}",
           "scalac -d $OUTPUT_DIR -cp $CP ${INPUTS[*]}",
       ],
   )

@@ -8,9 +8,9 @@ def java_lib(name, srcs, deps = [], cp = []) {
       tools = cp,
       cmds = [
           "CP=(${DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
-          "IFS=\":\"",
-          "CP=$CP",
-          "javac -d $OUTPUT_OUT -cp $CP ${INPUTS[@]}"
+          "CP=$(printf :%s ${CP[*]})",
+          "CP=${CP:1}",
+          "javac -d $OUTPUT_DIR -cp $CP ${INPUTS[*]}"
       ]
   )
 }

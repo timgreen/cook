@@ -3,6 +3,7 @@ package cook.target
 import java.io.File
 import java.util.Date
 
+import scala.io.Source
 import scala.collection.immutable.VectorBuilder
 
 import org.apache.tools.ant.DirectoryScanner
@@ -47,8 +48,9 @@ class Target(
     // TODO(timgreen): check tools
     if (isBuilded) {
       throw new TargetException(
-          "One target should never been build twice: target \"%s\"".format(name))
+          "One target should never been build twice: target \"%s\"".format(targetName))
     }
+    println("Build target \"%s\"".format(targetName))
     runCmds(cmds)
     isBuilded = true
   }
@@ -169,7 +171,16 @@ class Target(
     env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
     env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
     env.put("TOOLS", toolFiles.map(_.getAbsolutePath).mkString("|"))
-    pb.start
+
+    val p = pb.start
+    p.waitFor
+
+    val source = Source.fromInputStream(p.getInputStream)
+    println(source.getLines.mkString("\n"))
+
+    if (p.exitValue != 0) {
+      System.exit(p.exitValue)
+    }
   }
 
   var isBuilded = false

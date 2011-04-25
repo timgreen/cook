@@ -23,5 +23,9 @@ scala_lib(
 java_lib(
   name = "parser",
   srcs = [ ":gen_parser" ],
-  deps = [ ":cookParser" ]
+  deps = [ ":cookParser" ],
+  cp = [
+      "//lib/scala-library.jar",
+      "//lib/Mouse-1.3.jar",
+  ]
 )
