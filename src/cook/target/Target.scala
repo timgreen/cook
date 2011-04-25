@@ -78,11 +78,11 @@ class Target(
   }
 
   /**
-   * Return dependence targets.
+   * Get dependence targets.
    *
    * Dependence come from "deps", "inputs", "tools"
    */
-  def depTargets(): Seq[TargetLabel] = {
+  lazy val depTargets: Seq[TargetLabel] = {
     val depsBuilder = new VectorBuilder[TargetLabel]
     for (
       i <- (deps ++ inputs ++ tools)
@@ -167,6 +167,7 @@ class Target(
     pb.redirectErrorStream(true)
     val env = pb.environment
     env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
+    env.put("NAME", name)
     // TODO(timgreen): figure out a better way to pass array values
     env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
     env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
