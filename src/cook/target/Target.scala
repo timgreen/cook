@@ -154,14 +154,14 @@ class Target(
     mkOutputDir
     val splitArrayValueCmds = Seq[String](
       "OLD_IFS=\"$IFS\"",
-      "IFS=\"|\"",
+      "IFS='|'",
       "INPUTS=( $INPUTS )",
       "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
       "TOOLS=( $TOOLS )",
       "IFS=\"$OLD_IFS\""
     )
     val pb = new ProcessBuilder(
-        "/bin/bash", "-i", "-c",
+        "/bin/bash", "-c",
         (splitArrayValueCmds ++ cmds).mkString(";"))
     pb.directory(outputDir)
     pb.redirectErrorStream(true)
