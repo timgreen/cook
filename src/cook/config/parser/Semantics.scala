@@ -218,15 +218,18 @@ class Semantics extends mouse.runtime.SemanticsBase {
   }
 
   def stringLiteral {
-    val chars =
-        for (i <- 1 until (rhsSize - 2)) yield {
-          if (rhs(i).isA("Escape")) {
-            rhs(i).get.toString
-          } else {
-            rhs(i).text
-          }
-        }
+    val chars = for (i <- 1 until (rhsSize - 2)) yield rhs(i).get
     lhs.put(chars.mkString)
+  }
+
+  def stringChar {
+    val char =
+        if (rhs(0).isA("Escape")) {
+          rhs(0).get
+        } else {
+          rhs(0).text
+        }
+    lhs.put(char)
   }
 
   def escape {
@@ -236,14 +239,14 @@ class Semantics extends mouse.runtime.SemanticsBase {
   def simpleEscape {
     var char =
         rhs(1).text match {
-          case "\\" => '\\'
-          case "'" => '\''
-          case "\"" => '"'
-          case "b" => '\b'
-          case "f" => '\f'
-          case "n" => '\n'
-          case "r" => '\r'
-          case "t" => '\t'
+          case "\\" => "\\"
+          case "'" => "'"
+          case "\"" => "\""
+          case "b" => "\b"
+          case "f" => "\f"
+          case "n" => "\n"
+          case "r" => "\r"
+          case "t" => "\t"
         }
     lhs.put(char)
   }

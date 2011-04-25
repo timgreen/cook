@@ -129,10 +129,10 @@ LineComment = "#" (!"\n" _)* EOL ;
 //-------------------------------------------------------------------------
 
 StringLiteral = ["] StringChar* ["] Spacing {stringLiteral} ;
-StringChar = Escape / ![\"\n\\] _ ;
+StringChar = ( Escape / ![\"\n\\] _ )       {stringChar}    ;
 
-Escape = SimpleEscape ;
-SimpleEscape = "\\" ['\"?\\abfnrtv] ;
+Escape = SimpleEscape                       {escape}        ;
+SimpleEscape = "\\" ['\"\\bfnrt]            {simpleEscape}  ;
 
 
 //-------------------------------------------------------------------------
