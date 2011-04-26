@@ -25,6 +25,3 @@
 -keep public class cook.app.Main {
     public static void main(java.lang.String[]);
 }
-
-# If you want to preserve the Ant task as well, you'll have to specify the
-# main ant.jar.
