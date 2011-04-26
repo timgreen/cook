@@ -1,0 +1,5 @@
+Cook v0.2
+	* Use proguard to reduce the jar size
+
+Cook v0.1
+	* First Alpha Release
