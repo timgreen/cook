@@ -18,6 +18,8 @@ def java_lib(name, srcs, deps = [], cp = []) {
 
 def jar(name, deps = [], libs = []) {
 
+  #TODO(timgreen): support main class
+
   genrule(
       name = name + ".jar",
       deps = deps,
