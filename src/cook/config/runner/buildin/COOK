@@ -1,0 +1,9 @@
+
+scala_lib(
+  name = "subcommand",
+  srcs = glob([ "*.scala" ]),
+  deps = [
+      "//src/cook/config/runner:runnable",
+      "//src/cook/target:target",
+  ]
+)

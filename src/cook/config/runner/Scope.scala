@@ -2,7 +2,6 @@ package cook.config.runner
 
 import scala.collection.mutable.HashMap
 
-import cook.config.runner.buildin._
 import cook.config.runner.unit._
 import cook.config.runner.value._
 
@@ -45,14 +44,4 @@ object Scope {
       new Scope(new HashMap[String, Value], new HashMap[String, RunnableFuncDef], parent)
 
   val ROOT_SCOPE: Scope = apply(null)
-
-  private def initRootScope {
-    ROOT_SCOPE.funcs.put("glob",    Glob)
-    ROOT_SCOPE.funcs.put("path",    Path)
-    ROOT_SCOPE.funcs.put("include", Include)
-    ROOT_SCOPE.funcs.put("genrule", Genrule)
-    ROOT_SCOPE.funcs.put("echo",    Echo)
-  }
-
-  initRootScope
 }
