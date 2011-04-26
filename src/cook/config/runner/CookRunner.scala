@@ -27,16 +27,16 @@ object CookRunner {
       return configToScopeMap(configFile.getPath)
     }
 
-    // TODO(timgreen): check if config type match the content
-    // a. COOK_ROOT can only call function "include"
-    // b. cooki can not call function "include"
-
     if (!configFile.exists) {
       throw new EvalException("Cook Config file \"%s\" not found", configFile.getPath)
     }
 
     val scope = Scope()
-    CookParser.parse(configFile).run(FileUtil.relativeDirToRoot(configFile), scope)
+
+    val config = CookParser.parse(configFile)
+    checkConfigType(configFile, config, configType)
+
+    config.run(FileUtil.relativeDirToRoot(configFile), scope)
 
     configToScopeMap.put(configFile.getPath, scope)
     scope
@@ -52,5 +52,36 @@ object CookRunner {
     }
 
     Scope.ROOT_SCOPE.merge(run(cookRoot, COOK_ROOT))
+  }
+
+  def checkConfigType(configFile: File, config: CookConfig, configType: ConfigType) {
+    def isIncludeFunctionCall(s: Statement): Boolean = s match {
+      case FuncCall(name, _) => name == "include"
+      case _ => false
+    }
+
+    def notContainIncludeCall(s: Statement): Boolean = s match {
+      case FuncCall(name, _) => name != "include"
+      case FuncDef(_, _, statements, _) => statements.forall(notContainIncludeCall)
+    }
+
+    // a. COOK_ROOT can only call function "include"
+    // b. cooki can not call function "include"
+    configType match {
+      case ConfigType.COOK_ROOT => {
+        if (!config.statements.forall(isIncludeFunctionCall)) {
+          throw new EvalException(
+              "COOK_ROOT \"%s\" can only call function \"include\"",
+              configFile.getPath)
+        }
+      }
+      case ConfigType.cooki => {
+        if (!config.statements.forall(notContainIncludeCall)) {
+          throw new EvalException(
+              "cooki file \"%s\" can not call function \"include\"",
+              configFile.getPath)
+        }
+      }
+    }
   }
 }
