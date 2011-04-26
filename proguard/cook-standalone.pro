@@ -2,7 +2,7 @@
 -injars ../lib/scala-library.jar(!META-INF/MANIFEST.MF,!library.properties)
 -injars ../lib/Mouse-1.3.jar
 -injars ../lib/ant.jar(!META-INF/**,!images/**,!org/apache/tools/ant/version.txt)
--injars ../lib/ant-launcher.jar
+-injars ../lib/ant-launcher.jar(!META-INF/MANIFEST.MF)
 
 -outjars cook-standalone.jar
 
