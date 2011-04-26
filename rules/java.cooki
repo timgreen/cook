@@ -7,10 +7,25 @@ def java_lib(name, srcs, deps = [], cp = []) {
       deps = deps,
       tools = cp,
       cmds = [
-          "CP=(${DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
+          "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
           "CP=$(printf :%s ${CP[*]})",
           "CP=${CP:1}",
-          "javac -d $OUTPUT_DIR -cp $CP ${INPUTS[*]}"
+          "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
+          "javac -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
+      ]
+  )
+}
+
+def jar(name, deps = []) {
+
+  genrule(
+      name = name + ".jar",
+      deps = deps,
+      cmds = [
+          "mkdir -p classes",
+          "files=()",
+          "for d in ${DEP_OUTPUT_DIRS[*]}; do files=($files -C $d .); done",
+          "jar cf $NAME ${files[*]}"
       ]
   )
 }

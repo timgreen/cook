@@ -45,7 +45,6 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
     val isGenerateTarget = getNumberOrError(argsValue.get("isGenerateTarget"))
 
     var targetName = "%s:%s".format(path, name)
-    println("Create target \"%s\"".format(targetName))
     TargetManager.push(
         new Target(path, name, cmds, inputs, deps, tools, exeCmds, isGenerateTarget == 1))
 

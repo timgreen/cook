@@ -3,8 +3,6 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
-import cook.util._
-
 abstract class Label {
   protected var hashObj: String = null
 

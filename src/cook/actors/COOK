@@ -1,11 +1,12 @@
 scala_lib(
-  name = "builder",
-  srcs = [
-      "Builder.scala"
-  ],
+  name = "actors",
+  srcs = glob([
+      "*.scala"
+  ]),
   deps = [
-      "src/cook/util",
-      "src/cook/config/parser:parser",
-      "src/cook/config/runner:parser",
+      "//src/cook/config/parser:parser",
+      "//src/cook/config/runner:runnable",
+      "//src/cook/target:target",
+      "//src/cook/util:util",
   ]
 )

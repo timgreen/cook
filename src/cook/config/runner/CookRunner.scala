@@ -27,8 +27,6 @@ object CookRunner {
       return configToScopeMap(configFile.getPath)
     }
 
-    println("CookRunner run \"%s\"".format(configFile.getPath))
-
     // TODO(timgreen): check if config type match the content
     // a. COOK_ROOT can only call function "include"
     // b. cooki can not call function "include"

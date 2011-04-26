@@ -2,5 +2,11 @@ scala_lib(
   name = "subcommand",
   srcs = glob([
     "*.scala"
-  ])
+  ]),
+  deps = [
+    "//src/cook/actors:actors",
+  ],
+  cp = [
+    "//lib/ant.jar",
+  ]
 )

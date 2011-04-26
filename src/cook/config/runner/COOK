@@ -1,17 +1,21 @@
 scala_lib(
   name = "exception",
-  srcs = [ "EvalException.scala" ]
+  srcs = [ "EvalException.scala" ],
+  deps = [ "//src/cook/util:util" ]
 )
 
 scala_lib(
   name = "runnable",
   srcs = glob([
-      "buildin/*.scala",
       "unit/*.scala",
       "Scope.scala",
   ]),
   deps = [
       ":exception",
-      "//src/cook/config/runner/value:value"
+      "//src/cook/config/runner/value:value",
+      "//src/cook/config/parser:parser",
+  ],
+  cp = [
+      "//lib/ant.jar"
   ]
 )
