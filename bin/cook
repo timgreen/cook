@@ -2,6 +2,5 @@
 
 ROOT=$(dirname "$0")
 jar="$ROOT/cook.jar"
-cp="$ROOT/../lib/ant.jar:$ROOT/../lib/Mouse-1.3.runtime.jar:$ROOT/../lib/scala-library.jar"
 
-java -cp "$cp:$jar" cook.app.Main $*
+java -cp "$jar" cook.app.Main $*
