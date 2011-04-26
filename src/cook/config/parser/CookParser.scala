@@ -6,6 +6,7 @@ import mouse.runtime.SourceString
 import mouse.runtime.SourceFile
 
 import cook.config.parser.unit._
+import cook.util._
 
 object CookParser {
 
@@ -15,10 +16,10 @@ object CookParser {
     val parser = new Parser
     if (!parser.parse(new SourceFile(file.getPath))) {
       // TODO(timgreen): wrapper parser error
-      throw new ParserErrorException(null)
+      throw new ParserErrorException("Get error when parse: \"%s\"", file.getPath)
     }
     parser.semantics.getConfig
   }
 }
 
-class ParserErrorException(errors: Array[String]) extends RuntimeException
+class ParserErrorException(error: String, args: Any*) extends CookBaseException(error, args: _*)
