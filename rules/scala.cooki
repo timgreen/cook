@@ -11,7 +11,7 @@ def scala_lib(name, srcs, deps = [], cp = []) {
           "CP=$(printf :%s ${CP[*]})",
           "CP=${CP:1}",
           "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
-          "scalac -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
+          "fsc -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
       ],
   )
 }

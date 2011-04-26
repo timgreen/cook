@@ -32,14 +32,14 @@ build() {
   generateParser
   scala_files=$(find $SRC -name "*.scala" -print)
   java_files=$(find $GEN_DIR/cook/config/parser/ -name "*.java" -print)
-  fsc -deprecation -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
+  scalac -deprecation -unchecked -d $BUILD_DIR -classpath $CP ${scala_files[*]} ${java_files[*]}
   javac -d $BUILD_DIR -classpath $CP:$BUILD_DIR ${java_files[*]}
 }
 
 buildTest() {
   build
   scala_files=$(find $TEST -name "*.scala" -print)
-  fsc -unchecked -d $BUILD_DIR -classpath $CP:$BUILD_DIR:$SCALA_TEST_CP ${scala_files[*]}
+  scalac -unchecked -d $BUILD_DIR -classpath $CP:$BUILD_DIR:$SCALA_TEST_CP ${scala_files[*]}
 }
 
 runTest() {
@@ -54,8 +54,7 @@ clear() {
 
 run() {
   build
-  java -cp $CP:$BUILD_DIR cook.app.Main analyze "src/cook/app:main"
-  java -cp $CP:$BUILD_DIR cook.app.Main build "src/cook/app:main"
+  java -cp $CP:$BUILD_DIR cook.app.Main build ":cook.all.jar"
 }
 
 main() {

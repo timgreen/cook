@@ -51,7 +51,7 @@ class Target(
       throw new TargetException(
           "One target should never been build twice: target \"%s\"".format(targetName))
     }
-    println("Build target \"%s\"".format(targetName))
+    println("Building target \"%s\"".format(targetName))
     runCmds(cmds)
     isBuilded = true
   }
