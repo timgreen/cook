@@ -5,6 +5,7 @@ import java.util.Date
 
 import scala.io.Source
 import scala.collection.immutable.VectorBuilder
+import scala.collection.mutable.HashSet
 
 import org.apache.tools.ant.DirectoryScanner
 
@@ -75,6 +76,16 @@ class Target(
     } else {
       FileUtil.getBuildOutputDir(path, name)
     }
+  }
+
+  lazy val allDepOutputDirs: HashSet[String] = {
+    val set = new HashSet[String]
+    for (d <- deps if (d.indexOf(":") != -1)) {
+      val t = TargetManager.getTarget(new TargetLabel(path, d))
+      set += t.outputDir.getAbsolutePath
+      set ++= t.allDepOutputDirs
+    }
+    set
   }
 
   /**
@@ -157,6 +168,7 @@ class Target(
       "IFS='|'",
       "INPUTS=( $INPUTS )",
       "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
+      "ALL_DEP_OUTPUT_DIRS=( $ALL_DEP_OUTPUT_DIRS )",
       "TOOLS=( $TOOLS )",
       "IFS=\"$OLD_IFS\""
     )
@@ -171,6 +183,7 @@ class Target(
     // TODO(timgreen): figure out a better way to pass array values
     env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
     env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
+    env.put("ALL_DEP_OUTPUT_DIRS", allDepOutputDirs.mkString("|"))
     env.put("TOOLS", toolFiles.map(_.getAbsolutePath).mkString("|"))
 
     val p = pb.start
