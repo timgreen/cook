@@ -63,6 +63,7 @@ object CookRunner {
     def notContainIncludeCall(s: Statement): Boolean = s match {
       case FuncCall(name, _) => name != "include"
       case FuncDef(_, _, statements, _) => statements.forall(notContainIncludeCall)
+      case _ => true
     }
 
     // a. COOK_ROOT can only call function "include"
@@ -81,6 +82,9 @@ object CookRunner {
               "cooki file \"%s\" can not call function \"include\"",
               configFile.getPath)
         }
+      }
+      case ConfigType.COOK => {
+        // No check needed
       }
     }
   }
