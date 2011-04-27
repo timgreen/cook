@@ -27,6 +27,16 @@ case class NullValue() extends Value("Null") {
   override def get(): Any = null
 }
 
+case class BooleanValue(bool: Boolean) extends Value("Bool") {
+
+  override def get(): Any = bool
+}
+object BooleanValue {
+
+  val TRUE  = BooleanValue(true)
+  val FALSE = BooleanValue(false)
+}
+
 case class NumberValue(int: Int) extends Value("Number") {
 
   override def get(): Any = int
@@ -37,6 +47,8 @@ case class StringValue(str: String) extends Value("String") {
   override def attr(id: String): Value = id match {
     case "size" => NumberValue(str.size)
     case "length" => NumberValue(str.length)
+    case "isEmpty" => BooleanValue(str.isEmpty)
+    case "nonEmpty" => BooleanValue(str.nonEmpty)
     case _ => super.attr(id)
   }
 
@@ -48,6 +60,8 @@ case class ListValue(list: Seq[Value]) extends Value("List") {
   override def attr(id: String): Value = id match {
     case "size" => NumberValue(list.size)
     case "length" => NumberValue(list.length)
+    case "isEmpty" => BooleanValue(list.isEmpty)
+    case "nonEmpty" => BooleanValue(list.nonEmpty)
     case _ => super.attr(id)
   }
 
