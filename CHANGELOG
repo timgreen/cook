@@ -1,3 +1,10 @@
+Cook v0.3
+  * Bug fix
+	* Set main class in cook.jar
+	* Support const value "true" "false" "null" in config
+	* Block on subprocess input stream instead of subprocess.waitFor
+	* Add COOK config type check
+
 Cook v0.2
 	* Use proguard to reduce the jar size
 
