@@ -187,10 +187,15 @@ class Target(
     env.put("TOOLS", toolFiles.map(_.getAbsolutePath).mkString("|"))
 
     val p = pb.start
-    p.waitFor
 
-    val source = Source.fromInputStream(p.getInputStream)
-    println(source.getLines.mkString("\n"))
+    // Merge subprocess output
+    // NOTE(timgreen): don't need p.waitFor here, will block on inputstream
+    val is = p.getInputStream
+    val bytes = Array[Byte](100)
+    while (is.read(bytes) != -1) {
+      System.out.write(bytes)
+    }
+    println("")
 
     if (p.exitValue != 0) {
       System.exit(p.exitValue)
