@@ -1,6 +1,6 @@
 scala_lib(
   name = "value",
-  srcs = [ "Value.scala" ],
+  srcs = glob([ "*.scala" ]),
   deps = [
       "//src/cook/config/runner:exception",
   ]
