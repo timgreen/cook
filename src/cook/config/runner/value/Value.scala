@@ -9,15 +9,6 @@ abstract class Value(val typeName: String) {
   }
 
   def isNull = false
-
-  def ensureNotNull(): Value = ensureNotNull("Null is not allowed in expr")
-  def ensureNotNull(errorMessage: String): Value = {
-    if (isNull) {
-      throw new EvalException(errorMessage)
-    }
-    this
-  }
-
   def get(): Any
 }
 

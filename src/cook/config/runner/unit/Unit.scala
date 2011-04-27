@@ -118,10 +118,10 @@ class RunnableAssginment(val assginment: Assginment) extends RunnableUnit {
 class RunnableExprItem(val exprItem: ExprItem) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value = {
-    val v = exprItem.simpleExprItem.run(path, scope).ensureNotNull
+    val v = exprItem.simpleExprItem.run(path, scope)
     exprItem.selectorSuffixs.foldLeft(v) {
       (v, selectorSuffix) => {
-        new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope).ensureNotNull
+        new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope)
       }
     }
   }
@@ -184,7 +184,7 @@ class RunnableExprList(val exprList: ExprList) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value =
       ListValue(exprList.exprs.map {
-        _.run(path, scope).ensureNotNull
+        _.run(path, scope)
       })
 }
 
@@ -192,9 +192,9 @@ class RunnableExpr(val expr: Expr) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value = {
     val it = expr.exprItems.iterator
-    val v = it.next.run(path, scope).ensureNotNull
+    val v = it.next.run(path, scope)
     expr.ops.foldLeft(v) {
-      ValueOp.eval(_, _, it.next.run(path, scope).ensureNotNull)
+      ValueOp.eval(_, _, it.next.run(path, scope))
     }
   }
 
@@ -236,7 +236,7 @@ class RunnableFuncDef(
     }
 
     returnStatement match {
-      case Some(expr) => expr.run(path, scope).ensureNotNull
+      case Some(expr) => expr.run(path, scope)
       case None => NullValue()
     }
   }
