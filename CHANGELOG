@@ -1,5 +1,5 @@
 Cook v0.3
-  * Bug fix
+	* Bug fix
 	* Set main class in cook.jar
 	* Support const value "true" "false" "null" in config
 	* Block on subprocess input stream instead of subprocess.waitFor
