@@ -51,7 +51,7 @@ ReturnStatement = RETURN Expr                                             {retur
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE ) ;
+Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / CONST ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
@@ -63,6 +63,11 @@ PATH     = "path"     ! IdChar Spacing ;
 ECHO     = "echo"     ! IdChar Spacing ;
 
 GENRULE  = "genrule"  ! IdChar Spacing ;
+
+CONST    = ( TRUE / FALSE / NULL ) ;
+TRUE     = "true"     ! IdChar Spacing ;
+FALSE    = "false"    ! IdChar Spacing ;
+NULL     = "null"     ! IdChar Spacing ;
 
 //-------------------------------------------------------------------------
 //  Operation

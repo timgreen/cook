@@ -5,7 +5,7 @@ import cook.config.runner.buildin.Installer
 
 object Main {
 
-  Installer.initBuildinFunction
+  Installer.init
 
   def main(args: Array[String]) {
     val (subCommandName, subCommandArgs) =

@@ -16,7 +16,7 @@ def java_lib(name, srcs, deps = [], cp = []) {
   )
 }
 
-def jar(name, deps = [], libs = [], mainClass = "") {
+def jar(name, deps = [], libs = [], mainClass = null) {
 
   #TODO(timgreen): add if
 
