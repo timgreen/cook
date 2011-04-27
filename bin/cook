@@ -3,4 +3,4 @@
 ROOT=$(dirname "$0")
 jar="$ROOT/cook.jar"
 
-java -cp "$jar" cook.app.Main $*
+java -jar "$jar" $*
