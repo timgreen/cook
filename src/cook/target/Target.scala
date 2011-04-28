@@ -3,9 +3,11 @@ package cook.target
 import java.io.File
 import java.util.Date
 
-import scala.io.Source
+import scala.actors.Actor
+import scala.actors.Actor._
 import scala.collection.immutable.VectorBuilder
 import scala.collection.mutable.HashSet
+import scala.io.Source
 
 import org.apache.tools.ant.DirectoryScanner
 
@@ -188,14 +190,15 @@ class Target(
 
     val p = pb.start
 
-    // Merge subprocess output
-    // NOTE(timgreen): don't need p.waitFor here, will block on inputstream
-    val is = p.getInputStream
-    val bytes = Array[Byte](100)
-    while (is.read(bytes) != -1) {
-      System.out.write(bytes)
-    }
-    println("")
+    actor {
+      // Merge subprocess output
+      val is = p.getInputStream
+      val bytes = Array[Byte](100)
+      loopWhile(is.read(bytes) != -1) {
+        System.out.write(bytes)
+      }
+    }.start
+    p.waitFor
 
     if (p.exitValue != 0) {
       System.exit(p.exitValue)
