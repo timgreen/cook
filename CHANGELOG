@@ -1,3 +1,6 @@
+Cook v0.4
+  * Add timestamp based cache support
+
 Cook v0.3
 	* Bug fix
 	* Set main class in cook.jar
