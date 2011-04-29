@@ -12,6 +12,7 @@ object FileUtil {
 
   val OUTPUT_PREFIX = "COOK_TARGET_"
   val LOG_PREFIX = "COOK_TARGET_"
+  val CACHE_PREFIX = "COOK_TARGET_"
 
   def findRootDir(): File = findRootDir(new File(System.getProperty("user.dir")))
   def findRootDir(currentDir: File): File = {
@@ -62,6 +63,14 @@ object FileUtil {
 
   def getGenerateLogFile(path: String, targetName: String): File = {
     FileUtil("%s/%s/%s%s.log".format(COOK_GEN, path, LOG_PREFIX, targetName))
+  }
+
+  def getBuildCacheMetaFile(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s.cachemeta".format(COOK_BUILD, path, CACHE_PREFIX, targetName))
+  }
+
+  def getGenerateCacheMetaFile(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s.cachemeta".format(COOK_GEN, path, CACHE_PREFIX, targetName))
   }
 
   def cookBuildDir = FileUtil(COOK_BUILD)

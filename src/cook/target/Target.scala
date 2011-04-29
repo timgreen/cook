@@ -53,9 +53,15 @@ class Target(
       throw new TargetException(
           "One target should never been build twice: target \"%s\"".format(targetName))
     }
-    println("Building target \"%s\"".format(targetName))
-    runCmds(cmds)
+
+    if (!isCached) {
+      println("Building target \"%s\"".format(targetName))
+      runCmds(cmds)
+    } else {
+      println("Cached   target \"%s\"".format(targetName))
+    }
     isBuilded = true
+    saveCacheMeta
   }
 
   def outputs(): Seq[File] = {
@@ -105,6 +111,8 @@ class Target(
     }
     depsBuilder.result
   }
+
+  lazy val isCached: Boolean = checkIfCached
 
   private[target]
   var inputFiles: Seq[File] = null
@@ -210,6 +218,69 @@ class Target(
   }
 
   var isBuilded = false
+
+  def getCacheMetaFile =
+      if (isGenerateTarget) {
+        FileUtil.getGenerateCacheMetaFile(path, name)
+      } else {
+        FileUtil.getBuildCacheMetaFile(path, name)
+      }
+
+  /**
+   * One target is cached, if and only if
+   *   - all deps is cahced
+   *   - all input is not changed since last build
+   *   - all tools is not changed since last build
+   */
+  def checkIfCached(): Boolean = {
+    val metaFile = getCacheMetaFile
+    if (!metaFile.exists) {
+      return false
+    }
+
+    val cache = new Cache(metaFile)
+    cache.read
+
+    if (cache.deps != deps.toSet) {
+      return false
+    }
+    for (d <- deps if (d.indexOf(":") != -1)) {
+      val t = TargetManager.getTarget(new TargetLabel(path, d))
+      if (!t.isCached) {
+        return false
+      }
+    }
+
+    val inputs =
+        for (i <- inputFiles) yield {
+          i.getAbsolutePath -> i.lastModified
+        }
+    if (cache.inputs != inputs.toMap) {
+      return false
+    }
+
+    val tools =
+        for (t <- toolFiles) yield {
+          t.getAbsolutePath -> t.lastModified
+        }
+    if (cache.tools != tools.toMap) {
+      return false
+    }
+
+    return true
+  }
+
+  def saveCacheMeta {
+    val cache = new Cache(getCacheMetaFile)
+    cache.deps ++= deps
+    cache.inputs ++= inputFiles.map((i) => {
+      i.getAbsolutePath -> i.lastModified
+    })
+    cache.tools ++= toolFiles.map((t) => {
+      t.getAbsolutePath -> t.lastModified
+    })
+    cache.write
+  }
 
   def logFile(): File = {
     if (isGenerateTarget) {
