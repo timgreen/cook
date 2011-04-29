@@ -38,9 +38,12 @@ SelectorSuffix  = DOT ( Identifier ![(] / FuncCall )                      {selec
 FuncDef         = DEF !Keyword Identifier LPAR ArgDefList? RPAR LWING
                   FuncStatement* ReturnStatement? RWING                   {funcDef} ;
 
-FuncStatement   = ( FuncCall / Assginment )                               {funcStatement} ;
+FuncStatement   = ( FuncCall / Assginment / IfStatement )                 {funcStatement} ;
 
 ReturnStatement = RETURN Expr                                             {returnStatement} ;
+
+IfStatement     = IF LPAR Expr RPAR LWING FuncStatement* RWING
+                  ( ELSE LWING FuncStatement* RWING )?                    {ifStatement} ;
 
 
 //-----------------------------------------------------------------------//
@@ -55,6 +58,9 @@ Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / 
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
+
+IF       = "if"       !IdChar Spacing ;
+ELSE     = "else"     !IdChar Spacing ;
 
 INCLUDE  = "include"  ! IdChar Spacing ;
 SUBCLUDE = "subclude" ! IdChar Spacing ;

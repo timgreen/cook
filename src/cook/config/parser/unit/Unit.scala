@@ -1,7 +1,5 @@
 package cook.config.parser.unit
 
-import scala.collection.Seq
-
 class CookConfig(val statements: Seq[Statement])
 
 abstract class Statement
@@ -35,3 +33,7 @@ case class FuncDef(name: String,
                    argDefs: Seq[ArgDef],
                    statements: Seq[FuncStatement],
                    returnStatement: Option[Expr]) extends Statement
+
+case class IfStatement(cond: Expr,
+                       trueBlock: Seq[FuncStatement],
+                       falseBlock: Seq[FuncStatement]) extends FuncStatement

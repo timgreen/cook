@@ -194,6 +194,26 @@ class Semantics extends mouse.runtime.SemanticsBase {
     lhs.put(expr)
   }
 
+  def ifStatement {
+    val cond = rhs(2).get.asInstanceOf[Expr]
+    val trueBlockBuilder = new VectorBuilder[FuncStatement]
+    var i = 5
+    while (!rhs(i).isA("RWING")) {
+      trueBlockBuilder += rhs(i).get.asInstanceOf[FuncStatement]
+      i = i + 1
+    }
+    val falseBlockBuilder = new VectorBuilder[FuncStatement]
+    i = i + 3
+    if (i < rhsSize) {
+      while (!rhs(i).isA("RWING")) {
+        falseBlockBuilder += rhs(i).get.asInstanceOf[FuncStatement]
+        i = i + 1
+      }
+    }
+
+    lhs.put(IfStatement(cond, trueBlockBuilder.result, falseBlockBuilder.result))
+  }
+
   // Lexical elements
 
   def integerConstant {
