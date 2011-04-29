@@ -190,20 +190,32 @@ class Target(
 
     val p = pb.start
 
-    actor {
-      // Merge subprocess output
-      val is = p.getInputStream
-      val bytes = Array[Byte](100)
-      loopWhile(is.read(bytes) != -1) {
-        System.out.write(bytes)
+    // Merge subprocess output
+    val is = p.getInputStream
+    val bytes = Array[Byte](100)
+    val log = new java.io.FileOutputStream(logFile)
+    try {
+      while(is.read(bytes) != -1) {
+        log.write(bytes)
       }
-    }.start
+    } finally {
+      log.close
+    }
     p.waitFor
 
     if (p.exitValue != 0) {
+      Source.fromFile(logFile).getLines foreach println
       System.exit(p.exitValue)
     }
   }
 
   var isBuilded = false
+
+  def logFile(): File = {
+    if (isGenerateTarget) {
+      FileUtil.getGenerateLogFile(path, name)
+    } else {
+      FileUtil.getBuildLogFile(path, name)
+    }
+  }
 }
