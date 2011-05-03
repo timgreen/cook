@@ -94,6 +94,7 @@ class RunnableFuncStatement(val funcStatement: FuncStatement) extends RunnableUn
   def run(path: String, scope: Scope): Value = funcStatement match {
     case assginment: Assginment => assginment.run(path, scope)
     case simpleExprItem: SimpleExprItem => simpleExprItem.run(path, scope)
+    case ifStatement: IfStatement => ifStatement.run(path, scope)
     case _ => throw new EvalException("this should never happen")
   }
 }
@@ -242,6 +243,24 @@ class RunnableFuncDef(
   }
 }
 
+class RunnableIfStatement(ifStatement: IfStatement) {
+
+  def run(path: String, scope: Scope): Value = {
+    val block =
+        ifStatement.cond.run(path, scope) match {
+          case BooleanValue.TRUE => ifStatement.trueBlock
+          case BooleanValue.FALSE => ifStatement.falseBlock
+          case _ => throw new EvalException("need Boolean value in if cond")
+        }
+
+    block.foreach {
+      _.run(path, scope)
+    }
+
+    NullValue()
+  }
+}
+
 object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(cookConfig: CookConfig) = new RunnableCookConfig(cookConfig)
@@ -257,6 +276,9 @@ object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(simpleExprItem: SimpleExprItem) =
       new RunnableSimpleExprItem(simpleExprItem)
+
+  implicit def toRunnableUnit(ifStatement: IfStatement) =
+      new RunnableIfStatement(ifStatement)
 
   implicit def toRunnableUnit(integerConstant: IntegerConstant) =
       new RunnableIntegerConstant(integerConstant)
