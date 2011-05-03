@@ -128,15 +128,13 @@ object EquEquOp extends ValueOp("==") {
   override def eval(a: Value, b: Value): Value = (a, b) match {
     case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai == bi)
     case (StringValue(as), StringValue(bs)) => BooleanValue(as == bs)
-    case _ => ValueOp.error(name, a, b)
+    case (NullValue(), NullValue()) => BooleanValue.TRUE
+    case _ => BooleanValue.FALSE
   }
 }
 
 object BangEquOp extends ValueOp("!=") {
 
-  override def eval(a: Value, b: Value): Value = (a, b) match {
-    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai != bi)
-    case (StringValue(as), StringValue(bs)) => BooleanValue(as != bs)
-    case _ => ValueOp.error(name, a, b)
-  }
+  override def eval(a: Value, b: Value): Value =
+      BooleanValue(!EquEquOp.eval(a, b).asInstanceOf[BooleanValue].bool)
 }
