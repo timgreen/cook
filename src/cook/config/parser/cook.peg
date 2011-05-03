@@ -7,7 +7,7 @@ CookConfig      = Spacing Statement* EOT                                  {cookC
 
 Statement       = ( FuncStatement / FuncDef )                             {statement} ;
 
-FuncCall        = Identifier LPAR ArgList? RPAR                           {funcCall} ;
+FuncCall        = !IF Identifier LPAR ArgList? RPAR                       {funcCall} ;
 
 Assginment      = !Keyword Identifier EQU Expr                            {assginment} ;
 
@@ -54,7 +54,7 @@ IfStatement     = IF LPAR Expr RPAR LWING FuncStatement* RWING
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / CONST ) ;
+Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / CONST / IF ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
