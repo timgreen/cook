@@ -79,7 +79,20 @@ NULL     = "null"     ! IdChar Spacing ;
 //  Operation
 //-------------------------------------------------------------------------
 
-Operation = ( PLUS / MINUS / INC / STAR / DIV / MOD );
+Operation = ( PLUS
+            / MINUS
+            / INC
+            / STAR
+            / DIV
+            / MOD
+
+            / LT
+            / GT
+            / LE
+            / GE
+            / EQUEQU
+            / BANGEQU
+            );
 
 //-------------------------------------------------------------------------
 //  Constant
@@ -168,6 +181,13 @@ MOD        =  "%"  ![=>]  Spacing ;
 DOT        =  "."         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
+
+LT         =  "<"  ![=]   Spacing ;
+GT         =  ">"  ![=]   Spacing ;
+LE         =  "<="        Spacing ;
+GE         =  ">="        Spacing ;
+EQUEQU     =  "=="        Spacing ;
+BANGEQU    =  "!="        Spacing ;
 
 EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;

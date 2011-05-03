@@ -22,7 +22,14 @@ object ValueOp {
     "*"  -> StarOp,
     "/"  -> DivOp,
     "%"  -> ModOp,
-    "++" -> IncOp
+    "++" -> IncOp,
+
+    "<"  -> LtOp,
+    ">"  -> GtOp,
+    "<=" -> LeOp,
+    ">=" -> GeOp,
+    "==" -> EquEquOp,
+    "!=" -> BangEquOp
   )
 
   def error(op: String, a: Value, b: Value): Value = {
@@ -76,6 +83,60 @@ object IncOp extends ValueOp("++") {
 
   override def eval(a: Value, b: Value): Value = (a, b) match {
     case (ListValue(al), ListValue(bl)) => ListValue(al ++ bl)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object LtOp extends ValueOp("<") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai < bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as < bs)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object GtOp extends ValueOp(">") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai > bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as > bs)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object LeOp extends ValueOp("<=") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai <= bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as <= bs)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object GeOp extends ValueOp(">=") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai >= bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as >= bs)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object EquEquOp extends ValueOp("==") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai == bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as == bs)
+    case _ => ValueOp.error(name, a, b)
+  }
+}
+
+object BangEquOp extends ValueOp("!=") {
+
+  override def eval(a: Value, b: Value): Value = (a, b) match {
+    case (NumberValue(ai), NumberValue(bi)) => BooleanValue(ai != bi)
+    case (StringValue(as), StringValue(bs)) => BooleanValue(as != bs)
     case _ => ValueOp.error(name, a, b)
   }
 }
