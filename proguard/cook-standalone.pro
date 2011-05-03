@@ -22,6 +22,10 @@
 
 -allowaccessmodification
 
+# Keep sourcefile & linenumber
+-keepparameternames
+-keepattributes Exceptions,SourceFile,LineNumberTable
+
 # The entry point: cook.app.Main and its main method.
 
 -keep public class cook.app.Main {
