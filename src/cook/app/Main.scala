@@ -1,11 +1,11 @@
 package cook.app
 
 import cook.app.subcommand._
-import cook.config.runner.buildin.Installer
 
 object Main {
 
-  Installer.init
+  // NOTE(timgreen): this is used to break down dependances
+  cook.config.runner.buildin.Installer.install
 
   def main(args: Array[String]) {
     val (subCommandName, subCommandArgs) =

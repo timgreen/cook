@@ -5,18 +5,18 @@ import cook.config.runner.value._
 
 object Installer {
 
-  def init {
-    initConstValue
-    initBuildinFunction
+  def install {
+    installConstValue
+    installBuildinFunction
   }
 
-  def initConstValue {
+  def installConstValue {
     Scope.ROOT_SCOPE.vars.put("true", BooleanValue.TRUE)
     Scope.ROOT_SCOPE.vars.put("false", BooleanValue.FALSE)
     Scope.ROOT_SCOPE.vars.put("null", new NullValue)
   }
 
-  def initBuildinFunction {
+  def installBuildinFunction {
     Scope.ROOT_SCOPE.funcs.put("glob",    Glob)
     Scope.ROOT_SCOPE.funcs.put("path",    Path)
     Scope.ROOT_SCOPE.funcs.put("include", Include)
