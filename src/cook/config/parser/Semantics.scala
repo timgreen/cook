@@ -37,6 +37,19 @@ class Semantics extends mouse.runtime.SemanticsBase {
     lhs.put(new FuncCall(id, args))
   }
 
+  def listComprehensions {
+    val expr = rhs(1).get.asInstanceOf[Expr]
+    val it = rhs(3).get.asInstanceOf[String]
+    val list = rhs(5).get.asInstanceOf[String]
+    val cond =
+        if (rhsSize > 7) {
+          Some(rhs(7).get.asInstanceOf[Expr])
+        } else {
+          None
+        }
+    lhs.put(ListComprehensions(expr, it, list, cond))
+  }
+
   def assginment {
     val id    = rhs(0).get.asInstanceOf[String]
     val value = rhs(2).get.asInstanceOf[Expr]
@@ -87,6 +100,9 @@ class Semantics extends mouse.runtime.SemanticsBase {
                 Seq[Expr]()
               }
           new ExprList(exprList)
+        } else if (rhs(0).isA("ListComprehensions")) {
+          val listComprehensions = rhs(0).get.asInstanceOf[ListComprehensions]
+          listComprehensions
         } else if (rhs(1).isA("Expr")) {
           val expr = rhs(1).get.asInstanceOf[Expr]
           expr

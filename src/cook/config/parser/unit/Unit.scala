@@ -16,6 +16,10 @@ case class Identifier(id: String) extends SimpleExprItem
 case class FuncCall(name: String, args: Seq[Arg]) extends SimpleExprItem
 case class ExprList(exprs: Seq[Expr]) extends SimpleExprItem
 case class Expr(exprItems: Seq[ExprItem], ops: Seq[String]) extends SimpleExprItem
+case class ListComprehensions(expr: Expr,
+                              it: String,
+                              list: String,
+                              cond: Option[Expr]) extends SimpleExprItem
 
 abstract class Arg
 case class ArgValue(expr: Expr) extends Arg

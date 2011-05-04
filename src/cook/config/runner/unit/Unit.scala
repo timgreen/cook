@@ -1,6 +1,6 @@
 package cook.config.runner.unit
 
-import scala.collection.Seq
+import scala.collection.immutable.VectorBuilder
 
 import cook.config.parser.unit._
 import cook.config.runner.EvalException
@@ -137,6 +137,7 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case funcCall: FuncCall => funcCall.run(path, scope)
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
+    case listComprehensions: ListComprehensions => listComprehensions.run(path, scope)
     case _ => throw new EvalException("this should never happen")
   }
 }
@@ -199,6 +200,41 @@ class RunnableExpr(val expr: Expr) extends RunnableUnit {
     }
   }
 
+}
+
+class RunnableListComprehensions(val listComprehensions: ListComprehensions) extends RunnableUnit {
+
+  def run(path: String, scope: Scope): Value = {
+    val listScope = Scope(scope)
+    val list: Seq[Value] = scope.get(listComprehensions.list) match {
+      case Some(ListValue(list)) => list
+      case _ => throw new EvalException("Need list value in ListComprehensions")
+    }
+
+    val it = listComprehensions.it
+    val expr = listComprehensions.expr
+    val resultBuilder = new VectorBuilder[Value]
+
+    for (i <- list) {
+      listScope.vars(it) = i
+      val cond =
+          listComprehensions.cond match {
+            case Some(cond) => {
+              cond.run(path, listScope) match {
+                case BooleanValue(bool) => bool
+                case _ => throw new EvalException("Need bool value in ListComprehensions condition")
+              }
+            }
+            case None => true
+          }
+
+      if (cond) {
+        resultBuilder += expr.run(path, listScope)
+      }
+    }
+
+    ListValue(resultBuilder.result)
+  }
 }
 
 class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
@@ -293,4 +329,7 @@ object RunnableUnitWrapper {
   implicit def toRunnableUnit(exprList: ExprList) = new RunnableExprList(exprList)
 
   implicit def toRunnableUnit(expr: Expr) = new RunnableExpr(expr)
+
+  implicit def toRunnableUnit(listComprehensions: ListComprehensions) =
+      new RunnableListComprehensions(listComprehensions)
 }
