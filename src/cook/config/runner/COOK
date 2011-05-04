@@ -12,8 +12,8 @@ scala_lib(
   ]),
   deps = [
       ":exception",
-      "//src/cook/config/runner/value:value",
       "//src/cook/config/parser:parser",
+      "//src/cook/config/runner/value:value",
   ],
   cp = [
       "//lib/ant.jar"

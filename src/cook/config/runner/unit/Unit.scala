@@ -242,16 +242,8 @@ class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
 
   def run(path: String, scope: Scope): Value = selectorSuffix match {
     case idSuffix: IdSuffix => v.attr(idSuffix.id)
-    case cs: CallSuffix => new RunnableCallSuffix(cs, v).run(path, scope)
+    case cs: CallSuffix => v.call(cs.call.name, cs.call.args)
     case _ => throw new EvalException("this should never happen")
-  }
-}
-
-class RunnableCallSuffix(val callSuffix: CallSuffix, val v: Value) extends RunnableUnit {
-
-  def run(path: String, scope: Scope): Value = {
-    // TODO(timgreen): impl CallSuffix
-    NullValue()
   }
 }
 

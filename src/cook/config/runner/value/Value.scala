@@ -2,6 +2,7 @@ package cook.config.runner.value
 
 import scala.collection.mutable.StringBuilder
 
+import cook.config.parser.unit._
 import cook.config.runner.EvalException
 
 abstract class Value(val typeName: String) {
@@ -10,6 +11,7 @@ abstract class Value(val typeName: String) {
     case "tos" => StringValue(this.toString)
     case _ => throw new EvalException("Unsupportted attr \"%s\" on %s", id, typeName)
   }
+  def call(name: String, args: Seq[Arg]): Value = ValueMethod.error(this, name)
 
   def isNull = false
   def get(): Any
@@ -50,6 +52,9 @@ case class StringValue(str: String) extends Value("String") {
     case "nonEmpty" => BooleanValue(str.nonEmpty)
     case _ => super.attr(id)
   }
+  override def call(name: String, args: Seq[Arg]): Value = {
+    ValueMethod.stringCall(this, name, args)
+  }
 
   override def get(): Any = str
   override def toString(): String = str
@@ -63,6 +68,9 @@ case class ListValue(list: Seq[Value]) extends Value("List") {
     case "isEmpty" => BooleanValue(list.isEmpty)
     case "nonEmpty" => BooleanValue(list.nonEmpty)
     case _ => super.attr(id)
+  }
+  override def call(name: String, args: Seq[Arg]): Value = {
+    ValueMethod.listCall(this, name, args)
   }
 
   override def get(): Any = list
