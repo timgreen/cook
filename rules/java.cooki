@@ -1,18 +1,21 @@
 
-def java_lib(name, srcs, deps = [], cp = []) {
+def java_lib(name, srcs, deps = []) {
+
+  cp   = [d for d in deps if !d.contains(":")]
+  deps = [d for d in deps if d.contains(":")]
 
   genrule(
-      name = name,
-      inputs = srcs,
-      deps = deps,
-      tools = cp,
-      cmds = [
-          "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
-          "CP=$(printf :%s ${CP[*]})",
-          "CP=${CP:1}",
-          "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
-          "javac -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
-      ]
+    name = name,
+    inputs = srcs,
+    deps = deps,
+    tools = cp,
+    cmds = [
+      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
+      "CP=$(printf :%s ${CP[*]})",
+      "CP=${CP:1}",
+      "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
+      "javac -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
+    ]
   )
 }
 
@@ -20,55 +23,55 @@ def jar(name, deps = [], libs = [], mainClass = null) {
 
   if (mainClass == null) {
     genrule(
-        name = name + ".jar",
-        deps = deps,
-        cmds = [
-            "rm -fr classes",
-            "mkdir classes",
-            "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-            "jar cf $NAME -C classes ."
-        ]
+      name = name + ".jar",
+      deps = deps,
+      cmds = [
+        "rm -fr classes",
+        "mkdir classes",
+        "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        "jar cf $NAME -C classes ."
+      ]
     )
 
     genrule(
-        name = name + ".all.jar",
-        deps = deps,
-        cmds = [
-            "rm -fr classes",
-            "mkdir classes",
-            "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-            "cd classes/",
-            "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
-            "cd $OUTPUT_DIR",
-            "jar cf $NAME -C classes .",
-        ],
-        tools = libs,
+      name = name + ".all.jar",
+      deps = deps,
+      cmds = [
+        "rm -fr classes",
+        "mkdir classes",
+        "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        "cd classes/",
+        "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
+        "cd $OUTPUT_DIR",
+        "jar cf $NAME -C classes .",
+      ],
+      tools = libs,
     )
   } else {
     genrule(
-        name = name + ".jar",
-        deps = deps,
-        cmds = [
-            "rm -fr classes",
-            "mkdir classes",
-            "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-            "jar cfe $NAME %s -C classes ." % [ mainClass ]
-        ]
+      name = name + ".jar",
+      deps = deps,
+      cmds = [
+        "rm -fr classes",
+        "mkdir classes",
+        "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        "jar cfe $NAME %s -C classes ." % [ mainClass ]
+      ]
     )
 
     genrule(
-        name = name + ".all.jar",
-        deps = deps,
-        cmds = [
-            "rm -fr classes",
-            "mkdir classes",
-            "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-            "cd classes/",
-            "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
-            "cd $OUTPUT_DIR",
-            "jar cfe $NAME %s -C classes ." % [ mainClass ]
-        ],
-        tools = libs,
+      name = name + ".all.jar",
+      deps = deps,
+      cmds = [
+        "rm -fr classes",
+        "mkdir classes",
+        "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        "cd classes/",
+        "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
+        "cd $OUTPUT_DIR",
+        "jar cfe $NAME %s -C classes ." % [ mainClass ]
+      ],
+      tools = libs,
     )
   }
 }

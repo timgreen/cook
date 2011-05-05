@@ -1,7 +1,7 @@
 scala_lib(
   name = "exception",
   srcs = [ "EvalException.scala" ],
-  deps = [ "//src/cook/util:util" ]
+  deps = [ "//src/cook/util:util" ],
 )
 
 scala_lib(
@@ -15,8 +15,7 @@ scala_lib(
     ":exception",
     "//src/cook/config/parser:parser",
     "//src/cook/config/runner/value:value",
+    # cp
+    "//lib/ant.jar",
   ],
-  cp = [
-    "//lib/ant.jar"
-  ]
 )

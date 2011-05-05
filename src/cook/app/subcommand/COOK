@@ -5,8 +5,7 @@ scala_lib(
   ]),
   deps = [
     "//src/cook/actors:actors",
-  ],
-  cp = [
+    # cp
     "//lib/ant.jar",
-  ]
+  ],
 )

@@ -6,8 +6,7 @@ scala_lib(
   deps = [
     "//src/cook/config/runner:runnable",
     "//src/cook/target:target",
-  ],
-  cp = [
+    # cp
     "//lib/ant.jar",
   ],
 )

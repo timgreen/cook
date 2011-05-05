@@ -1,17 +1,20 @@
 
-def scala_lib(name, srcs, deps = [], cp = []) {
+def scala_lib(name, srcs, deps = []) {
+
+  cp   = [d for d in deps if !d.contains(":")]
+  deps = [d for d in deps if d.contains(":")]
 
   genrule(
-      name = name,
-      inputs = srcs,
-      deps = deps,
-      tools = cp,
-      cmds = [
-          "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
-          "CP=$(printf :%s ${CP[*]})",
-          "CP=${CP:1}",
-          "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
-          "fsc -deprecation -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
-      ],
+    name = name,
+    inputs = srcs,
+    deps = deps,
+    tools = cp,
+    cmds = [
+      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
+      "CP=$(printf :%s ${CP[*]})",
+      "CP=${CP:1}",
+      "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
+      "fsc -deprecation -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
+    ],
   )
 }
