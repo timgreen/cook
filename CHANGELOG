@@ -1,15 +1,21 @@
+Cook v0.5
+  * Support if/else statement
+  * Support python style List Comprehensions
+  * Support more Value Operation <, >, <=, >=, ==, !=
+  * Support Value Method: list.join
+
 Cook v0.4
   * Add timestamp based cache support
 
 Cook v0.3
-	* Bug fix
-	* Set main class in cook.jar
-	* Support const value "true" "false" "null" in config
-	* Block on subprocess input stream instead of subprocess.waitFor
-	* Add COOK config type check
+  * Bug fix
+  * Set main class in cook.jar
+  * Support const value "true" "false" "null" in config
+  * Block on subprocess input stream instead of subprocess.waitFor
+  * Add COOK config type check
 
 Cook v0.2
-	* Use proguard to reduce the jar size
+  * Use proguard to reduce the jar size
 
 Cook v0.1
-	* First Alpha Release
+  * First Alpha Release
