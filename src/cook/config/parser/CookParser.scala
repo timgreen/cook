@@ -2,9 +2,8 @@ package cook.config.parser
 
 import java.io.File
 
-import mouse.runtime.SourceString
-import mouse.runtime.SourceFile
-
+import cook.config.parser.runtime.SourceFile
+import cook.config.parser.runtime.SourceString
 import cook.config.parser.unit._
 import cook.util._
 

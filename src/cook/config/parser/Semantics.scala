@@ -4,11 +4,12 @@ import scala.collection.Seq
 import scala.collection.immutable.VectorBuilder
 
 import cook.config.parser.unit._
+import cook.config.parser.runtime.SemanticsBase
 
 /**
  * Build parse tree for COOK config.
  */
-class Semantics extends mouse.runtime.SemanticsBase {
+class Semantics extends SemanticsBase {
 
   def getConfig = config
   def getErrors = errors  // TODO(timgreen): own diagnostic output

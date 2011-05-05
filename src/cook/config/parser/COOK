@@ -5,20 +5,19 @@ genpeg_java(
   name = "gen_parser",
   src = "cook.peg",
   package = "cook.config.parser",
+  runtime = "cook.config.parser.runtime",
 )
 
 scala_lib(
-  name = "cookParser",
+  name = "semantics",
   srcs = [
-    "CookParser.scala",
     "Semantics.scala",
     "unit/Unit.scala",
     ":gen_parser",
   ],
   deps = [
     "//src/cook/util:util",
-    # cp
-    "//lib/Mouse-1.3.jar",
+    "runtime:runtime",
   ],
 )
 
@@ -26,9 +25,20 @@ java_lib(
   name = "parser",
   srcs = [ ":gen_parser" ],
   deps = [
-    ":cookParser",
+    ":semantics",
+    "runtime:runtime",
     # cp
     "//lib/scala-library.jar",
-    "//lib/Mouse-1.3.jar",
+  ],
+)
+
+scala_lib(
+  name = "cookParser",
+  srcs = [
+    "CookParser.scala",
+  ],
+  deps = [
+    ":parser",
+    "//src/cook/util:util",
   ],
 )
