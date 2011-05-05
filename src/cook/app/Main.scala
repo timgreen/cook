@@ -6,6 +6,7 @@ object Main {
 
   // NOTE(timgreen): this is used to break down dependances
   cook.config.runner.buildin.Installer.install
+  cook.config.runner.value.methods.Installer.install
 
   def main(args: Array[String]) {
     val (subCommandName, subCommandArgs) =

@@ -1,0 +1,12 @@
+scala_lib(
+  name = "methods",
+  srcs = glob([
+    "Installer.scala",
+    "*/*.scala",
+  ]),
+  deps = [
+    "//src/cook/config/parser:cookParser",
+    "//src/cook/config/runner/value:value",
+    "//src/cook/config/runner:runnable",
+  ]
+)

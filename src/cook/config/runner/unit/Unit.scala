@@ -6,6 +6,7 @@ import cook.config.parser.unit._
 import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.value._
+import cook.config.runner.value.methods.ValueMethod
 
 import RunnableUnitWrapper._
 
@@ -242,7 +243,11 @@ class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
 
   def run(path: String, scope: Scope): Value = selectorSuffix match {
     case idSuffix: IdSuffix => v.attr(idSuffix.id)
-    case cs: CallSuffix => v.call(cs.call.name, cs.call.args)
+    case cs: CallSuffix => {
+      val methodDef = ValueMethod(v, cs.call.name)
+      val args = ArgsValue(cs.call.args, methodDef, path, scope)
+      methodDef.run(path, args)
+    }
     case _ => throw new EvalException("this should never happen")
   }
 }

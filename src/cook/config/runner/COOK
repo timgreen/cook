@@ -7,15 +7,16 @@ scala_lib(
 scala_lib(
   name = "runnable",
   srcs = glob([
-      "unit/*.scala",
-      "Scope.scala",
+    "Scope.scala",
+    "unit/*.scala",
+    "value/methods/ValueMethod.scala",
   ]),
   deps = [
-      ":exception",
-      "//src/cook/config/parser:parser",
-      "//src/cook/config/runner/value:value",
+    ":exception",
+    "//src/cook/config/parser:parser",
+    "//src/cook/config/runner/value:value",
   ],
   cp = [
-      "//lib/ant.jar"
+    "//lib/ant.jar"
   ]
 )

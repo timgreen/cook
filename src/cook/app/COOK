@@ -4,5 +4,6 @@ scala_lib(
   deps = [
     "//src/cook/app/subcommand:subcommand",
     "//src/cook/config/runner/buildin:buildin",
+    "//src/cook/config/runner/value/methods:methods",
   ]
 )

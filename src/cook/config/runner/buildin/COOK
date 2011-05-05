@@ -1,11 +1,13 @@
 scala_lib(
   name = "buildin",
-  srcs = glob([ "*.scala" ]),
+  srcs = glob([
+    "*.scala",
+  ]),
   deps = [
-      "//src/cook/config/runner:runnable",
-      "//src/cook/target:target",
+    "//src/cook/config/runner:runnable",
+    "//src/cook/target:target",
   ],
   cp = [
-      "//lib/ant.jar",
+    "//lib/ant.jar",
   ],
 )
