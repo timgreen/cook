@@ -1,7 +1,5 @@
 package cook.config.runner.value
 
-import scala.collection.mutable.StringBuilder
-
 import cook.config.parser.unit._
 import cook.config.runner.EvalException
 
@@ -75,11 +73,7 @@ case class ListValue(list: Seq[Value]) extends Value("List") {
   }
 
   override def get(): Any = list
-  override def toString(): String = {
-    val builder = new StringBuilder
-    list.addString(builder, "[", ", ", "]")
-    builder.result
-  }
+  override def toString(): String = list.mkString("[", ", ", "]")
 }
 
 object ListValue {
