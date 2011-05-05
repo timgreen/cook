@@ -69,18 +69,22 @@ class Semantics extends mouse.runtime.SemanticsBase {
   }
 
   def exprItem {
+    lhs.put(rhs(0).get)
+  }
+
+  def exprItemWithSuffix {
     val simpleExprItem = rhs(0).get.asInstanceOf[SimpleExprItem]
     val selectorSuffixs =
         for (i <- 1 until rhsSize if rhs(i).isA("SelectorSuffix")) yield {
           rhs(i).get.asInstanceOf[SelectorSuffix]
         }
-    lhs.put(new ExprItem(simpleExprItem, selectorSuffixs))
+    lhs.put(new ExprItemWithSuffix(simpleExprItem, selectorSuffixs))
   }
 
   def exprItemWithUnary {
     val unaryOp = rhs(0).text.trim
-    val simpleExprItem = rhs(1).get.asInstanceOf[SimpleExprItem]
-    lhs.put(new ExprItemWithUnary(unaryOp, simpleExprItem))
+    val exprItem = rhs(1).get.asInstanceOf[ExprItem]
+    lhs.put(new ExprItemWithUnary(unaryOp, exprItem))
   }
 
   def simpleExprItem {

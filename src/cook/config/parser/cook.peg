@@ -15,9 +15,14 @@ Assginment         = !Keyword Identifier EQU Expr                              {
 
 Expr               = ExprItem ( Operation ExprItem )*                          {expr} ;
 
-ExprItem           = SimpleExprItem ( SelectorSuffix )*                        {exprItem} ;
+ExprItem           = ( ExprItemWithSuffix
+                     / ExprItemWithUnary
+                     )                                                         {exprItem} ;
 
-ExprItemWithUnary  = UnaryOperation SimpleExprItem                             {exprItemWithUnary} ;
+
+ExprItemWithSuffix = SimpleExprItem ( SelectorSuffix )*                        {exprItemWithSuffix} ;
+
+ExprItemWithUnary  = UnaryOperation ExprItem                                   {exprItemWithUnary} ;
 
 SimpleExprItem     = ( IntegerConstant
                      / StringLiteral
@@ -26,7 +31,6 @@ SimpleExprItem     = ( IntegerConstant
                      / ListComprehensions
                      / LBRK ExprList? !FOR RBRK
                      / LPAR Expr RPAR
-                     / ExprItemWithUnary
                      )                                                         {simpleExprItem} ;
 
 ExprList           = Expr ( COMMA Expr )* COMMA?                               {exprList} ;

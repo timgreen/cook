@@ -7,10 +7,11 @@ abstract class Statement
 abstract class FuncStatement extends Statement
 case class Assginment(id: String, expr: Expr) extends FuncStatement
 
-case class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Seq[SelectorSuffix])
-
+abstract class ExprItem
+case class ExprItemWithSuffix(val simpleExprItem: SimpleExprItem,
+                              val selectorSuffixs: Seq[SelectorSuffix]) extends ExprItem
 case class ExprItemWithUnary(val unaryOp: String,
-                             val simpleExprItem: SimpleExprItem) extends SimpleExprItem
+                             val exprItem: ExprItem) extends ExprItem
 
 abstract class SimpleExprItem extends FuncStatement
 case class IntegerConstant(int: Int) extends SimpleExprItem

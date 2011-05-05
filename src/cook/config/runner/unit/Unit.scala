@@ -119,39 +119,35 @@ class RunnableAssginment(val assginment: Assginment) extends RunnableUnit {
 
 class RunnableExprItem(val exprItem: ExprItem) extends RunnableUnit {
 
-  def run(path: String, scope: Scope): Value = {
-    val v = exprItem.simpleExprItem.run(path, scope)
-    exprItem.selectorSuffixs.foldLeft(v) {
-      (v, selectorSuffix) => {
-        new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope)
+  def run(path: String, scope: Scope): Value = exprItem match {
+    case exprItemWithSuffix: ExprItemWithSuffix => {
+      val v = exprItemWithSuffix.simpleExprItem.run(path, scope)
+      exprItemWithSuffix.selectorSuffixs.foldLeft(v) {
+        (v, selectorSuffix) => {
+          new RunnableSelectorSuffix(selectorSuffix, v).run(path, scope)
+        }
       }
     }
+    case exprItemWithUnary: ExprItemWithUnary => {
+      val item = exprItemWithUnary.exprItem.run(path, scope)
+      item.unaryOp(exprItemWithUnary.unaryOp)
+    }
+    case _ => throw new EvalException("this should never happen")
   }
 }
 
 class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends RunnableUnit {
 
   def run(path: String, scope: Scope): Value = simpleExprItem match {
-    case integerConstant: IntegerConstant => integerConstant.run(path, scope)
-    case stringLiteral: StringLiteral => stringLiteral.run(path, scope)
+    case integerConstant: IntegerConstant => NumberValue(integerConstant.int)
+    case stringLiteral: StringLiteral => StringValue(stringLiteral.str)
     case identifier: Identifier => identifier.run(path, scope)
     case funcCall: FuncCall => funcCall.run(path, scope)
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
     case listComprehensions: ListComprehensions => listComprehensions.run(path, scope)
-    case exprItemWithUnary: ExprItemWithUnary => exprItemWithUnary.run(path, scope)
     case _ => throw new EvalException("this should never happen")
   }
-}
-
-class RunnableIntegerConstant(val integerConstant: IntegerConstant) extends RunnableUnit {
-
-  def run(path: String, scope: Scope): Value = NumberValue(integerConstant.int)
-}
-
-class RunnableStringLiteral(val stringLiteral: StringLiteral) extends RunnableUnit {
-
-  def run(path: String, scope: Scope): Value = StringValue(stringLiteral.str)
 }
 
 class RunnableIdentifier(val identifier: Identifier) extends RunnableUnit {
@@ -239,14 +235,6 @@ class RunnableListComprehensions(val listComprehensions: ListComprehensions) ext
   }
 }
 
-class RunnableExprItemWithUnary(val exprItemWithUnary: ExprItemWithUnary) extends RunnableUnit {
-
-  def run(path: String, scope: Scope): Value = {
-    val item = exprItemWithUnary.simpleExprItem.run(path, scope)
-    item.unaryOp(exprItemWithUnary.unaryOp)
-  }
-}
-
 class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
     extends RunnableUnit {
 
@@ -317,12 +305,6 @@ object RunnableUnitWrapper {
   implicit def toRunnableUnit(ifStatement: IfStatement) =
       new RunnableIfStatement(ifStatement)
 
-  implicit def toRunnableUnit(integerConstant: IntegerConstant) =
-      new RunnableIntegerConstant(integerConstant)
-
-  implicit def toRunnableUnit(stringLiteral: StringLiteral) =
-      new RunnableStringLiteral(stringLiteral)
-
   implicit def toRunnableUnit(identifier: Identifier) = new RunnableIdentifier(identifier)
 
   implicit def toRunnableUnit(funcCall: FuncCall) = new RunnableFuncCall(funcCall)
@@ -333,7 +315,4 @@ object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(listComprehensions: ListComprehensions) =
       new RunnableListComprehensions(listComprehensions)
-
-  implicit def toRunnableUnit(exprItemWithUnary: ExprItemWithUnary) =
-      new RunnableExprItemWithUnary(exprItemWithUnary)
 }
