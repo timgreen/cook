@@ -36,6 +36,14 @@ trait RunnableUnit {
     }
   }
 
+  def getBoolOrError(v: Option[Value]): Boolean = v match {
+    case Some(BooleanValue(bool)) => bool
+    case None => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need BooleanValue here")
+    }
+  }
+
   def getListStringOrError(v: Option[Value]): Seq[String] = v match {
     case Some(ListValue(list)) => {
       return list.map( _ match {

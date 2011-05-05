@@ -42,11 +42,11 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
         } catch {
           case _ => null  // ignore
         }
-    val isGenerateTarget = getNumberOrError(argsValue.get("isGenerateTarget"))
+    val isGenerateTarget = getBoolOrError(argsValue.get("isGenerateTarget"))
 
     var targetName = "%s:%s".format(path, name)
     TargetManager.push(
-        new Target(path, name, cmds, inputs, deps, tools, exeCmds, isGenerateTarget == 1))
+        new Target(path, name, cmds, inputs, deps, tools, exeCmds, isGenerateTarget))
 
     NullValue()
   }
@@ -61,7 +61,7 @@ object GenruleArgsDef {
     defaultValues.put("exeCmds", NullValue())
     defaultValues.put("deps", ListValue())
     defaultValues.put("tools", ListValue())
-    defaultValues.put("isGenerateTarget", NumberValue(0))
+    defaultValues.put("isGenerateTarget", BooleanValue.FALSE)
 
     new ArgsDef(names, defaultValues)
   }

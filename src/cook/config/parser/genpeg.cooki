@@ -5,13 +5,13 @@
 def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Semantics") {
 
   genrule(
-      name = name,
-      inputs = [ src ],
-      cmds = [
-          "CP=${TOOLS[0]}",
-          "java -cp $CP mouse.Generate -G $INPUTS -p %s -P %s -S %s -D $OUTPUT_DIR" % [ package, parserName, semanticsName ]
-      ],
-      tools = [ "//lib/Mouse-1.3.jar" ],
-      isGenerateTarget = 1
+    name = name,
+    inputs = [ src ],
+    cmds = [
+      "CP=${TOOLS[0]}",
+      "java -cp $CP mouse.Generate -G $INPUTS -p %s -P %s -S %s -D $OUTPUT_DIR" % [ package, parserName, semanticsName ],
+    ],
+    tools = [ "//lib/Mouse-1.3.jar" ],
+    isGenerateTarget = true
   )
 }
