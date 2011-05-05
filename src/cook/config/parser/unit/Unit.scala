@@ -9,6 +9,9 @@ case class Assginment(id: String, expr: Expr) extends FuncStatement
 
 case class ExprItem(val simpleExprItem: SimpleExprItem, val selectorSuffixs: Seq[SelectorSuffix])
 
+case class ExprItemWithUnary(val unaryOp: String,
+                             val simpleExprItem: SimpleExprItem) extends SimpleExprItem
+
 abstract class SimpleExprItem extends FuncStatement
 case class IntegerConstant(int: Int) extends SimpleExprItem
 case class StringLiteral(str: String) extends SimpleExprItem

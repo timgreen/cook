@@ -17,6 +17,8 @@ Expr               = ExprItem ( Operation ExprItem )*                          {
 
 ExprItem           = SimpleExprItem ( SelectorSuffix )*                        {exprItem} ;
 
+ExprItemWithUnary  = UnaryOperation SimpleExprItem                             {exprItemWithUnary} ;
+
 SimpleExprItem     = ( IntegerConstant
                      / StringLiteral
                      / FuncCall
@@ -24,6 +26,7 @@ SimpleExprItem     = ( IntegerConstant
                      / ListComprehensions
                      / LBRK ExprList? !FOR RBRK
                      / LPAR Expr RPAR
+                     / ExprItemWithUnary
                      )                                                         {simpleExprItem} ;
 
 ExprList           = Expr ( COMMA Expr )* COMMA?                               {exprList} ;
@@ -83,6 +86,9 @@ NULL     = "null"     ! IdChar Spacing ;
 //-------------------------------------------------------------------------
 //  Operation
 //-------------------------------------------------------------------------
+
+UnaryOperation = ( BANG ) ;
+
 
 Operation = ( PLUS
             / MINUS
@@ -174,6 +180,7 @@ RPAR       =  ")"         Spacing ;
 LWING      =  "{"         Spacing ;
 RWING      =  "}"         Spacing ;
 
+BANG       =  "!"  ![=]   Spacing ;
 
 PLUS       =  "+"  ![+=]  Spacing ;
 MINUS      =  "-"  ![\-=>]Spacing ;

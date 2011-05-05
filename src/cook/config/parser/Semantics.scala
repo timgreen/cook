@@ -77,6 +77,11 @@ class Semantics extends mouse.runtime.SemanticsBase {
     lhs.put(new ExprItem(simpleExprItem, selectorSuffixs))
   }
 
+  def exprItemWithUnary {
+    val unaryOp = rhs(0).text.trim
+    val simpleExprItem = rhs(1).get.asInstanceOf[SimpleExprItem]
+    lhs.put(new ExprItemWithUnary(unaryOp, simpleExprItem)
+  }
 
   def simpleExprItem {
     val e =
@@ -103,6 +108,9 @@ class Semantics extends mouse.runtime.SemanticsBase {
         } else if (rhs(0).isA("ListComprehensions")) {
           val listComprehensions = rhs(0).get.asInstanceOf[ListComprehensions]
           listComprehensions
+        } else if (rhs(0).isA("ExprItemWithUnary")) {
+          val exprItemWithUnary = rhs(0).get.asInstanceOf[ExprItemWithUnary]
+          exprItemWithUnary
         } else if (rhs(1).isA("Expr")) {
           val expr = rhs(1).get.asInstanceOf[Expr]
           expr
