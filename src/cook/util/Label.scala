@@ -50,7 +50,13 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
       if (name.startsWith("//")) {
         name.drop(2)
       } else {
-        "%s%s".format(pathFromRoot, name)
+        val sep =
+            if (name.startsWith(":") || pathFromRoot.isEmpty) {
+              ""
+            } else {
+              "/"
+            }
+        "%s%s%s".format(pathFromRoot, sep, name)
       }
 
   if (targetName.indexOf(':') == -1) {
