@@ -139,6 +139,7 @@ class RunnableSimpleExprItem(val simpleExprItem: SimpleExprItem) extends Runnabl
     case exprList: ExprList => exprList.run(path, scope)
     case expr: Expr => expr.run(path, scope)
     case listComprehensions: ListComprehensions => listComprehensions.run(path, scope)
+    case exprItemWithUnary: ExprItemWithUnary => exprItemWithUnary.run(path, scope)
     case _ => throw new EvalException("this should never happen")
   }
 }
@@ -238,6 +239,14 @@ class RunnableListComprehensions(val listComprehensions: ListComprehensions) ext
   }
 }
 
+class RunnableExprItemWithUnary(val exprItemWithUnary: ExprItemWithUnary) extends RunnableUnit {
+
+  def run(path: String, scope: Scope): Value = {
+    val item = exprItemWithUnary.simpleExprItem.run(path, scope)
+    item.unaryOp(exprItemWithUnary.unaryOp)
+  }
+}
+
 class RunnableSelectorSuffix(val selectorSuffix: SelectorSuffix, val v: Value)
     extends RunnableUnit {
 
@@ -324,4 +333,7 @@ object RunnableUnitWrapper {
 
   implicit def toRunnableUnit(listComprehensions: ListComprehensions) =
       new RunnableListComprehensions(listComprehensions)
+
+  implicit def toRunnableUnit(exprItemWithUnary: ExprItemWithUnary) =
+      new RunnableExprItemWithUnary(exprItemWithUnary)
 }

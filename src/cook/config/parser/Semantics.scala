@@ -80,7 +80,7 @@ class Semantics extends mouse.runtime.SemanticsBase {
   def exprItemWithUnary {
     val unaryOp = rhs(0).text.trim
     val simpleExprItem = rhs(1).get.asInstanceOf[SimpleExprItem]
-    lhs.put(new ExprItemWithUnary(unaryOp, simpleExprItem)
+    lhs.put(new ExprItemWithUnary(unaryOp, simpleExprItem))
   }
 
   def simpleExprItem {

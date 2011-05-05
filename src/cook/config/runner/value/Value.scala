@@ -11,6 +11,9 @@ abstract class Value(val typeName: String) {
     case "tos" => StringValue(this.toString)
     case _ => throw new EvalException("Unsupportted attr \"%s\" on %s", id, typeName)
   }
+  def unaryOp(op: String): Value = {
+    throw new EvalException("Unsupportted UnaryOperation \"%s\" on %s", op, typeName)
+  }
 
   def isNull = false
   def get(): Any
@@ -26,6 +29,11 @@ case class NullValue() extends Value("Null") {
 }
 
 case class BooleanValue(bool: Boolean) extends Value("Bool") {
+
+  override def unaryOp(op: String): Value = op match {
+    case "!" => BooleanValue(!bool)
+    case _ => super.unaryOp(op)
+  }
 
   override def get(): Any = bool
   override def toString(): String = bool.toString
