@@ -96,6 +96,9 @@ class Semantics extends SemanticsBase {
         } else if (rhs(0).isA("StringLiteral")) {
           val str = rhs(0).get.asInstanceOf[String]
           new StringLiteral(str)
+        } else if (rhs(0).isA("CharLiteral")) {
+          val c = rhs(0).get.asInstanceOf[Char]
+          new CharLiteral(c)
         } else if (rhs(0).isA("Identifier")) {
           val id = rhs(0).get.asInstanceOf[String]
           new Identifier(id)
@@ -271,12 +274,16 @@ class Semantics extends SemanticsBase {
     lhs.put(chars.mkString)
   }
 
+  def charLiteral {
+    lhs.put(rhs(1).get)
+  }
+
   def stringChar {
     val char =
         if (rhs(0).isA("Escape")) {
           rhs(0).get
         } else {
-          rhs(0).text
+          rhs(0).charAt(0)
         }
     lhs.put(char)
   }
@@ -288,14 +295,14 @@ class Semantics extends SemanticsBase {
   def simpleEscape {
     var char =
         rhs(1).text match {
-          case "\\" => "\\"
-          case "'" => "'"
-          case "\"" => "\""
-          case "b" => "\b"
-          case "f" => "\f"
-          case "n" => "\n"
-          case "r" => "\r"
-          case "t" => "\t"
+          case "\\" => '\\'
+          case "'" => '\''
+          case "\"" => '"'
+          case "b" => '\b'
+          case "f" => '\f'
+          case "n" => '\n'
+          case "r" => '\r'
+          case "t" => '\t';
         }
     lhs.put(char)
   }

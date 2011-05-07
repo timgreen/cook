@@ -62,6 +62,12 @@ case class StringValue(str: String) extends Value("String") {
   override def toString(): String = str
 }
 
+case class CharValue(c: Char) extends Value("Char") {
+
+  override def get(): Any = c
+  override def toString(): String = c.toString
+}
+
 case class ListValue(list: Seq[Value]) extends Value("List") {
 
   override def attr(id: String): Value = id match {

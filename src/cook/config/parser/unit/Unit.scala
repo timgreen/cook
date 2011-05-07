@@ -16,6 +16,7 @@ case class ExprItemWithUnary(val unaryOp: String,
 abstract class SimpleExprItem extends FuncStatement
 case class IntegerConstant(int: Int) extends SimpleExprItem
 case class StringLiteral(str: String) extends SimpleExprItem
+case class CharLiteral(c: Char) extends SimpleExprItem
 case class Identifier(id: String) extends SimpleExprItem
 case class FuncCall(name: String, args: Seq[Arg]) extends SimpleExprItem
 case class ExprList(exprs: Seq[Expr]) extends SimpleExprItem

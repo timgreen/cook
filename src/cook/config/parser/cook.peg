@@ -26,6 +26,7 @@ ExprItemWithUnary  = UnaryOperation ExprItem                                   {
 
 SimpleExprItem     = ( IntegerConstant
                      / StringLiteral
+                     / CharLiteral
                      / FuncCall
                      / Identifier ![(]
                      / ListComprehensions
@@ -168,6 +169,7 @@ LineComment = "#" (!"\n" _)* EOL ;
 //-------------------------------------------------------------------------
 
 StringLiteral = ["] StringChar* ["] Spacing {stringLiteral} ;
+CharLiteral   = ['] StringChar ['] Spacing  {charLiteral}   ;
 StringChar = ( Escape / ![\"\n\\] _ )       {stringChar}    ;
 
 Escape = SimpleEscape                       {escape}        ;
