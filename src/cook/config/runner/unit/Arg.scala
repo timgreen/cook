@@ -1,6 +1,5 @@
 package cook.config.runner.unit
 
-import scala.collection.Seq
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 
@@ -13,6 +12,8 @@ import RunnableUnitWrapper._
 
 class ArgsValue(values: HashMap[String, Value], parent: Scope)
     extends Scope(values, new HashMap[String, RunnableFuncDef], parent)  {
+
+  def apply(argName: String): Value = values(argName)
 }
 
 object ArgsValue extends RunnableUnit {
@@ -94,7 +95,6 @@ object ArgsValue extends RunnableUnit {
         val value = expr.run(path, scope)
         values.put(name, value)
       }
-
     }
 
     new ArgsValue(values, runnableFuncDef.scope)

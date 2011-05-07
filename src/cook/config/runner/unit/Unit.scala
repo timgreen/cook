@@ -12,14 +12,6 @@ import RunnableUnitWrapper._
 
 trait RunnableUnit {
 
-  def getOrError(v: Option[Value]): Value = v match {
-    case Some(value) => value
-    case None => {
-      // TODO(timgreen): better error message
-      throw new EvalException("None is not allowed in expr")
-    }
-  }
-
   def getStringOrError(v: Option[Value]): String = v match {
     case Some(StringValue(str)) => str
     case None => {

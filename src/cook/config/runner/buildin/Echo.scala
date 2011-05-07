@@ -24,7 +24,7 @@ import cook.util.FileUtil
 object Echo extends RunnableFuncDef("echo", Scope.ROOT_SCOPE, EchoArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val message = getOrError(argsValue.get("message")).toString
+    val message = argsValue("message").toString
     println(message)
 
     NullValue()

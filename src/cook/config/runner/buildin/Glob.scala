@@ -24,7 +24,7 @@ import cook.util.FileUtil
 object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val filters = getOrError(argsValue.get("filters")) match {
+    val filters = argsValue("filters") match {
       case ListValue(list) => list.map {
         _ match {
           case StringValue(str) => str
