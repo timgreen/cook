@@ -16,10 +16,11 @@ object SplitArgsDef {
   }
 }
 
-class Split(v: Value, name: String) extends ValueMethod(v, name, SplitArgsDef()) {
+class Split(v: StringValue, name: String)
+    extends ValueMethod(v, name, SplitArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = v.toStr
+    val s = v.str
     val seps = argsValue("sep")
     val result =
         seps match {
@@ -32,5 +33,6 @@ class Split(v: Value, name: String) extends ValueMethod(v, name, SplitArgsDef())
 
 object Split extends ValueMethodBuilder {
 
-  def apply(v: Value, name: String): ValueMethod = new Split(v, name)
+  def apply(v: Value, name: String): ValueMethod =
+      new Split(v.asInstanceOf[StringValue], name)
 }

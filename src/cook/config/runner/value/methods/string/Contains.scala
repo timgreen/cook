@@ -16,10 +16,11 @@ object ContainsArgsDef {
   }
 }
 
-class Contains(v: Value, name: String) extends ValueMethod(v, name, ContainsArgsDef()) {
+class Contains(v: StringValue, name: String)
+    extends ValueMethod(v, name, ContainsArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = v.toStr
+    val s = v.str
     val sub = argsValue("substring").toStr
 
     BooleanValue(s.contains(sub))
@@ -28,5 +29,6 @@ class Contains(v: Value, name: String) extends ValueMethod(v, name, ContainsArgs
 
 object Contains extends ValueMethodBuilder {
 
-  def apply(v: Value, name: String): ValueMethod = new Contains(v, name)
+  def apply(v: Value, name: String): ValueMethod =
+      new Contains(v.asInstanceOf[StringValue], name)
 }

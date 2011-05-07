@@ -18,7 +18,7 @@ object JoinArgsDef {
   }
 }
 
-class Join(v: Value, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
+class Join(v: ListValue, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     val list = v.toListStr
@@ -30,5 +30,6 @@ class Join(v: Value, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
 
 object Join extends ValueMethodBuilder {
 
-  def apply(v: Value, name: String): ValueMethod = new Join(v, name)
+  def apply(v: Value, name: String): ValueMethod =
+      new Join(v.asInstanceOf[ListValue], name)
 }
