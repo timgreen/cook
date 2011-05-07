@@ -11,54 +11,6 @@ import cook.config.runner.value.methods.ValueMethod
 import RunnableUnitWrapper._
 
 trait RunnableUnit {
-
-  def getNumberOrError(v: Option[Value]): Int = v match {
-    case Some(NumberValue(int)) => int
-    case None => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need NumberValue here")
-    }
-  }
-
-  def getBoolOrError(v: Option[Value]): Boolean = v match {
-    case Some(BooleanValue(bool)) => bool
-    case None => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need BooleanValue here")
-    }
-  }
-
-  def getListStringOrError(v: Option[Value]): Seq[String] = v match {
-    case Some(ListValue(list)) => {
-      return list.map( _ match {
-        case StringValue(str) => str
-        case _ => {
-          // TODO(timgreen): better error message
-          throw new EvalException("Need List StringValue here")
-        }
-      })
-    }
-    case _ => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need List StringValue here")
-    }
-  }
-
-  def getListCharOrError(v: Option[Value]): Seq[Char] = v match {
-    case Some(ListValue(list)) => {
-      return list.map( _ match {
-        case CharValue(c) => c
-        case _ => {
-          // TODO(timgreen): better error message
-          throw new EvalException("Need List CharValue here")
-        }
-      })
-    }
-    case _ => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need List CharValue here")
-    }
-  }
 }
 
 class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {

@@ -21,8 +21,8 @@ object JoinArgsDef {
 class Join(v: Value, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val list = getListStringOrError(Some(v))
-    val sep = argsValue("sep").tos
+    val list = v.toListStr
+    val sep = argsValue("sep").toStr
 
     StringValue(list.mkString(sep))
   }

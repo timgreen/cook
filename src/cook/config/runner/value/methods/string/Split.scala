@@ -19,12 +19,12 @@ object SplitArgsDef {
 class Split(v: Value, name: String) extends ValueMethod(v, name, SplitArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = v.tos
-    val seps = argsValue.get("sep")
+    val s = v.toStr
+    val seps = argsValue("sep")
     val result =
         seps match {
-          case Some(CharValue(sep)) => s.split(sep)
-          case _ => s.split(getListCharOrError(seps).toArray)
+          case CharValue(sep) => s.split(sep)
+          case _ => s.split(seps.toListChar.toArray)
         }
     ListValue(result.map { StringValue(_) })
   }

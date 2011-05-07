@@ -18,13 +18,44 @@ abstract class Value(val typeName: String) {
 
   def toString(): String
 
-  //
-  def tos(): String = this match {
+  // Type convert
+  def toChar: Char = toChar("Need CharValue here")
+  def toChar(errorMessage: String) = this match {
+    case CharValue(c) => c
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toStr: String = toStr("Need StringValue here")
+  def toStr(errorMessage: String) = this match {
     case StringValue(str) => str
-    case _ => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need StringValue here")
-    }
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toInt: Int = toInt("Need NumberValue here")
+  def toInt(errorMessage: String) = this match {
+    case NumberValue(int) => int
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toBool: Boolean = toBool("Need BooleanValue here")
+  def toBool(errorMessage: String) = this match {
+    case BooleanValue(bool) => bool
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toListValue(errorMessage: String): Seq[Value] = this match {
+    case ListValue(list) => list
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toListStr: Seq[String] = toListStr("Need List StringValue here")
+  def toListStr(errorMessage: String) = {
+    this.toListValue(errorMessage).map { _.toStr(errorMessage) }
+  }
+
+  def toListChar: Seq[Char] = toListChar("Need List CharValue here")
+  def toListChar(errorMessage: String) = {
+    this.toListValue(errorMessage).map { _.toChar(errorMessage) }
   }
 }
 

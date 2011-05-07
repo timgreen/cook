@@ -24,15 +24,8 @@ import cook.util.FileUtil
 object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val filters = argsValue("filters") match {
-      case ListValue(list) => list.map {
-        _ match {
-          case StringValue(str) => str
-          case _ => throw new EvalException("Buildin function only aceppt string list")
-        }
-      }
-      case _ => throw new EvalException("Buildin function only aceppt string list")
-    }
+    val filters =
+        argsValue("filters").toListStr("Buildin function \"glob\" only aceppt string list")
 
     val dirScanner = new DirectoryScanner
     dirScanner.setIncludes(filters.toArray)

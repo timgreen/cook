@@ -31,18 +31,13 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
   override def run(path: String, argsValue: ArgsValue): Value = {
     // create rule "path:name" and store it
 
-    val name = argsValue("name").tos
-    val cmds = getListStringOrError(argsValue.get("cmds"))
-    val inputs = getListStringOrError(argsValue.get("inputs"))
-    val tools = getListStringOrError(argsValue.get("tools"))
-    val deps = getListStringOrError(argsValue.get("deps"))
-    val exeCmds =
-        try {
-          getListStringOrError(argsValue.get("exeCmds"))
-        } catch {
-          case _ => null  // ignore
-        }
-    val isGenerateTarget = getBoolOrError(argsValue.get("isGenerateTarget"))
+    val name = argsValue("name").toStr
+    val cmds = argsValue("cmds").toListStr
+    val inputs = argsValue("inputs").toListStr
+    val tools = argsValue("tools").toListStr
+    val deps = argsValue("deps").toListStr
+    val exeCmds = argsValue("exeCmds").toListStr
+    val isGenerateTarget = argsValue("isGenerateTarget").toBool
 
     var targetName = "%s:%s".format(path, name)
     TargetManager.push(
@@ -58,7 +53,7 @@ object GenruleArgsDef {
     val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps", "tools", "isGenerateTarget")
     val defaultValues = new HashMap[String, Value]
     defaultValues.put("inputs", ListValue())
-    defaultValues.put("exeCmds", NullValue())
+    defaultValues.put("exeCmds", ListValue())
     defaultValues.put("deps", ListValue())
     defaultValues.put("tools", ListValue())
     defaultValues.put("isGenerateTarget", BooleanValue.FALSE)

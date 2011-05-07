@@ -30,7 +30,7 @@ class Target(
   /**
    * Only executeable target can be run by "cook run"
    */
-  def isExecutable = (exeCmds != null)
+  def isExecutable = exeCmds.nonEmpty
 
   /**
    * Target it self doesn't care about deps, it only care about the input and output,
