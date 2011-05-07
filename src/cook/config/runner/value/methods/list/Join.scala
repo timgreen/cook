@@ -22,7 +22,7 @@ class Join(v: Value, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     val list = getListStringOrError(Some(v))
-    val sep = getStringOrError(argsValue.get("sep"))
+    val sep = argsValue("sep").tos
 
     StringValue(list.mkString(sep))
   }

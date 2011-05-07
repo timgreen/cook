@@ -17,6 +17,15 @@ abstract class Value(val typeName: String) {
   def get(): Any
 
   def toString(): String
+
+  //
+  def tos(): String = this match {
+    case StringValue(str) => str
+    case _ => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need StringValue here")
+    }
+  }
 }
 
 case class NullValue() extends Value("Null") {

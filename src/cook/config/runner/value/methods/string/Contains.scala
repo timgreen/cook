@@ -19,8 +19,8 @@ object ContainsArgsDef {
 class Contains(v: Value, name: String) extends ValueMethod(v, name, ContainsArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = getStringOrError(Some(v))
-    val sub = getStringOrError(argsValue.get("substring"))
+    val s = v.tos
+    val sub = argsValue("substring").tos
 
     BooleanValue(s.contains(sub))
   }

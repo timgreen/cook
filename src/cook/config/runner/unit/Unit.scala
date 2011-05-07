@@ -12,14 +12,6 @@ import RunnableUnitWrapper._
 
 trait RunnableUnit {
 
-  def getStringOrError(v: Option[Value]): String = v match {
-    case Some(StringValue(str)) => str
-    case None => {
-      // TODO(timgreen): better error message
-      throw new EvalException("Need StringValue here")
-    }
-  }
-
   def getNumberOrError(v: Option[Value]): Int = v match {
     case Some(NumberValue(int)) => int
     case None => {

@@ -31,7 +31,7 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
   override def run(path: String, argsValue: ArgsValue): Value = {
     // create rule "path:name" and store it
 
-    val name = getStringOrError(argsValue.get("name"))
+    val name = argsValue("name").tos
     val cmds = getListStringOrError(argsValue.get("cmds"))
     val inputs = getListStringOrError(argsValue.get("inputs"))
     val tools = getListStringOrError(argsValue.get("tools"))

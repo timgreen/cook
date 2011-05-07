@@ -25,7 +25,7 @@ import cook.util.FileUtil
 object Include extends RunnableFuncDef("include", Scope.ROOT_SCOPE, IncludeArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val filename = getStringOrError(argsValue.get("filename"))
+    val filename = argsValue("filename").tos
     val pathFromRoot =
         if (filename.startsWith("//")) {
           filename.drop(2) + ".cooki"

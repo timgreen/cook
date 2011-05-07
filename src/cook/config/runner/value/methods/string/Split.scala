@@ -19,7 +19,7 @@ object SplitArgsDef {
 class Split(v: Value, name: String) extends ValueMethod(v, name, SplitArgsDef()) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = getStringOrError(Some(v))
+    val s = v.tos
     val seps = argsValue.get("sep")
     val result =
         seps match {
