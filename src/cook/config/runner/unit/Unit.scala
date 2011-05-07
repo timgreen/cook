@@ -59,6 +59,22 @@ trait RunnableUnit {
       throw new EvalException("Need List StringValue here")
     }
   }
+
+  def getListCharOrError(v: Option[Value]): Seq[Char] = v match {
+    case Some(ListValue(list)) => {
+      return list.map( _ match {
+        case CharValue(c) => c
+        case _ => {
+          // TODO(timgreen): better error message
+          throw new EvalException("Need List CharValue here")
+        }
+      })
+    }
+    case _ => {
+      // TODO(timgreen): better error message
+      throw new EvalException("Need List CharValue here")
+    }
+  }
 }
 
 class RunnableCookConfig(val cookConfig: CookConfig) extends RunnableUnit {

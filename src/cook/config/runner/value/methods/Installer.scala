@@ -9,5 +9,6 @@ object Installer {
 
     // string
     ValueMethod.stringMethods.put("contains", Contains)
+    ValueMethod.stringMethods.put("split", Split)
   }
 }
