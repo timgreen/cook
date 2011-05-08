@@ -16,13 +16,20 @@ import cook.util._
  *
  * abspath()
  */
-object AbsPath extends RunnableFuncDef("path", Scope.ROOT_SCOPE, AbsPathArgsDef(), null, null) {
+object AbsPath extends RunnableFuncDef("abspath", Scope.ROOT_SCOPE, AbsPathArgsDef(), null, null) {
 
-  override def run(path: String, argsValue: ArgsValue): Value =
-      StringValue(FileUtil(path).getAbsolutePath)
+  override def run(path: String, argsValue: ArgsValue): Value = {
+    StringValue(new FileLabel(path, argsValue("file").toStr).file.getAbsolutePath)
+  }
 }
 
 object AbsPathArgsDef {
 
-  def apply() = new ArgsDef(Seq[String](), new HashMap[String, Value])
+  def apply() = {
+    val names = Seq[String]("file")
+    val defaultValues = new HashMap[String, Value]
+    defaultValues.put("file", StringValue(""))
+
+    new ArgsDef(names, defaultValues)
+  }
 }
