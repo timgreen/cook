@@ -3,7 +3,7 @@ package cook.app.subcommand
 import cook.util._
 import cook.actors._
 
-object Build extends SubCommand("build") {
+object Build extends SubCommand("build", "Build targets") {
 
   override def run(args: Array[String]) {
     if (args.isEmpty) {

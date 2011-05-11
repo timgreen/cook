@@ -8,7 +8,7 @@ import cook.actors._
 import cook.target._
 import cook.util._
 
-object Analyze extends SubCommand("analyze") {
+object Analyze extends SubCommand("analyze", "Analyze target dependances") {
 
   override def run(args: Array[String]) {
     if (args.isEmpty) {

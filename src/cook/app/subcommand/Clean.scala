@@ -6,7 +6,7 @@ import org.apache.tools.ant.taskdefs.Delete
 
 import cook.util._
 
-object Clean extends SubCommand("clean") {
+object Clean extends SubCommand("clean", "Clean up cook output") {
 
   override def run(args: Array[String]) {
     removeDir(FileUtil.cookBuildDir)

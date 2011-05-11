@@ -2,7 +2,7 @@ package cook.app.subcommand
 
 import scala.collection.mutable.HashMap
 
-abstract class SubCommand(val name: String) {
+abstract class SubCommand(val name: String, val short: String) {
 
   def run(args: Array[String])
 
@@ -17,9 +17,9 @@ object SubCommand {
 
   private[subcommand]
   val commands = HashMap[String, SubCommand](
-    "help"  -> Help,
-    "build" -> Build,
-    "clean" -> Clean,
-    "analyze" -> Analyze
+    Help.name    -> Help,
+    Build.name   -> Build,
+    Clean.name   -> Clean,
+    Analyze.name -> Analyze
   )
 }
