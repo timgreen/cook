@@ -93,7 +93,6 @@ class Target(
   var depOutputDirs: Seq[File] = null
 
   def prepareInputFiles(inputs: Seq[FileLabel]) = labelToFiles(inputs)
-  def prepareToolFiles(tools: Seq[FileLabel]) = labelToFiles(tools)
 
   /**
    * Get dep targets output dirs.
@@ -137,7 +136,6 @@ class Target(
       "INPUTS=( $INPUTS )",
       "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
       "ALL_DEP_OUTPUT_DIRS=( $ALL_DEP_OUTPUT_DIRS )",
-      "TOOLS=( $TOOLS )",
       "IFS=\"$OLD_IFS\""
     )
     val pb = new ProcessBuilder(
@@ -159,6 +157,7 @@ class Target(
     val is = p.getInputStream
     val bytes = Array[Byte](100)
     val log = new java.io.FileOutputStream(logFile)
+    log.write((splitArrayValueCmds ++ cmds).mkString(";").getBytes)
     try {
       while(is.read(bytes) != -1) {
         log.write(bytes)
@@ -183,7 +182,6 @@ class Target(
    * One target is cached, if and only if
    *   - all deps is cahced
    *   - all input is not changed since last build
-   *   - all tools is not changed since last build
    */
   def checkIfCached(): Boolean = {
     val metaFile = getCacheMetaFile

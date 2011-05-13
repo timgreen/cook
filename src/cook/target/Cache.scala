@@ -42,16 +42,6 @@ class Cache(metaFile: File) {
       while (true) {
         readline(lineIt) match {
           case MapValue(i, t) => inputs.put(i, t)
-          case Section("tools") => break
-          case _ => invalid
-        }
-      }
-    }
-
-    breakable {
-      while (true) {
-        readline(lineIt) match {
-          case MapValue(i, t) => tools.put(i, t)
           case EndOfFile() => break
           case _ => invalid
         }
@@ -66,15 +56,11 @@ class Cache(metaFile: File) {
     p.println
     p.println("inputs:")
     for ((i, t) <- inputs) { p.println("  %s: %d".format(i, t)) }
-    p.println
-    p.println("tools:")
-    for ((i, t) <- tools) { p.println("  %s: %d".format(i, t)) }
     p.close
   }
 
   val deps = new HashSet[String]
   val inputs = new HashMap[String, Long]
-  val tools = new HashMap[String, Long]
 
   private
   val SectionPattern = "(.+):".r
