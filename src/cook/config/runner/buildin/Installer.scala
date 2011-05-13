@@ -24,7 +24,8 @@ object Installer {
     Scope.ROOT_SCOPE.funcs.put("genrule", Genrule)
     Scope.ROOT_SCOPE.funcs.put("echo",    Echo)
     Scope.ROOT_SCOPE.funcs.put("labels",  Labels)
-    Scope.ROOT_SCOPE.funcs.put("label",  Label)
+    Scope.ROOT_SCOPE.funcs.put("label",   Label)
+    Scope.ROOT_SCOPE.funcs.put("error",   Error)
   }
 
 }
