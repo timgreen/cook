@@ -30,6 +30,14 @@ class Target(
    */
   def isExecutable = exeCmds.nonEmpty
 
+  def execute() {
+    if (!isExecutable) {
+      throw new TargetException("Target \"%s\" is not executeable", targetName)
+    }
+
+    runCmds(exeCmds, runLogFile)
+  }
+
   /**
    * Target it self doesn't care about deps, it only care about the input and output,
    * deps will be done by Target Manager.
@@ -51,7 +59,7 @@ class Target(
 
     if (!isCached) {
       println("Building target \"%s\"".format(targetName))
-      runCmds(cmds)
+      runCmds(cmds, buildLogFile)
     } else {
       println("Cached   target \"%s\"".format(targetName))
     }
@@ -128,7 +136,7 @@ class Target(
     }
   }
 
-  def runCmds(cmds: Seq[String]) {
+  def runCmds(cmds: Seq[String], logFile: File) {
     mkOutputDir
     val splitArrayValueCmds = Seq[String](
       "OLD_IFS=\"$IFS\"",
@@ -222,7 +230,6 @@ class Target(
     cache.write
   }
 
-  def logFile(): File = {
-    FileUtil.getBuildLogFile(path, name)
-  }
+  def buildLogFile = FileUtil.getBuildLogFile(path, name)
+  def runLogFile = FileUtil.getRunLogFile(path, name)
 }

@@ -20,6 +20,7 @@ object SubCommand {
     Help.name    -> Help,
     Build.name   -> Build,
     Clean.name   -> Clean,
-    Analyze.name -> Analyze
+    Analyze.name -> Analyze,
+    Run.name     -> Run
   )
 }
