@@ -22,10 +22,14 @@ object Main {
         }
 
     SubCommand(subCommandName) match {
-      case Some(subCommand) => subCommand.run(subCommandArgs)
+      case Some(subCommand) => {
+        val exitCode = subCommand.run(subCommandArgs)
+        System.exit(exitCode)
+      }
       case None => {
         println("subcommand \"%s\" is not found".format(subCommandName))
         Help.help
+        System.exit(1)
       }
     }
   }

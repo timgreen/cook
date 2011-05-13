@@ -8,8 +8,9 @@ import cook.util._
 
 object Clean extends SubCommand("clean", "Clean up cook output") {
 
-  override def run(args: Array[String]) {
+  override def run(args: Array[String]): Int = {
     removeDir(FileUtil.cookBuildDir)
+    0
   }
 
   def help() {

@@ -2,16 +2,21 @@ package cook.app.subcommand
 
 object Help extends SubCommand("help", "Show help message") {
 
-  override def run(args: Array[String]) {
+  override def run(args: Array[String]): Int = {
     if (args.isEmpty) {
       availableCommands
-    } else {
-      SubCommand(args.head) match {
-        case Some(subCommand) => subCommand.help
-        case None => {
-          println("subcommand \"%s\" is not found".format(args.head))
-          help
-        }
+      return 0
+    }
+
+    SubCommand(args.head) match {
+      case Some(subCommand) => {
+        subCommand.help
+        return 0
+      }
+      case None => {
+        println("subcommand \"%s\" is not found".format(args.head))
+        help
+        return 1
       }
     }
   }

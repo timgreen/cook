@@ -4,7 +4,7 @@ import scala.collection.mutable.HashMap
 
 abstract class SubCommand(val name: String, val short: String) {
 
-  def run(args: Array[String])
+  def run(args: Array[String]): Int
 
   def help()
 }

@@ -157,7 +157,7 @@ class Target(
     val is = p.getInputStream
     val bytes = Array[Byte](100)
     val log = new java.io.FileOutputStream(logFile)
-    log.write((splitArrayValueCmds ++ cmds).mkString(";").getBytes)
+    log.write(((splitArrayValueCmds ++ cmds).mkString(";") + "\n").getBytes)
     try {
       while(is.read(bytes) != -1) {
         log.write(bytes)

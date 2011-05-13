@@ -5,10 +5,11 @@ import cook.actors._
 
 object Build extends SubCommand("build", "Build targets") {
 
-  override def run(args: Array[String]) {
+  override def run(args: Array[String]): Int = {
     if (args.isEmpty) {
       println("no target to build")
       help
+      return 1
     }
 
     // TODO(timgreen): move to better place
@@ -20,6 +21,8 @@ object Build extends SubCommand("build", "Build targets") {
         }
 
     Builder.build(targetLabels)
+
+    0
   }
 
   def help() {
