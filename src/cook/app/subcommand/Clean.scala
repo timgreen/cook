@@ -10,7 +10,6 @@ object Clean extends SubCommand("clean", "Clean up cook output") {
 
   override def run(args: Array[String]) {
     removeDir(FileUtil.cookBuildDir)
-    removeDir(FileUtil.cookGenerateDir)
   }
 
   def help() {

@@ -70,5 +70,10 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
     throw new FileNotFoundException(config.getPath)
   }
 
+  def outputDir: File = {
+    val pathAndName = targetName.split(":")
+    FileUtil.getBuildOutputDir(pathAndName(0), pathAndName(1))
+  }
+
   hashObj = "T" + configFilename
 }

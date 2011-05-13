@@ -18,6 +18,5 @@ def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Sema
       "java -cp $CP mouse.Generate -G $INPUTS -p %s -P %s -S %s %s -D $OUTPUT_DIR" % [ package, parserName, semanticsName, runtimeOption ],
     ],
     tools = [ "//lib/Mouse-1.3.jar" ],
-    isGenerateTarget = true
   )
 }

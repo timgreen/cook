@@ -6,6 +6,7 @@ object Installer {
     // list
     ValueMethod.listMethods.put("join", Join)
     ValueMethod.listMethods.put("mkString", Join)
+    ValueMethod.listMethods.put("get", Get)
 
     // string
     ValueMethod.stringMethods.put("contains", Contains)

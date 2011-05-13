@@ -7,21 +7,18 @@ object FileUtil {
 
   val COOK_ROOT_FILENAME = "COOK_ROOT"
 
-  val COOK_GEN = "cook_gen"
   val COOK_BUILD = "cook_build"
 
   val OUTPUT_PREFIX = "COOK_TARGET_"
   val LOG_PREFIX = "COOK_TARGET_"
   val CACHE_PREFIX = "COOK_TARGET_"
 
-  def findRootDir(): File = findRootDir(new File(System.getProperty("user.dir")))
   def findRootDir(currentDir: File): File = {
     if (root != null) return root
 
     var dir = currentDir.getAbsoluteFile
     do {
       if (isRootDir(dir)) {
-        setRoot(dir)
         return dir
       }
       dir = dir.getParentFile
@@ -33,7 +30,7 @@ object FileUtil {
 
   def apply(filename: String): File = getFileFromRoot(filename)
 
-  def getFileFromRoot(filename: String): File = new File(findRootDir(), filename)
+  def getFileFromRoot(filename: String): File = new File(root, filename)
 
   def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
 
@@ -46,44 +43,30 @@ object FileUtil {
           file.getParentFile.getAbsolutePath
         }
 
-    absPath.drop(findRootDir(file).getAbsolutePath.length + 1)
+    absPath.drop(root.getAbsolutePath.length + 1)
   }
 
   def getBuildOutputDir(path: String, targetName: String): File = {
     FileUtil("%s/%s/%s%s".format(COOK_BUILD, path, OUTPUT_PREFIX, targetName))
   }
 
-  def getGenerateOutputDir(path: String, targetName: String): File = {
-    FileUtil("%s/%s/%s%s".format(COOK_GEN, path, OUTPUT_PREFIX, targetName))
-  }
-
   def getBuildLogFile(path: String, targetName: String): File = {
     FileUtil("%s/%s/%s%s.log".format(COOK_BUILD, path, LOG_PREFIX, targetName))
-  }
-
-  def getGenerateLogFile(path: String, targetName: String): File = {
-    FileUtil("%s/%s/%s%s.log".format(COOK_GEN, path, LOG_PREFIX, targetName))
   }
 
   def getBuildCacheMetaFile(path: String, targetName: String): File = {
     FileUtil("%s/%s/%s%s.cachemeta".format(COOK_BUILD, path, CACHE_PREFIX, targetName))
   }
 
-  def getGenerateCacheMetaFile(path: String, targetName: String): File = {
-    FileUtil("%s/%s/%s%s.cachemeta".format(COOK_GEN, path, CACHE_PREFIX, targetName))
-  }
-
   def cookBuildDir = FileUtil(COOK_BUILD)
-  def cookGenerateDir = FileUtil(COOK_GEN)
+
+  def setRoot(root: File) {
+    this.root = root.getAbsoluteFile
+  }
 
   private[util]
   var root: File = null
 
   def isRootDir(dir: File): Boolean = new File(dir, COOK_ROOT_FILENAME).exists
-
-  def setRoot(root: File) {
-    this.root = root.getAbsoluteFile
-    println("COOK_ROOT dir is " + this.root.getAbsolutePath)
-  }
 
 }

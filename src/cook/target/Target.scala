@@ -20,8 +20,7 @@ class Target(
     val inputs: Seq[String],
     val deps: Seq[String],
     val tools: Seq[String],
-    val exeCmds: Seq[String],
-    val isGenerateTarget: Boolean) {
+    val exeCmds: Seq[String]) {
 
   def targetName(): String = {
     path + ":" + name
@@ -37,12 +36,10 @@ class Target(
    * deps will be done by Target Manager.
    */
   def build() {
-    // TODO(timgreen): add cache detect
-    //
     // 0. save current timestamp
     // 1. check whether all inputs is ready
     // 2. run cmd
-    // 3. check whether all output is generated
+    // 3. Save cache data
 
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
@@ -79,11 +76,7 @@ class Target(
   }
 
   def outputDir(): File = {
-    if (isGenerateTarget) {
-      FileUtil.getGenerateOutputDir(path, name)
-    } else {
-      FileUtil.getBuildOutputDir(path, name)
-    }
+    FileUtil.getBuildOutputDir(path, name)
   }
 
   lazy val allDepOutputDirs: HashSet[String] = {
@@ -220,11 +213,7 @@ class Target(
   var isBuilded = false
 
   def getCacheMetaFile =
-      if (isGenerateTarget) {
-        FileUtil.getGenerateCacheMetaFile(path, name)
-      } else {
-        FileUtil.getBuildCacheMetaFile(path, name)
-      }
+      FileUtil.getBuildCacheMetaFile(path, name)
 
   /**
    * One target is cached, if and only if
@@ -283,10 +272,6 @@ class Target(
   }
 
   def logFile(): File = {
-    if (isGenerateTarget) {
-      FileUtil.getGenerateLogFile(path, name)
-    } else {
-      FileUtil.getBuildLogFile(path, name)
-    }
+    FileUtil.getBuildLogFile(path, name)
   }
 }

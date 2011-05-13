@@ -1,6 +1,9 @@
 package cook.app
 
+import java.io.File
+
 import cook.app.subcommand._
+import cook.util.FileUtil
 
 object Main {
 
@@ -9,6 +12,8 @@ object Main {
   cook.config.runner.value.methods.Installer.install
 
   def main(args: Array[String]) {
+    init
+
     val (subCommandName, subCommandArgs) =
         if (args.length == 0) {
           ("help", args)
@@ -23,6 +28,16 @@ object Main {
         Help.help
       }
     }
+  }
+
+  def init {
+    findRoot
+  }
+
+  def findRoot {
+    val root = FileUtil.findRootDir(new File(System.getProperty("user.dir")))
+    FileUtil.setRoot(root)
+    println("COOK_ROOT dir is " + root.getAbsolutePath)
   }
 }
 
