@@ -1,8 +1,6 @@
 scala_lib(
   name = "target",
-  srcs = glob([
-    "*.scala",
-  ]) ++ [ "../config/runner/CookRunner.scala" ],
+  srcs = glob("*.scala") ++ [ "../config/runner/CookRunner.scala" ],
   deps = [
     "//src/cook/util:util",
     "//src/cook/config/parser:parser",
