@@ -15,6 +15,17 @@ abstract class Label {
   }
 }
 
+object Label {
+
+  def apply(pathFromRoot: String, name: String): Label = {
+    if (name.indexOf(':') != -1) {
+      new TargetLabel(pathFromRoot, name)
+    } else {
+      new FileLabel(pathFromRoot, name)
+    }
+  }
+}
+
 class FileLabel(pathFromRoot: String, name: String) extends Label {
 
   /**

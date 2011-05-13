@@ -15,8 +15,8 @@ abstract class Value(val typeName: String) {
     case "isInt" => BooleanValue.FALSE
     case "isList" => BooleanValue.FALSE
     case "isLabel" => BooleanValue.FALSE
-    case "isTargetLabel" => BooleanValue.FALSE
     case "isFileLabel" => BooleanValue.FALSE
+    case "isTargetLabel" => BooleanValue.FALSE
     case _ => throw new EvalException("Unsupportted attr \"%s\" on %s", id, typeName)
   }
   def unaryOp(op: String): Value = {
@@ -153,6 +153,17 @@ case class ListValue(list: Seq[Value]) extends Value("List") {
 object ListValue {
 
   def apply(): ListValue = ListValue(Seq[Value]())
+}
+
+case class FileLabelValue(fileLabel: FileLabel) extends Value("FileLabel") {
+
+  override def get(): Any = fileLabel
+  override def attr(id: String): Value = id match {
+    case "isLabel" => BooleanValue.TRUE
+    case "isFileLabel" => BooleanValue.TRUE
+    case "file" => StringValue(fileLabel.file.getAbsolutePath)
+    case _ => super.attr(id)
+  }
 }
 
 case class TargetLabelValue(targetLabel: TargetLabel) extends Value("TargetLabel") {
