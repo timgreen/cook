@@ -17,9 +17,8 @@ class Target(
     val path: String,
     val name: String,
     val cmds: Seq[String],
-    val inputs: Seq[String],
-    val deps: Seq[String],
-    val tools: Seq[String],
+    val inputs: Seq[FileLabel],
+    val deps: Seq[TargetLabel],
     val exeCmds: Seq[String]) {
 
   def targetName(): String = {
@@ -44,11 +43,10 @@ class Target(
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
     depOutputDirs = prepareDepOutputDirs(deps)
-    toolFiles = prepareToolFiles(tools)
-    // TODO(timgreen): check tools
     if (isBuilded) {
       throw new TargetException(
-          "One target should never been build twice: target \"%s\"".format(targetName))
+          "One target should never been build twice: target \"%s\"",
+          targetName)
     }
 
     if (!isCached) {
@@ -63,8 +61,7 @@ class Target(
 
   def outputs(): Seq[File] = {
     if (!isBuilded) {
-      throw new TargetException(
-          "Outputs will become available after build: target \"%s\"".format(name))
+      throw new TargetException("Outputs will become available after build: target \"%s\"", name)
     }
 
     val ds = new DirectoryScanner
@@ -81,28 +78,12 @@ class Target(
 
   lazy val allDepOutputDirs: HashSet[String] = {
     val set = new HashSet[String]
-    for (d <- deps if (d.indexOf(":") != -1)) {
-      val t = TargetManager.getTarget(new TargetLabel(path, d))
+    for (d <- deps) {
+      val t = TargetManager.getTarget(d)
       set += t.outputDir.getAbsolutePath
       set ++= t.allDepOutputDirs
     }
     set
-  }
-
-  /**
-   * Get dependence targets.
-   *
-   * Dependence come from "deps", "inputs", "tools"
-   */
-  lazy val depTargets: Seq[TargetLabel] = {
-    val depsBuilder = new VectorBuilder[TargetLabel]
-    for (
-      i <- (deps ++ inputs ++ tools)
-      if (i.indexOf(":") != -1)
-    ) {
-      depsBuilder += new TargetLabel(path, i)
-    }
-    depsBuilder.result
   }
 
   lazy val isCached: Boolean = checkIfCached
@@ -110,48 +91,32 @@ class Target(
   private[target]
   var inputFiles: Seq[File] = null
   var depOutputDirs: Seq[File] = null
-  var toolFiles: Seq[File] = null
 
-  def prepareInputFiles(inputs: Seq[String]) = labelToFiles(inputs)
-  def prepareToolFiles(tools: Seq[String]) = labelToFiles(tools)
+  def prepareInputFiles(inputs: Seq[FileLabel]) = labelToFiles(inputs)
+  def prepareToolFiles(tools: Seq[FileLabel]) = labelToFiles(tools)
 
   /**
    * Get dep targets output dirs.
    */
-  def prepareDepOutputDirs(deps: Seq[String]) : Seq[File] = {
-    val depOutputDirsBuilder = new VectorBuilder[File]
-
-    for (t <- deps) {
-      val target = TargetManager.getTarget(new TargetLabel(path, t))
-      depOutputDirsBuilder += target.outputDir
+  def prepareDepOutputDirs(deps: Seq[TargetLabel]) : Seq[File] = {
+    for (t <- deps) yield {
+      val target = TargetManager.getTarget(t)
+      target.outputDir
     }
-
-    depOutputDirsBuilder.result
   }
 
   def mkOutputDir() {
     if (!outputDir.isDirectory && !outputDir.mkdirs) {
       throw new TargetException(
-          "Can not create output dir for target \"%s\": %s".format(name, outputDir.getPath))
+          "Can not create output dir for target \"%s\": %s", name, outputDir.getPath)
     }
   }
 
   /**
    * Convert Seq[label: String] to Seq[File]
    */
-  def labelToFiles(labels: Seq[String]): Seq[File] = {
-    val filesBuilder = new VectorBuilder[File]
-
-    for (l <- labels) {
-      if (l.indexOf(':') == -1) {
-        filesBuilder += new FileLabel(path, l).file
-      } else {
-        val target = TargetManager.getTarget(new TargetLabel(path, l))
-        filesBuilder ++= target.outputs
-      }
-    }
-
-    val files = filesBuilder.result
+  def labelToFiles(labels: Seq[FileLabel]): Seq[File] = {
+    val files = labels.map(_.file)
     checkFiles(files)
     files
   }
@@ -159,7 +124,7 @@ class Target(
   def checkFiles(files: Seq[File]) {
     for (f <- files) {
       if (!f.exists) {
-        throw new TargetException("Required input file \"%s\" not exists".format(f.getPath))
+        throw new TargetException("Target \"%s\" required input file \"%s\" not exists", targetName, f.getPath)
       }
     }
   }
@@ -187,7 +152,6 @@ class Target(
     env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
     env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
     env.put("ALL_DEP_OUTPUT_DIRS", allDepOutputDirs.mkString("|"))
-    env.put("TOOLS", toolFiles.map(_.getAbsolutePath).mkString("|"))
 
     val p = pb.start
 
@@ -230,11 +194,11 @@ class Target(
     val cache = new Cache(metaFile)
     cache.read
 
-    if (cache.deps != deps.toSet) {
+    if (cache.deps != deps.map(_.targetName).toSet) {
       return false
     }
-    for (d <- deps if (d.indexOf(":") != -1)) {
-      val t = TargetManager.getTarget(new TargetLabel(path, d))
+    for (d <- deps) {
+      val t = TargetManager.getTarget(d)
       if (!t.isCached) {
         return false
       }
@@ -248,25 +212,14 @@ class Target(
       return false
     }
 
-    val tools =
-        for (t <- toolFiles) yield {
-          t.getAbsolutePath -> t.lastModified
-        }
-    if (cache.tools != tools.toMap) {
-      return false
-    }
-
     return true
   }
 
   def saveCacheMeta {
     val cache = new Cache(getCacheMetaFile)
-    cache.deps ++= deps
+    cache.deps ++= deps.map(_.targetName)
     cache.inputs ++= inputFiles.map((i) => {
       i.getAbsolutePath -> i.lastModified
-    })
-    cache.tools ++= toolFiles.map((t) => {
-      t.getAbsolutePath -> t.lastModified
     })
     cache.write
   }

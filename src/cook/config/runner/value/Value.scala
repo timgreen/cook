@@ -53,6 +53,18 @@ abstract class Value(val typeName: String) {
     case _ => throw new EvalException(errorMessage)
   }
 
+  def toTargetLabel: TargetLabel = toTargetLabel("Need TargetLabel here")
+  def toTargetLabel(errorMessage: String) = this match {
+    case TargetLabelValue(targetLabel) => targetLabel
+    case _ => throw new EvalException(errorMessage)
+  }
+
+  def toFileLabel: FileLabel = toFileLabel("Need FileLabel here")
+  def toFileLabel(errorMessage: String) = this match {
+    case FileLabelValue(fileLabel) => fileLabel
+    case _ => throw new EvalException(errorMessage)
+  }
+
   def toListValue(errorMessage: String): Seq[Value] = this match {
     case ListValue(list) => list
     case _ => throw new EvalException(errorMessage)
@@ -66,6 +78,16 @@ abstract class Value(val typeName: String) {
   def toListChar: Seq[Char] = toListChar("Need List CharValue here")
   def toListChar(errorMessage: String) = {
     this.toListValue(errorMessage).map { _.toChar(errorMessage) }
+  }
+
+  def toListTargetLabel: Seq[TargetLabel] = toListTargetLabel("Need List TargetLabel here")
+  def toListTargetLabel(errorMessage: String) = {
+    this.toListValue(errorMessage).map { _.toTargetLabel(errorMessage) }
+  }
+
+  def toListFileLabel: Seq[FileLabel] = toListFileLabel("Need List FileLabel here")
+  def toListFileLabel(errorMessage: String) = {
+    this.toListValue(errorMessage).map { _.toFileLabel(errorMessage) }
   }
 }
 
@@ -155,18 +177,35 @@ object ListValue {
   def apply(): ListValue = ListValue(Seq[Value]())
 }
 
-case class FileLabelValue(absFilePath: String) extends Value("FileLabel") {
+abstract class LabelValue(typeName: String) extends Value(typeName)
 
-  override def get(): Any = absFilePath
+object LabelValue {
+
+  def apply(label: Label): LabelValue = label match {
+    case fileLabel: FileLabel => FileLabelValue(fileLabel)
+    case targetLabel: TargetLabel => TargetLabelValue(targetLabel)
+  }
+}
+
+case class FileLabelValue(fileLabel: FileLabel) extends LabelValue("FileLabel") {
+
+  override def get(): Any = fileLabel
   override def attr(id: String): Value = id match {
     case "isLabel" => BooleanValue.TRUE
     case "isFileLabel" => BooleanValue.TRUE
-    case "file" => StringValue(absFilePath)
+    case "file" => StringValue(fileLabel.file.getAbsolutePath)
     case _ => super.attr(id)
   }
 }
 
-case class TargetLabelValue(targetLabel: TargetLabel) extends Value("TargetLabel") {
+object FileLabelValue {
+
+  def apply(absPath: String): FileLabelValue = {
+    FileLabelValue(new FileLabel(null, absPath))
+  }
+}
+
+case class TargetLabelValue(targetLabel: TargetLabel) extends LabelValue("TargetLabel") {
 
   override def get(): Any = targetLabel
   override def attr(id: String): Value = id match {

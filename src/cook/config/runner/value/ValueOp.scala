@@ -43,6 +43,8 @@ object PlusOp extends ValueOp("+") {
     case (NumberValue(ai), NumberValue(bi)) => NumberValue(ai + bi)
     case (ListValue(l), _) => ListValue(l :+ b)
     case (StringValue(as), StringValue(bs)) => StringValue(as + bs)
+    case (TargetLabelValue(tl), StringValue(s)) => FileLabelValue(tl.outputDir.getAbsolutePath + s)
+    case (FileLabelValue(fl), StringValue(s)) => FileLabelValue(fl.file.getAbsolutePath + s)
     case _ => ValueOp.error(name, a, b)
   }
 }

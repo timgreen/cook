@@ -33,14 +33,13 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
 
     val name = argsValue("name").toStr
     val cmds = argsValue("cmds").toListStr
-    val inputs = argsValue("inputs").toListStr
-    val tools = argsValue("tools").toListStr
-    val deps = argsValue("deps").toListStr
+    val inputs = argsValue("inputs").toListFileLabel
+    val deps = argsValue("deps").toListTargetLabel
     val exeCmds = argsValue("exeCmds").toListStr
 
     var targetName = "%s:%s".format(path, name)
     TargetManager.push(
-        new Target(path, name, cmds, inputs, deps, tools, exeCmds))
+        new Target(path, name, cmds, inputs, deps, exeCmds))
 
     NullValue()
   }
@@ -49,12 +48,11 @@ object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsD
 object GenruleArgsDef {
 
   def apply(): ArgsDef = {
-    val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps", "tools")
+    val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps")
     val defaultValues = new HashMap[String, Value]
     defaultValues.put("inputs", ListValue())
     defaultValues.put("exeCmds", ListValue())
     defaultValues.put("deps", ListValue())
-    defaultValues.put("tools", ListValue())
 
     new ArgsDef(names, defaultValues)
   }

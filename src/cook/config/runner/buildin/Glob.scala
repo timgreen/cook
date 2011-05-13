@@ -10,7 +10,7 @@ import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit._
 import cook.config.runner.value._
-import cook.util.FileUtil
+import cook.util._
 
 /**
  * Buildin function glob.
@@ -37,7 +37,9 @@ object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), nul
 
     val files = dirScanner.getIncludedFiles
 
-    ListValue(files.map { FileLabelValue(_) })
+    ListValue(files.map((f) => {
+      FileLabelValue(new FileLabel(path, f))
+    }))
   }
 }
 

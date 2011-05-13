@@ -8,7 +8,7 @@ import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit._
 import cook.config.runner.value._
-import cook.util._
+import cook.util.{Label => UtilLabel}
 
 /**
  * Buildin function labels.
@@ -28,16 +28,10 @@ object Labels extends RunnableFuncDef("labels", Scope.ROOT_SCOPE, LabelsArgsDef(
       l = ListValue(Seq(l))
     }
 
-    val error = "Buildin function \"label\" only aceppt string / label or string / label list"
+    val error = "Buildin function \"labels\" only aceppt string / label or string / label list"
     val labels = l.toListValue(error).map( _ match {
-      case StringValue(str) => {
-        Label(path, str) match {
-          case fileLabel: FileLabel => FileLabelValue(fileLabel.file.getAbsolutePath)
-          case targetLabel: TargetLabel => TargetLabelValue(targetLabel)
-        }
-      }
-      case fileLabelValue: FileLabelValue => fileLabelValue
-      case targetLabelValue: TargetLabelValue => targetLabelValue
+      case StringValue(str) => LabelValue(UtilLabel(path, str))
+      case labelValue: LabelValue => labelValue
       case _ => throw new EvalException(error)
     })
 

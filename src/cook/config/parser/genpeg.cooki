@@ -10,13 +10,14 @@ def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Sema
     runtimeOption = "-r " + runtime
   }
 
+  lib = label("//lib/Mouse-1.3.jar")
+
   genrule(
     name = name,
-    inputs = [ src ],
+    inputs = labels(src),
     cmds = [
-      "CP=${TOOLS[0]}",
+      "CP=%s" % [lib.file],
       "java -cp $CP mouse.Generate -G $INPUTS -p %s -P %s -S %s %s -D $OUTPUT_DIR" % [ package, parserName, semanticsName, runtimeOption ],
     ],
-    tools = [ "//lib/Mouse-1.3.jar" ],
   )
 }

@@ -1,3 +1,10 @@
+Cook v0.6
+  * Rewrite build rule
+  * Add buildin function "label" & "labels"
+  * Support value type FileLabel & TargetLabel
+  * Support value type char
+  * Support more Value Method:
+
 Cook v0.5
   * Support if/else statement
   * Support python style List Comprehensions

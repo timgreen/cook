@@ -31,21 +31,20 @@ class FileLabel(pathFromRoot: String, name: String) extends Label {
   /**
    * "//package_a/package_b/package_c/filename"
    * or
+   * "/abspath/filename"
+   * or
    * "filename"
    */
-  val filename =
+  val file =
       if (name.startsWith("//")) {
-        name.drop(2)
+        FileUtil(name.drop(2))
+      } else if (name.startsWith("/")) {
+        new File(name)
       } else {
-        "%s/%s".format(pathFromRoot, name)
+        FileUtil("%s/%s".format(pathFromRoot, name))
       }
-  val file = FileUtil(filename)
 
-  if (!file.exists) {
-    throw new FileNotFoundException(file.getPath)
-  }
-
-  hashObj = "F" + filename
+  hashObj = "F" + file.getAbsolutePath
 }
 
 class TargetLabel(pathFromRoot: String, name: String) extends Label {

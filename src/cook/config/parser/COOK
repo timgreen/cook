@@ -13,7 +13,6 @@ scala_lib(
   srcs = [
     "Semantics.scala",
     "unit/Unit.scala",
-    ":gen_parser",
   ],
   deps = [
     "//src/cook/util:util",
@@ -23,8 +22,9 @@ scala_lib(
 
 java_lib(
   name = "parser",
-  srcs = [ ":gen_parser" ],
+  srcs = [ label(":gen_parser") + "/Parser.java" ],
   deps = [
+    ":gen_parser",
     ":semantics",
     "runtime:runtime",
     # cp
@@ -39,6 +39,7 @@ scala_lib(
   ],
   deps = [
     ":parser",
+    "runtime:runtime",
     "//src/cook/util:util",
   ],
 )

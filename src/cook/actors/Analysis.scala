@@ -64,7 +64,7 @@ object Analysis {
     labelsProccessing.push(target.targetName)
     labelsProccessingSet += target.targetName
 
-    val depTargets = target.depTargets
+    val depTargets = target.deps
     outDeg.put(target.targetName, depTargets.length)
 
     for (dep <- depTargets) {

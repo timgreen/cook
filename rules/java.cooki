@@ -1,16 +1,18 @@
-
 def java_lib(name, srcs, deps = []) {
+  inputs = labels(srcs)
 
-  cp   = [d for d in deps if !d.contains(":")]
-  deps = [d for d in deps if d.contains(":")]
+  deps = labels(deps)
+  cp   = [d for d in deps if d.isFileLabel]
+  deps = [d for d in deps if d.isTargetLabel]
+
+  cp = [i.file for i in cp] ++ [i.outputDir for i in deps]
 
   genrule(
     name = name,
-    inputs = srcs,
+    inputs = inputs,
     deps = deps,
-    tools = cp,
     cmds = [
-      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} ${TOOLS[*]})",
+      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} %s)" % [cp.join(" ")],
       "CP=$(printf :%s ${CP[*]})",
       "CP=${CP:1}",
       "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
@@ -20,6 +22,11 @@ def java_lib(name, srcs, deps = []) {
 }
 
 def jar(name, deps = [], libs = [], mainClass = null) {
+  deps = labels(deps)
+  libs = labels(libs)
+
+  unjarCmds = ["jar xf \"%s\"" % [lib.file] for lib in libs]
+
 
   if (mainClass == null) {
     genrule(
@@ -41,11 +48,10 @@ def jar(name, deps = [], libs = [], mainClass = null) {
         "mkdir classes",
         "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
         "cd classes/",
-        "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
+      ] ++ unjarCmds ++ [
         "cd $OUTPUT_DIR",
         "jar cf $NAME -C classes .",
       ],
-      tools = libs,
     )
   } else {
     genrule(
@@ -67,11 +73,10 @@ def jar(name, deps = [], libs = [], mainClass = null) {
         "mkdir classes",
         "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
         "cd classes/",
-        "for t in ${TOOLS[*]}; do jar xf \"$t\"; done",
+      ] ++ unjarCmds ++ [
         "cd $OUTPUT_DIR",
         "jar cfe $NAME %s -C classes ." % [ mainClass ]
       ],
-      tools = libs,
     )
   }
 }

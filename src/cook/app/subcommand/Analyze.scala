@@ -42,7 +42,7 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
     val digraphBuilder = new VectorBuilder[String]
 
     for (t <- targets) {
-      for (dep <- t.depTargets) {
+      for (dep <- t.deps) {
         val link = "\"%s\"->\"%s\"".format(t.targetName, dep.targetName)
         digraphBuilder += link
       }
