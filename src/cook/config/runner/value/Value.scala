@@ -155,13 +155,13 @@ object ListValue {
   def apply(): ListValue = ListValue(Seq[Value]())
 }
 
-case class FileLabelValue(fileLabel: FileLabel) extends Value("FileLabel") {
+case class FileLabelValue(absFilePath: String) extends Value("FileLabel") {
 
-  override def get(): Any = fileLabel
+  override def get(): Any = absFilePath
   override def attr(id: String): Value = id match {
     case "isLabel" => BooleanValue.TRUE
     case "isFileLabel" => BooleanValue.TRUE
-    case "file" => StringValue(fileLabel.file.getAbsolutePath)
+    case "file" => StringValue(absFilePath)
     case _ => super.attr(id)
   }
 }

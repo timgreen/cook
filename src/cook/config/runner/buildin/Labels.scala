@@ -23,16 +23,16 @@ import cook.util._
 object Labels extends RunnableFuncDef("labels", Scope.ROOT_SCOPE, LabelsArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    var l= argsValue("labels")
+    var l = argsValue("labels")
     if (l.typeName != "List") {
-      l= ListValue(Seq(l))
+      l = ListValue(Seq(l))
     }
 
     val error = "Buildin function \"label\" only aceppt string / label or string / label list"
     val labels = l.toListValue(error).map( _ match {
       case StringValue(str) => {
         Label(path, str) match {
-          case fileLabel: FileLabel => FileLabelValue(fileLabel)
+          case fileLabel: FileLabel => FileLabelValue(fileLabel.file.getAbsolutePath)
           case targetLabel: TargetLabel => TargetLabelValue(targetLabel)
         }
       }

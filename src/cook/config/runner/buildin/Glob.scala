@@ -24,8 +24,11 @@ import cook.util.FileUtil
 object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
 
   override def run(path: String, argsValue: ArgsValue): Value = {
-    val filters =
-        argsValue("filters").toListStr("Buildin function \"glob\" only aceppt string list")
+    var l = argsValue("filters")
+    if (l.typeName != "List") {
+      l = ListValue(Seq(l))
+    }
+    val filters = l.toListStr("Buildin function \"glob\" only aceppt string or string list")
 
     val dirScanner = new DirectoryScanner
     dirScanner.setIncludes(filters.toArray)
@@ -34,7 +37,7 @@ object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), nul
 
     val files = dirScanner.getIncludedFiles
 
-    ListValue(files.map { StringValue(_) })
+    ListValue(files.map { FileLabelValue(_) })
   }
 }
 
