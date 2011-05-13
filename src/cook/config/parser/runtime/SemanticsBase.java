@@ -78,20 +78,20 @@ public class SemanticsBase
   //-------------------------------------------------------------------
   //  Returns the left-hand side Phrase object.
   //-------------------------------------------------------------------
-  protected Phrase lhs()
+  public Phrase lhs()
     { return rule.lhs(); }
 
   //-------------------------------------------------------------------
   //  Returns the number of Phrase objects on the right-hand side.
   //-------------------------------------------------------------------
-  protected int rhsSize()
+  public int rhsSize()
     { return rule.rhsSize(); }
 
   //-------------------------------------------------------------------
   //  Returns the i-th right-hand side object, 0<=i<rhs<=rhsSize().
   //  (The right-hand side objects are numbered starting with 0.)
   //-------------------------------------------------------------------
-  protected Phrase rhs(int i)
+  public Phrase rhs(int i)
     { return rule.rhs(i); }
 
   //-------------------------------------------------------------------
@@ -100,7 +100,7 @@ public class SemanticsBase
   //  where 0<=i<j<=rhsSize().
   //  (The right-hand side objects are numbered starting with 0.)
   //-------------------------------------------------------------------
-  protected String rhsText(int i,int j)
+  public String rhsText(int i,int j)
     { return rule.rhsText(i,j); }
 
 }
