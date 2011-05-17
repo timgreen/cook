@@ -35,7 +35,7 @@ class Target(
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
 
-    runCmds(exeCmds, runLogFile)
+    runCmds(exeCmds, runLogFile, true)
   }
 
   /**
@@ -59,7 +59,7 @@ class Target(
 
     if (!isCached) {
       println("Building target \"%s\"".format(targetName))
-      runCmds(cmds, buildLogFile)
+      runCmds(cmds, buildLogFile, false)
     } else {
       println("Cached   target \"%s\"".format(targetName))
     }
@@ -136,7 +136,7 @@ class Target(
     }
   }
 
-  def runCmds(cmds: Seq[String], logFile: File) {
+  def runCmds(cmds: Seq[String], logFile: File, outputToStd: Boolean) {
     mkOutputDir
     val splitArrayValueCmds = Seq[String](
       "OLD_IFS=\"$IFS\"",
@@ -167,8 +167,11 @@ class Target(
     val log = new java.io.FileOutputStream(logFile)
     log.write(((splitArrayValueCmds ++ cmds).mkString(";") + "\n").getBytes)
     try {
-      while(is.read(bytes) != -1) {
-        log.write(bytes)
+      var len = is.read(bytes)
+      while(len != -1) {
+        log.write(bytes, 0, len)
+        System.out.write(bytes, 0, len)
+        len = is.read(bytes)
       }
     } finally {
       log.close
