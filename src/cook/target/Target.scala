@@ -170,7 +170,9 @@ class Target(
       var len = is.read(bytes)
       while(len != -1) {
         log.write(bytes, 0, len)
-        System.out.write(bytes, 0, len)
+        if (outputToStd) {
+          System.out.write(bytes, 0, len)
+        }
         len = is.read(bytes)
       }
     } finally {
@@ -179,7 +181,9 @@ class Target(
     p.waitFor
 
     if (p.exitValue != 0) {
-      Source.fromFile(logFile).getLines foreach println
+      if (!outputToStd) {
+        Source.fromFile(logFile).getLines foreach println
+      }
       System.exit(p.exitValue)
     }
   }

@@ -3,7 +3,5 @@ scala_lib(
   srcs = glob("*.scala"),
   deps = [
     "//src/cook/actors:actors",
-    # cp
-    "//lib/ant.jar",
   ],
 )
