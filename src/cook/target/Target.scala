@@ -182,7 +182,7 @@ class Target(
 
     if (p.exitValue != 0) {
       if (!outputToStd) {
-        Source.fromFile(logFile).getLines foreach println
+        Source.fromFile(logFile).getLines.drop(1) foreach println
       }
       System.exit(p.exitValue)
     }
