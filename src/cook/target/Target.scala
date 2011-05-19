@@ -139,27 +139,31 @@ class Target(
 
   def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean) {
     mkOutputDir
+    val envCmds = Seq[String](
+      "OUTPUT_DIR=\"%s\"" format stringEscape(outputDir.getAbsolutePath),
+      "NAME=\"%s\"" format stringEscape(name),
+      // TODO(timgreen): figure out a better way to pass array values
+      "INPUTS=\"%s\"" format stringEscape(inputFiles.map(_.getAbsolutePath).mkString("|")),
+      "DEP_OUTPUT_DIRS=\"%s\"" format stringEscape(depOutputDirs.map(_.getAbsolutePath).mkString("|")),
+      "ALL_DEP_OUTPUT_DIRS=\"%s\"" format stringEscape(allDepOutputDirs.mkString("|")),
+      ""
+    )
     val splitArrayValueCmds = Seq[String](
       "OLD_IFS=\"$IFS\"",
       "IFS='|'",
       "INPUTS=( $INPUTS )",
       "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
       "ALL_DEP_OUTPUT_DIRS=( $ALL_DEP_OUTPUT_DIRS )",
-      "IFS=\"$OLD_IFS\""
+      "IFS=\"$OLD_IFS\"",
+      ""
     )
-    writeCmdsToShellFile((splitArrayValueCmds ++ cmds).mkString("\n"), shFile)
+
+    writeCmdsToShellFile((envCmds ++ splitArrayValueCmds ++ cmds).mkString("\n"), shFile)
 
     val pb = new ProcessBuilder(
         "/bin/bash", shFile.getAbsolutePath)
     pb.directory(outputDir)
     pb.redirectErrorStream(true)
-    val env = pb.environment
-    env.put("OUTPUT_DIR", outputDir.getAbsolutePath)
-    env.put("NAME", name)
-    // TODO(timgreen): figure out a better way to pass array values
-    env.put("INPUTS", inputFiles.map(_.getAbsolutePath).mkString("|"))
-    env.put("DEP_OUTPUT_DIRS", depOutputDirs.map(_.getAbsolutePath).mkString("|"))
-    env.put("ALL_DEP_OUTPUT_DIRS", allDepOutputDirs.mkString("|"))
 
     val p = pb.start
 
@@ -193,6 +197,10 @@ class Target(
     val p = new PrintStream(shFile)
     p.print(cmds)
     p.close
+  }
+
+  def stringEscape(str: String): String = {
+    str.replaceAll("\"", "\\\"")
   }
 
   var isBuilded = false
