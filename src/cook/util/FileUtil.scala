@@ -10,10 +10,9 @@ object FileUtil {
   val COOK_BUILD = "cook_build"
 
   val OUTPUT_PREFIX = "COOK_TARGET_BUILD_"
-  val BUILD_LOG_PREFIX = "COOK_TARGET_BUILD_"
+  val BUILD_PREFIX = "COOK_TARGET_BUILD_"
   val CACHE_PREFIX = "COOK_TARGET_BUILD_"
-
-  val RUN_LOG_PREFIX = "COOK_TARGET_RUN_"
+  val RUN_PREFIX = "COOK_TARGET_RUN_"
 
   def findRootDir(currentDir: File): File = {
     if (root != null) return root
@@ -53,15 +52,23 @@ object FileUtil {
   }
 
   def getBuildLogFile(path: String, targetName: String): File = {
-    FileUtil("%s/%s/%s%s.log".format(COOK_BUILD, path, BUILD_LOG_PREFIX, targetName))
+    FileUtil("%s/%s/%s%s.log".format(COOK_BUILD, path, BUILD_PREFIX, targetName))
   }
 
   def getBuildCacheMetaFile(path: String, targetName: String): File = {
     FileUtil("%s/%s/%s%s.cachemeta".format(COOK_BUILD, path, CACHE_PREFIX, targetName))
   }
 
+  def getBuildShFile(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s.sh".format(COOK_BUILD, path, BUILD_PREFIX, targetName))
+  }
+
   def getRunLogFile(path: String, targetName: String): File = {
-    FileUtil("%s/%s/%s%s.log".format(COOK_BUILD, path, RUN_LOG_PREFIX, targetName))
+    FileUtil("%s/%s/%s%s.log".format(COOK_BUILD, path, RUN_PREFIX, targetName))
+  }
+
+  def getRunShFile(path: String, targetName: String): File = {
+    FileUtil("%s/%s/%s%s.sh".format(COOK_BUILD, path, RUN_PREFIX, targetName))
   }
 
   def cookBuildDir = FileUtil(COOK_BUILD)

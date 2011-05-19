@@ -1,6 +1,7 @@
 package cook.target
 
 import java.io.File
+import java.io.PrintStream
 import java.util.Date
 
 import scala.actors.Actor
@@ -35,7 +36,7 @@ class Target(
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
 
-    runCmds(exeCmds, runLogFile, true)
+    runCmds(exeCmds, runLogFile, runShFile, true)
   }
 
   /**
@@ -59,7 +60,7 @@ class Target(
 
     if (!isCached) {
       println("Building target \"%s\"".format(targetName))
-      runCmds(cmds, buildLogFile, false)
+      runCmds(cmds, buildLogFile, buildShFile, false)
     } else {
       println("Cached   target \"%s\"".format(targetName))
     }
@@ -136,7 +137,7 @@ class Target(
     }
   }
 
-  def runCmds(cmds: Seq[String], logFile: File, outputToStd: Boolean) {
+  def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean) {
     mkOutputDir
     val splitArrayValueCmds = Seq[String](
       "OLD_IFS=\"$IFS\"",
@@ -146,9 +147,10 @@ class Target(
       "ALL_DEP_OUTPUT_DIRS=( $ALL_DEP_OUTPUT_DIRS )",
       "IFS=\"$OLD_IFS\""
     )
+    writeCmdsToShellFile((splitArrayValueCmds ++ cmds).mkString("\n"), shFile)
+
     val pb = new ProcessBuilder(
-        "/bin/bash", "-c",
-        (splitArrayValueCmds ++ cmds).mkString(";"))
+        "/bin/bash", shFile.getAbsolutePath)
     pb.directory(outputDir)
     pb.redirectErrorStream(true)
     val env = pb.environment
@@ -165,7 +167,6 @@ class Target(
     val is = p.getInputStream
     val bytes = Array[Byte](100)
     val log = new java.io.FileOutputStream(logFile)
-    log.write(((splitArrayValueCmds ++ cmds).mkString(";") + "\n").getBytes)
     try {
       var len = is.read(bytes)
       while(len != -1) {
@@ -182,10 +183,16 @@ class Target(
 
     if (p.exitValue != 0) {
       if (!outputToStd) {
-        Source.fromFile(logFile).getLines.drop(1) foreach println
+        Source.fromFile(logFile).getLines foreach println
       }
       System.exit(p.exitValue)
     }
+  }
+
+  def writeCmdsToShellFile(cmds: String, shFile: File) {
+    val p = new PrintStream(shFile)
+    p.print(cmds)
+    p.close
   }
 
   var isBuilded = false
@@ -239,4 +246,6 @@ class Target(
 
   def buildLogFile = FileUtil.getBuildLogFile(path, name)
   def runLogFile = FileUtil.getRunLogFile(path, name)
+  def buildShFile = FileUtil.getBuildShFile(path, name)
+  def runShFile = FileUtil.getRunShFile(path, name)
 }
