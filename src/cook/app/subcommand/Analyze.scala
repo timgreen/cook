@@ -26,7 +26,7 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
     val currentDir = FileUtil.relativeDirToRoot(System.getProperty("user.dir"))
     val targetLabel = new TargetLabel(currentDir, args(0))
 
-    val targets = Analysis.analyze(targetLabel)
+    val targets = Analyst.analyze(targetLabel)
     val digraph = "digraph{%s}".format(buildDigraph(targets).mkString(";"))
 
     // TODO(timgreen): support more output, like graphviz to svg

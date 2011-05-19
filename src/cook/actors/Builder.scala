@@ -13,7 +13,7 @@ object Builder {
     val labelsProccessed = new HashSet[String]
 
     for (l <- targetLabels) {
-      buildQueue ++= Analysis.analyze(l)
+      buildQueue ++= Analyst.analyze(l)
     }
     for (
       t <- buildQueue

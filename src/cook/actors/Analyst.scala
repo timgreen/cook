@@ -8,7 +8,7 @@ import scala.collection.immutable.VectorBuilder
 import cook.target._
 import cook.util._
 
-object Analysis {
+object Analyst {
 
   def analyze(targetLabel: TargetLabel): Seq[Target] = {
 
