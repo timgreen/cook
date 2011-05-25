@@ -1,13 +1,14 @@
 package cook.app.subcommand
 
-import cook.util._
 import cook.actors._
+import cook.app.console.CookConsole
+import cook.util._
 
 object Build extends SubCommand("build", "Build targets") {
 
   override def run(args: Array[String]): Int = {
     if (args.isEmpty) {
-      println("no target to build")
+      CookConsole.println("no target to build")
       help
       return 1
     }

@@ -1,18 +1,19 @@
 package cook.app.subcommand
 
-import cook.util._
 import cook.actors._
+import cook.app.console.CookConsole
+import cook.util._
 
 object Run extends SubCommand("run", "Run target") {
 
   override def run(args: Array[String]): Int = {
     if (args.isEmpty) {
-      println("no target to run")
+      CookConsole.println("no target to run")
       help
       return 1
     }
     if (args.size > 1) {
-      println("can only run one target at a time")
+      CookConsole.println("can only run one target at a time")
       help
       return 1
     }

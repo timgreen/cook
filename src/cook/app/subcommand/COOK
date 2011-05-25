@@ -3,5 +3,6 @@ scala_lib(
   srcs = glob("*.scala"),
   deps = [
     "//src/cook/actors:actors",
+    "//src/cook/app/console:console",
   ],
 )
