@@ -8,80 +8,110 @@ import scala.collection.immutable.VectorBuilder
 import cook.target._
 import cook.util._
 
+class Analyst {
+
+  def isEmpty = (remain == 0)
+  def nonEmpty = (remain != 0)
+
+  def available = readyToBuild.size
+  def get: Option[String] = {
+    if (readyToBuild.nonEmpty) {
+      remain = remain - 1
+      Some(readyToBuild.pop)
+    } else {
+      None
+    }
+  }
+
+  def setDone(target: String) {
+    outEdges.get(target) match {
+      case Some(vb) =>
+        for (t <- vb.result) {
+          val deg = inDeg(t) - 1
+          if (deg == 0) {
+            readyToBuild.push(t)
+          } else {
+            inDeg(t) = deg
+          }
+        }
+      case None =>
+    }
+  }
+
+  private
+  def addDeps(a: String, b: String) {
+    nodes += a
+    nodes += b
+    inDeg(b) = inDeg.getOrElse(b, 0) + 1
+    outEdges.getOrElseUpdate(a, new VectorBuilder[String]) += b
+  }
+
+  def init = {
+    for (v <- nodes if !inDeg.contains(v)) {
+      readyToBuild.push(v)
+    }
+
+    n = nodes.size
+    remain = n
+
+    this
+  }
+
+  var n = 0
+  var remain = 0
+  val nodes = new HashSet[String]
+  val inDeg = new HashMap[String, Int]
+  val outEdges = new HashMap[String, VectorBuilder[String]]
+  val readyToBuild = new Stack[String]
+}
+
 object Analyst {
 
-  def analyze(targetLabel: TargetLabel): Seq[Target] = {
+  def apply(targetLabel: TargetLabel): Analyst = {
 
-    val labelsProccessing = new Stack[String]
-    val labelsProccessingSet = new HashSet[String]
-    val labelsProccessed = new HashSet[String]
+    val analyst = new Analyst
 
-    val outDeg = new HashMap[String, Int]
-    val inEdges = new HashMap[String, VectorBuilder[String]]
+    val targetsProccessing = new Stack[String]
+    val targetsProccessingSet = new HashSet[String]
+    val targetsProccessed = new HashSet[String]
 
     analyzeDeps(
         targetLabel,
-        labelsProccessing,
-        labelsProccessingSet,
-        labelsProccessed,
-        outDeg,
-        inEdges)
+        targetsProccessing,
+        targetsProccessingSet,
+        targetsProccessed,
+        analyst)
 
-    val readyToBuild = new Stack[String]
-    val buildOrder = new VectorBuilder[Target]
-    for ((t, i) <- outDeg) {
-      if (i == 0) {
-        readyToBuild.push(t)
-      }
-    }
-
-    while (readyToBuild.nonEmpty) {
-      val t = readyToBuild.pop
-      buildOrder += TargetManager.getTarget(new TargetLabel("", t))
-
-      for (tt <- inEdges.getOrElse(t, new VectorBuilder[String]).result) {
-        val deg = outDeg(tt) - 1
-        if (deg == 0) {
-          readyToBuild.push(tt)
-        } else {
-          outDeg(tt) = deg
-        }
-      }
-    }
-
-    buildOrder.result
+    analyst.init
   }
 
+  private
   def analyzeDeps(
       targetLabel: TargetLabel,
-      labelsProccessing: Stack[String],
-      labelsProccessingSet: HashSet[String],
-      labelsProccessed: HashSet[String],
-      outDeg: HashMap[String, Int],
-      inEdges: HashMap[String, VectorBuilder[String]]) {
+      targetsProccessing: Stack[String],
+      targetsProccessingSet: HashSet[String],
+      targetsProccessed: HashSet[String],
+      analyst: Analyst) {
 
     val target = TargetManager.getTarget(targetLabel)
-    labelsProccessing.push(target.targetName)
-    labelsProccessingSet += target.targetName
+    targetsProccessing.push(target.targetName)
+    targetsProccessingSet += target.targetName
 
-    val depTargets = target.deps
-    outDeg.put(target.targetName, depTargets.length)
+    for (dep <- target.deps) {
+      analyst.addDeps(dep.targetName, target.targetName)
 
-    for (dep <- depTargets) {
-      inEdges.getOrElseUpdate(dep.targetName, new VectorBuilder[String]) += target.targetName
-
-      if (labelsProccessingSet.contains(dep.targetName)) {
+      if (targetsProccessingSet.contains(dep.targetName)) {
         // TODO(timgreen): better error message
-        labelsProccessing.push(dep.targetName)
+        targetsProccessing.push(dep.targetName)
         throw new CookBaseException(
-            "Found dependence circle: %s", labelsProccessing.mkString(" -> "))
+            "Found dependence circle: %s", targetsProccessing.mkString(" -> "))
       }
-      if (!labelsProccessed.contains(dep.targetName)) {
-        analyzeDeps(dep, labelsProccessing, labelsProccessingSet, labelsProccessed, outDeg, inEdges)
+      if (!targetsProccessed.contains(dep.targetName)) {
+        analyzeDeps(dep, targetsProccessing, targetsProccessingSet, targetsProccessed, analyst)
       }
     }
 
-    labelsProccessingSet -= labelsProccessing.pop
-    labelsProccessed += target.targetName
+    targetsProccessingSet -= targetsProccessing.pop
+    targetsProccessed += target.targetName
   }
 }

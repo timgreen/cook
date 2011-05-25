@@ -1,6 +1,7 @@
 package cook.app.subcommand
 
 import scala.collection.immutable.VectorBuilder
+import scala.collection.mutable.HashSet
 
 import java.io.File
 
@@ -26,8 +27,19 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
     val currentDir = FileUtil.relativeDirToRoot(System.getProperty("user.dir"))
     val targetLabel = new TargetLabel(currentDir, args(0))
 
-    val targets = Analyst.analyze(targetLabel)
-    val digraph = "digraph{%s}".format(buildDigraph(targets).mkString(";"))
+    val targets = new VectorBuilder[Target]
+    val targetSet= new HashSet[String]
+
+    val analyst = Analyst(targetLabel)
+    while (analyst.nonEmpty) {
+      val t = analyst.get.get
+      analyst.setDone(t)
+      if (!targetSet.contains(t)) {
+        targets += TargetManager.getTarget(t)
+      }
+    }
+
+    val digraph = "digraph{%s}".format(buildDigraph(targets.result).mkString(";"))
 
     // TODO(timgreen): support more output, like graphviz to svg
     println("https://chart.googleapis.com/chart?cht=gv:neato&chl=%s".format(digraph))

@@ -10,17 +10,19 @@ object Builder {
 
   def build(targetLabels: Seq[TargetLabel]) {
     val buildQueue = new Queue[Target]
-    val labelsProccessed = new HashSet[String]
+    val targets= new HashSet[String]
 
-    for (l <- targetLabels) {
-      buildQueue ++= Analyst.analyze(l)
+    for (tl <- targetLabels) {
+      val analyst = Analyst(tl)
+      while (analyst.nonEmpty) {
+        val t = analyst.get.get
+        analyst.setDone(t)
+        if (!targets.contains(t)) {
+          buildQueue += TargetManager.getTarget(t)
+        }
+      }
     }
-    for (
-      t <- buildQueue
-      if (!labelsProccessed.contains(t.targetName))
-    ) {
-      labelsProccessed += t.targetName
-      t.build
-    }
+
+    buildQueue.foreach(_.build)
   }
 }

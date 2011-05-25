@@ -14,6 +14,11 @@ object TargetManager {
     targets.put(t.targetName, t)
   }
 
+  def getTarget(targetFullName: String): Target = {
+    val targetLabel = new TargetLabel("", targetFullName)
+    getTarget(targetLabel)
+  }
+
   def getTarget(targetLabel: TargetLabel): Target = {
     if (!hasTarget(targetLabel.targetName)) {
       CookRunner.run(targetLabel.config, ConfigType.COOK)
