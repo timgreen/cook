@@ -2,6 +2,7 @@ package cook.app
 
 import java.io.File
 
+import cook.app.console.CookConsole
 import cook.app.subcommand._
 import cook.util.FileUtil
 
@@ -27,7 +28,7 @@ object Main {
         System.exit(exitCode)
       }
       case None => {
-        println("subcommand \"%s\" is not found".format(subCommandName))
+        CookConsole.println("subcommand \"%s\" is not found", subCommandName)
         Help.help
         System.exit(1)
       }
@@ -41,7 +42,7 @@ object Main {
   def findRoot {
     val root = FileUtil.findRootDir(new File(System.getProperty("user.dir")))
     FileUtil.setRoot(root)
-    println("COOK_ROOT dir is " + root.getAbsolutePath)
+    CookConsole.println("COOK_ROOT dir is %s", root.getAbsolutePath)
   }
 }
 

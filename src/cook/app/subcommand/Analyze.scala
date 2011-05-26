@@ -5,6 +5,7 @@ import scala.collection.mutable.HashSet
 
 import java.io.File
 
+import cook.app.console.CookConsole
 import cook.actors._
 import cook.target._
 import cook.util._
@@ -13,12 +14,12 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
 
   override def run(args: Array[String]): Int = {
     if (args.isEmpty) {
-      println("no target to analyze")
+      CookConsole.println("no target to analyze")
       help
       return 1
     }
     if (args.length > 1) {
-      println("Can only analyze one target at one time for now")
+      CookConsole.println("Can only analyze one target at one time for now")
       help
       return 1
     }
@@ -42,13 +43,13 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
     val digraph = "digraph{%s}".format(buildDigraph(targets.result).mkString(";"))
 
     // TODO(timgreen): support more output, like graphviz to svg
-    println("https://chart.googleapis.com/chart?cht=gv:neato&chl=%s".format(digraph))
+    CookConsole.println("https://chart.googleapis.com/chart?cht=gv:neato&chl=%s", digraph)
 
     0
   }
 
   def help() {
-    println("usage: cook analyze <target>")
+    CookConsole.println("usage: cook analyze <target>")
   }
 
   private[subcommand]

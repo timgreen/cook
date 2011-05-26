@@ -2,6 +2,7 @@ package cook.app.subcommand
 
 import java.io.File
 
+import cook.app.console.CookConsole
 import cook.util._
 
 object Clean extends SubCommand("clean", "Clean up cook output") {
@@ -12,7 +13,7 @@ object Clean extends SubCommand("clean", "Clean up cook output") {
   }
 
   def help() {
-    println("clean cook output")
+    CookConsole.println("clean cook output")
   }
 
   private[subcommand]

@@ -27,6 +27,6 @@ object Build extends SubCommand("build", "Build targets") {
   }
 
   def help() {
-    println("usage: cook build <targets>...")
+    CookConsole.println("usage: cook build <targets>...")
   }
 }

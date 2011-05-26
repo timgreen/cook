@@ -1,5 +1,7 @@
 package cook.app.subcommand
 
+import cook.app.console.CookConsole
+
 object Help extends SubCommand("help", "Show help message") {
 
   override def run(args: Array[String]): Int = {
@@ -14,7 +16,7 @@ object Help extends SubCommand("help", "Show help message") {
         return 0
       }
       case None => {
-        println("subcommand \"%s\" is not found".format(args.head))
+        CookConsole.println("subcommand \"%s\" is not found".format(args.head))
         help
         return 1
       }
@@ -22,14 +24,14 @@ object Help extends SubCommand("help", "Show help message") {
   }
 
   def help() {
-    println("usage: cook <command> [<args>]")
-    println("run 'cook help' to available commands")
+    CookConsole.println("usage: cook <command> [<args>]")
+    CookConsole.println("run 'cook help' to available commands")
   }
 
   def availableCommands {
-    println("Available commands:")
+    CookConsole.println("Available commands:")
     for ((name, c) <- SubCommand.commands) {
-      println("%8s -- %s".format(name, c.short))
+      CookConsole.println("%8s -- %s", name, c.short)
     }
   }
 }

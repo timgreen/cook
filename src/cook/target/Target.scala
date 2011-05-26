@@ -12,6 +12,7 @@ import scala.io.Source
 
 import org.apache.tools.ant.DirectoryScanner
 
+import cook.app.console.CookConsole
 import cook.util._
 
 class Target(
@@ -59,10 +60,10 @@ class Target(
     }
 
     if (!isCached) {
-      println("Building target \"%s\"".format(targetName))
+      CookConsole.println("Building target \"%s\"", targetName)
       runCmds(cmds, buildLogFile, buildShFile, false)
     } else {
-      println("Cached   target \"%s\"".format(targetName))
+      CookConsole.println("Cached   target \"%s\"", targetName)
     }
     isBuilded = true
     saveCacheMeta

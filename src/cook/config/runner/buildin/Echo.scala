@@ -4,6 +4,7 @@ import scala.collection.mutable.HashMap
 
 import java.io.File
 
+import cook.app.console.CookConsole
 import cook.config.runner.EvalException
 import cook.config.runner.Scope
 import cook.config.runner.unit._
@@ -25,7 +26,7 @@ object Echo extends RunnableFuncDef("echo", Scope.ROOT_SCOPE, EchoArgsDef(), nul
 
   override def run(path: String, argsValue: ArgsValue): Value = {
     val message = argsValue("message").toString
-    println(message)
+    CookConsole.println(message)
 
     NullValue()
   }

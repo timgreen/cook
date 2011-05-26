@@ -2,9 +2,10 @@ scala_lib(
   name = "target",
   srcs = glob("*.scala") ++ [ "../config/runner/CookRunner.scala" ],
   deps = [
-    "//src/cook/util:util",
+    "//src/cook/app/console:console",
     "//src/cook/config/parser:parser",
     "//src/cook/config/runner:runnable",
+    "//src/cook/util:util",
     # cp
     "//lib/ant.jar"
   ],

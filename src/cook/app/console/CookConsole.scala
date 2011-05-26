@@ -4,11 +4,11 @@ import scala.collection.mutable.HashMap
 
 object CookConsole {
 
-  def println(s: String) = {
-    s.foreach(p)
+  def println(s: String, objs: Any*) = {
+    s.format(objs: _*).foreach(p)
     p('\n')
   }
-  def print(s: String) = s.foreach(p)
+  def print(s: String, objs: Any*) = s.format(objs: _*).foreach(p)
 
   def mark(name: String) {
     marks(name) = (x, y)

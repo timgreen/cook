@@ -29,6 +29,6 @@ object Run extends SubCommand("run", "Run target") {
   }
 
   def help() {
-    println("usage: cook run <target>")
+    CookConsole.println("usage: cook run <target>")
   }
 }
