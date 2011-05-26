@@ -67,7 +67,7 @@ class Analyst {
 
 object Analyst {
 
-  def apply(targetLabel: TargetLabel): Analyst = {
+  def apply(targetLabels: TargetLabel*): Analyst = {
 
     val analyst = new Analyst
 
@@ -75,12 +75,14 @@ object Analyst {
     val targetsProccessingSet = new HashSet[String]
     val targetsProccessed = new HashSet[String]
 
-    analyzeDeps(
-        targetLabel,
-        targetsProccessing,
-        targetsProccessingSet,
-        targetsProccessed,
-        analyst)
+    targetLabels.foreach {
+      analyzeDeps(
+          _,
+          targetsProccessing,
+          targetsProccessingSet,
+          targetsProccessed,
+          analyst)
+    }
 
     analyst.init
   }
