@@ -3,7 +3,6 @@ package cook.app
 import java.io.File
 
 import cook.app.console.CookConsole
-import cook.app.console.CookConsoleHelper._
 import cook.app.subcommand._
 import cook.util.FileUtil
 
@@ -43,7 +42,10 @@ object Main {
   def findRoot {
     val root = FileUtil.findRootDir(new File(System.getProperty("user.dir")))
     FileUtil.setRoot(root)
-    CookConsole.println("COOK_ROOT is %s", yellow(root.getAbsolutePath))
+    CookConsole.print("COOK_ROOT is ")
+    CookConsole.control(Console.YELLOW)
+    CookConsole.println(root.getAbsolutePath)
+    CookConsole.reset
   }
 }
 

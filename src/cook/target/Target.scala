@@ -60,10 +60,7 @@ class Target(
     }
 
     if (!isCached) {
-      CookConsole.println("Building target \"%s\"", targetName)
       runCmds(cmds, buildLogFile, buildShFile, false)
-    } else {
-      CookConsole.println("Cached   target \"%s\"", targetName)
     }
     isBuilded = true
     saveCacheMeta

@@ -34,7 +34,7 @@ object Analyze extends SubCommand("analyze", "Analyze target dependances") {
     val analyst = Analyst(targetLabel)
     while (analyst.nonEmpty) {
       val t = analyst.get.get
-      analyst.setDone(t)
+      analyst.setBuilt(t)
       if (!targetSet.contains(t)) {
         targets += TargetManager.getTarget(t)
       }

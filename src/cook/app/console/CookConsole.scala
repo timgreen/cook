@@ -4,51 +4,61 @@ import scala.collection.mutable.HashMap
 
 object CookConsole {
 
-  def println(s: String, objs: Any*) = {
+  def println(s: String, objs: Any*) {
     s.format(objs: _*).foreach(p)
     p('\n')
   }
-  def print(s: String, objs: Any*) = s.format(objs: _*).foreach(p)
+  def print(s: String, objs: Any*) {
+    s.format(objs: _*).foreach(p)
+    Console.flush
+  }
 
-  def mark(name: String) {
+  def mark(name: Symbol) {
     marks(name) = (x, y)
   }
 
-  def clearToMark(name: String) {
+  def clearToMark(name: Symbol) {
+    val (mx, my) = marks(name)
     val (cx, cy) = (x, y)
-    goto(x, y)
-    val i = (x - cx) * width + (y - cy)
+    goto(mx, my)
+    val i = (cx - mx) * width + (cy - my)
     reset
     for (x <- 1 to i) {
       p(' ')
     }
-    goto(x, y)
+    goto(mx, my)
   }
 
   def reset {
     control(Console.RESET)
   }
 
-  private
+  def control(str: String, objs: Any*) {
+    Console.printf(str, objs: _*)
+  }
+
   var x = 0
   var y = 0
 
-  val marks = new HashMap[String, Tuple2[Int, Int]]
+  val marks = new HashMap[Symbol, Tuple2[Int, Int]]
 
-  def isLineEnd = (y + 1 == width)
-  def isLineStart = (y == 0)
+  def isLineEnd = (x + 1 == width)
+  def isLineStart = (x == 0)
 
   def p(c: Char) {
+    Console.print(c)
     if (isLineEnd) {
       if (c != '\n') {
         Console.println
       }
       y += 1
       x = 0
+    } else if (c == '\n') {
+      y += 1
+      x = 0
     } else {
       x += 1
     }
-    Console.print(c)
   }
 
   def width = {
@@ -70,35 +80,24 @@ object CookConsole {
     }
   }
 
-  def moveUp(y: Int) {
-    control("\033[%dA", y)
-    this.y -= y
+  def moveUp(dy: Int) {
+    control("\033[%dA", dy)
+    y -= dy
   }
 
-  def moveDown(y: Int) {
-    control("\033[%dB", y)
-    this.y += y
+  def moveDown(dy: Int) {
+    control("\033[%dB", dy)
+    y += dy
   }
 
-  def moveRight(x: Int) {
-    control("\033[%dC", x)
-    this.x += x
+  def moveRight(dx: Int) {
+    control("\033[%dC", dx)
+    x += dx
   }
 
-  def moveLeft(x: Int) {
-    control("\033[%dD", x)
-    this.x -= x
+  def moveLeft(dx: Int) {
+    control("\033[%dD", dx)
+    x -= dx
   }
 
-  def control(str: String, objs: Any*) {
-    Console.printf(str, objs: _*)
-  }
-}
-
-object CookConsoleHelper {
-
-  def black(s: Any) = Console.BLACK + s.toString + Console.RESET
-  def blue(s: Any) = Console.BLUE + s.toString + Console.RESET
-  def cyan(s: Any) = Console.CYAN + s.toString + Console.RESET
-  def yellow(s: Any) = Console.YELLOW + s.toString + Console.RESET
 }

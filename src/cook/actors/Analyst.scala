@@ -6,7 +6,6 @@ import scala.collection.mutable.Stack
 import scala.collection.immutable.VectorBuilder
 
 import cook.app.console.CookConsole
-import cook.app.console.CookConsoleHelper._
 import cook.target._
 import cook.util._
 
@@ -25,7 +24,30 @@ class Analyst {
     }
   }
 
-  def setDone(target: String) {
+  def setBuilding(target: String) {
+    building += target
+  }
+
+  def setCached(target: String) {
+    building -= target
+    cached += target
+    markFinished(target)
+  }
+
+  def setBuilt(target: String) {
+    building -= target
+    built += target
+    markFinished(target)
+  }
+
+  def total = n
+  val built = new HashSet[String]
+  val building = new HashSet[String]
+  val cached = new HashSet[String]
+
+  private
+
+  def markFinished(target: String) {
     outEdges.get(target) match {
       case Some(vb) =>
         for (t <- vb.result) {
@@ -40,7 +62,6 @@ class Analyst {
     }
   }
 
-  private
   def addDeps(a: String, b: String) {
     nodes += a
     nodes += b
@@ -56,7 +77,11 @@ class Analyst {
     n = nodes.size
     remain = n
 
-    CookConsole.println("find %s target(s)", cyan(n))
+    CookConsole.print("Find ")
+    CookConsole.control(Console.CYAN)
+    CookConsole.print("%d", n)
+    CookConsole.reset
+    CookConsole.println(" target(s)")
 
     this
   }
