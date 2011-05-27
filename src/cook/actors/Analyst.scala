@@ -5,6 +5,8 @@ import scala.collection.mutable.HashSet
 import scala.collection.mutable.Stack
 import scala.collection.immutable.VectorBuilder
 
+import cook.app.console.CookConsole
+import cook.app.console.CookConsoleHelper._
 import cook.target._
 import cook.util._
 
@@ -53,6 +55,8 @@ class Analyst {
 
     n = nodes.size
     remain = n
+
+    CookConsole.println("find %s target(s)", cyan(n))
 
     this
   }

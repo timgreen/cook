@@ -94,3 +94,11 @@ object CookConsole {
     Console.printf(str, objs: _*)
   }
 }
+
+object CookConsoleHelper {
+
+  def black(s: Any) = Console.BLACK + s.toString + Console.RESET
+  def blue(s: Any) = Console.BLUE + s.toString + Console.RESET
+  def cyan(s: Any) = Console.CYAN + s.toString + Console.RESET
+  def yellow(s: Any) = Console.YELLOW + s.toString + Console.RESET
+}
