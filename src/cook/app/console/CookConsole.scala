@@ -21,9 +21,9 @@ object CookConsole {
     val (mx, my) = marks(name)
     val (cx, cy) = (x, y)
     goto(mx, my)
-    val i = (cx - mx) * width + (cy - my)
+    val spaces = (cy - my) * width + (cx - mx)
     reset
-    for (x <- 1 to i) {
+    for (i <- 1 to spaces) {
       p(' ')
     }
     goto(mx, my)
@@ -37,6 +37,32 @@ object CookConsole {
     Console.printf(str, objs: _*)
   }
 
+  def cookPercentage(percentage: Int) {
+    val remain = width - x - 2 - 4 - 2
+    val os = remain * percentage / 100
+    val spaces = remain - os
+
+    print("[ ")
+    control(Console.CYAN)
+    p('C')
+    control(Console.YELLOW)
+    p('o')
+
+    control(Console.GREEN)
+    p('o')
+    for (i <- 1 to os) {
+      p('o')
+    }
+    control(Console.CYAN)
+    p('k')
+    for (i <- 1 to spaces) {
+      p(' ')
+    }
+    reset
+    print(" ]")
+  }
+
+  private
   var x = 0
   var y = 0
 

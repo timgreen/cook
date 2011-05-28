@@ -24,6 +24,8 @@ class Analyst {
     }
   }
 
+  def percentage = 100 * (cached.size + built.size) / total
+
   def setBuilding(target: String) {
     building += target
   }

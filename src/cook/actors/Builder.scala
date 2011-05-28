@@ -38,6 +38,7 @@ object Builder {
     CookConsole.clearToMark('buildStatus)
 
     if (analyst.building.nonEmpty) {
+      CookConsole.cookPercentage(analyst.percentage)
       CookConsole.print("Building ")
       CookConsole.control(Console.CYAN)
       CookConsole.print("%d", analyst.building.size)
@@ -57,7 +58,6 @@ object Builder {
       CookConsole.control(Console.GREEN)
       CookConsole.println(analyst.building.mkString(", "))
       CookConsole.reset
-      CookConsole.print("...")
     }
   }
 }
