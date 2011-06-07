@@ -53,6 +53,15 @@ object Builder {
     CookConsole.control(Console.CYAN)
     CookConsole.print("%d", analyst.built.size)
     CookConsole.reset
+
+    val rest = analyst.total - analyst.building.size - analyst.cached.size - analyst.built.size
+    if (rest > 0) {
+      CookConsole.print(", Rest ")
+      CookConsole.control(Console.CYAN)
+      CookConsole.print("%d", rest)
+      CookConsole.reset
+    }
+
     if (analyst.building.nonEmpty) {
       CookConsole.println(":")
       CookConsole.control(Console.GREEN)
