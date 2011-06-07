@@ -5,6 +5,7 @@
 -libraryjars ../lib/ant.jar
 -libraryjars ../lib/Mouse-1.3.jar
 -libraryjars ../lib/scala-library.jar
+-libraryjars ../lib/commons-cli-1.2.jar
 
 
 # Allow methods with the same signature, except for the return type,

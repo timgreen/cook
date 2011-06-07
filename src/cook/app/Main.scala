@@ -2,6 +2,10 @@ package cook.app
 
 import java.io.File
 
+import org.apache.commons.cli.Options
+import org.apache.commons.cli.PosixParser
+
+import cook.app.config.Config
 import cook.app.console.CookConsole
 import cook.app.subcommand._
 import cook.util.FileUtil
@@ -15,11 +19,17 @@ object Main {
   def main(args: Array[String]) {
     init
 
+    val options = prepareOptions
+    val parser = new PosixParser();
+    val commandLine = parser.parse(options, args, /* stopAtNonOption */ true)
+    Config.setColumns(commandLine.getOptionValue("columns", "80"))
+    val restArgs = commandLine.getArgs
+
     val (subCommandName, subCommandArgs) =
-        if (args.length == 0) {
-          ("help", args)
+        if (restArgs.length == 0) {
+          ("help", restArgs)
         } else {
-          (args.head, args.drop(1))
+          (restArgs.head, restArgs.drop(1))
         }
 
     SubCommand(subCommandName) match {
@@ -35,6 +45,7 @@ object Main {
     }
   }
 
+  private
   def init {
     findRoot
   }
@@ -47,5 +58,10 @@ object Main {
     CookConsole.println(root.getAbsolutePath)
     CookConsole.reset
   }
-}
 
+  def prepareOptions = {
+    val options = new Options();
+    options.addOption("c", "columns", true, "Set console width")
+    options
+  }
+}

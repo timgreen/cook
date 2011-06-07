@@ -2,8 +2,11 @@ scala_lib(
   name = "main",
   srcs = [ "Main.scala" ],
   deps = [
+    "//src/cook/app/config:config",
     "//src/cook/app/subcommand:subcommand",
     "//src/cook/config/runner/buildin:buildin",
     "//src/cook/config/runner/value/methods:methods",
+    # lib
+    "//lib/commons-cli-1.2.jar",
   ]
 )

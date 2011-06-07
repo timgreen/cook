@@ -2,6 +2,8 @@ package cook.app.console
 
 import scala.collection.mutable.HashMap
 
+import cook.app.config.Config
+
 object CookConsole {
 
   def println(s: String, objs: Any*) {
@@ -87,10 +89,7 @@ object CookConsole {
     }
   }
 
-  def width = {
-    // TODO(timgreen): call native api to get columns
-    80
-  }
+  def width = Config.columns
 
   def goto(x: Int, y: Int) {
     if (this.x > x) {

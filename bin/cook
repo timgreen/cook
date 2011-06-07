@@ -3,4 +3,5 @@
 ROOT=$(dirname "$0")
 jar="$ROOT/cook.jar"
 
-java -jar "$jar" $*
+COLUMNS=$(stty size | cut -f 2 -d " ")
+java -jar "$jar" --columns=$COLUMNS $*
