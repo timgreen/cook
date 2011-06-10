@@ -1,3 +1,8 @@
+Cook v0.7
+  * Add "run" command
+  * Improve console output
+  * Parallel compilation
+
 Cook v0.6
   * Rewrite build rule
   * Add buildin function "label" & "labels"
