@@ -1,44 +1,90 @@
 package cook.actors
 
+import java.util.concurrent.locks.ReentrantLock
+
+import scala.actors.{Actor, Exit}
+import scala.actors.Actor._
+import scala.actors.Actor.State._
+import scala.annotation.tailrec
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.Queue
 
+import cook.app.config.Config
 import cook.app.console.CookConsole
 import cook.target._
 import cook.util._
 
-object Builder {
+case class Cached(targetName: String)
+case class Built(targetName: String)
 
-  def build(targetLabels: Seq[TargetLabel]) {
-    val analyst = Analyst(targetLabels: _*)
+class BuildActor(val targetName: String, controlActor: ControlActor) extends Actor {
+
+  def act {
+    link(controlActor)
+
+    val target = TargetManager.getTarget(targetName)
+    target.build
+
+    if (target.isCached) {
+      controlActor ! Cached(targetName)
+    } else {
+      controlActor ! Built(targetName)
+    }
+
+    unlink(controlActor)
+  }
+}
+
+class ControlActor(analyst: Analyst) extends Actor {
+
+  val lock = new ReentrantLock
+  val finish = lock.newCondition
+
+  def act {
+    trapExit = true
     CookConsole.mark('buildStatus)
-    updateBuildStatus(analyst)
-    while (analyst.nonEmpty) {
+
+    tryStartMoreBuildActor
+
+    while (!analyst.isFinished) {
+      receive {
+        case Cached(targetName) =>
+          analyst.setCached(targetName)
+          updateBuildStatus(analyst)
+          tryStartMoreBuildActor
+        case Built(targetName) =>
+          analyst.setBuilt(targetName)
+          updateBuildStatus(analyst)
+          tryStartMoreBuildActor
+        case Exit(from, reason) =>
+          exit(reason)
+      }
+    }
+
+    lock.lock
+    finish.signal
+    lock.unlock
+  }
+
+  @tailrec
+  private def tryStartMoreBuildActor {
+    if ((analyst.available > 0) && (analyst.building.size < Config.parallel)) {
       val targetName = analyst.get.get
       analyst.setBuilding(targetName)
 
+      val buildActor = new BuildActor(targetName, this)
+      buildActor.start
       updateBuildStatus(analyst)
-
-      val target = TargetManager.getTarget(targetName)
-      target.build
-
-      if (target.isCached) {
-        analyst.setCached(targetName)
-      } else {
-        analyst.setBuilt(targetName)
-      }
-      updateBuildStatus(analyst)
+      tryStartMoreBuildActor
     }
-    updateBuildStatus(analyst)
-    CookConsole.println("")
   }
 
-  private
   def updateBuildStatus(analyst: Analyst) {
     CookConsole.clearToMark('buildStatus)
 
-    if (analyst.building.nonEmpty) {
-      CookConsole.cookPercentage(analyst.percentage)
+    CookConsole.cookPercentage(analyst.percentage)
+
+    if (!analyst.isFinished) {
       CookConsole.print("Building ")
       CookConsole.control(Console.CYAN)
       CookConsole.print("%d", analyst.building.size)
@@ -69,4 +115,22 @@ object Builder {
       CookConsole.reset
     }
   }
+}
+
+object Builder {
+
+  def build(targetLabels: Seq[TargetLabel]) {
+    val analyst = Analyst(targetLabels: _*)
+    val controlActor = new ControlActor(analyst)
+    controlActor.start
+
+    controlActor.lock.lock
+    while (controlActor.getState != Terminated) {
+      controlActor.finish.await
+    }
+    controlActor.lock.unlock
+
+    CookConsole.println("")
+  }
+
 }

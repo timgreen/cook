@@ -11,6 +11,7 @@ import cook.util._
 
 class Analyst {
 
+  def isFinished = (cached.size + built.size == total)
   def isEmpty = (remain == 0)
   def nonEmpty = (remain != 0)
 
