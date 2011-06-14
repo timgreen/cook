@@ -17,15 +17,16 @@ object Installer {
   }
 
   def installBuildinFunction {
-    Scope.ROOT_SCOPE.funcs.put("glob",    Glob)
-    Scope.ROOT_SCOPE.funcs.put("path",    Path)
     Scope.ROOT_SCOPE.funcs.put("abspath", AbsPath)
-    Scope.ROOT_SCOPE.funcs.put("include", Include)
-    Scope.ROOT_SCOPE.funcs.put("genrule", Genrule)
     Scope.ROOT_SCOPE.funcs.put("echo",    Echo)
-    Scope.ROOT_SCOPE.funcs.put("labels",  Labels)
-    Scope.ROOT_SCOPE.funcs.put("label",   Label)
     Scope.ROOT_SCOPE.funcs.put("error",   Error)
+    Scope.ROOT_SCOPE.funcs.put("genrule", Genrule)
+    Scope.ROOT_SCOPE.funcs.put("glob",    Glob)
+    Scope.ROOT_SCOPE.funcs.put("include", Include)
+    Scope.ROOT_SCOPE.funcs.put("label",   Label)
+    Scope.ROOT_SCOPE.funcs.put("labels",  Labels)
+    Scope.ROOT_SCOPE.funcs.put("os",      Os)
+    Scope.ROOT_SCOPE.funcs.put("path",    Path)
   }
 
 }
