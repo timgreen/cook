@@ -131,6 +131,7 @@ object Analyst {
     targetsProccessing.push(target.targetName)
     targetsProccessingSet += target.targetName
 
+    analyst.nodes += target.targetName
     for (dep <- target.deps) {
       analyst.addDeps(dep.targetName, target.targetName)
 
