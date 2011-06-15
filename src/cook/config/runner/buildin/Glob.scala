@@ -7,8 +7,6 @@ import java.io.File
 import org.apache.tools.ant.DirectoryScanner
 
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util._
 
@@ -21,9 +19,9 @@ import cook.util._
  *
  * glob(["*.java"])
  */
-object Glob extends RunnableFuncDef("glob", Scope.ROOT_SCOPE, GlobArgsDef(), null, null) {
+object Glob extends BuildinFunction(GlobArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     var l = argsValue("filters")
     if (l.typeName != "List") {
       l = ListValue(Seq(l))

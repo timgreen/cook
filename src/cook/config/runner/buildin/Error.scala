@@ -3,8 +3,6 @@ package cook.config.runner.buildin
 import scala.collection.mutable.HashMap
 
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util._
 
@@ -15,9 +13,9 @@ import cook.util._
  *
  * error("error message")
  */
-object Error extends RunnableFuncDef("error", Scope.ROOT_SCOPE, ErrorArgsDef(), null, null) {
+object Error extends BuildinFunction(ErrorArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val message = argsValue("message").toStr
     throw new EvalException(message)
   }

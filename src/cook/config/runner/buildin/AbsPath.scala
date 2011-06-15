@@ -2,8 +2,6 @@ package cook.config.runner.buildin
 
 import scala.collection.mutable.HashMap
 
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util._
 
@@ -16,9 +14,9 @@ import cook.util._
  *
  * abspath()
  */
-object AbsPath extends RunnableFuncDef("abspath", Scope.ROOT_SCOPE, AbsPathArgsDef(), null, null) {
+object AbsPath extends BuildinFunction(AbsPathArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     StringValue(new FileLabel(path, argsValue("file").toStr).file.getAbsolutePath)
   }
 }

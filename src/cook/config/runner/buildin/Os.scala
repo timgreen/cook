@@ -2,8 +2,6 @@ package cook.config.runner.buildin
 
 import scala.collection.mutable.HashMap
 
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util._
 
@@ -16,9 +14,9 @@ import cook.util._
  *
  * os()
  */
-object Os extends RunnableFuncDef("os", Scope.ROOT_SCOPE, OsArgsDef(), null, null) {
+object Os extends BuildinFunction(OsArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val osName = sys.Prop.StringProp("os.name").get.toLowerCase;
     val name =
         if (osName.startsWith("linux")) {

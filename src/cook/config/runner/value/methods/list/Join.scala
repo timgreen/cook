@@ -3,8 +3,6 @@ package cook.config.runner.value.methods
 import scala.collection.mutable.HashMap
 
 import cook.config.parser.unit._
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 
 object JoinArgsDef {
@@ -18,18 +16,12 @@ object JoinArgsDef {
   }
 }
 
-class Join(v: ListValue, name: String) extends ValueMethod(v, name, JoinArgsDef()) {
+object Join extends ValueMethod(JoinArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope, v: Value): Value = {
     val list = v.toListStr
     val sep = argsValue("sep").toStr
 
     StringValue(list.mkString(sep))
   }
-}
-
-object Join extends ValueMethodBuilder {
-
-  def apply(v: Value, name: String): ValueMethod =
-      new Join(v.asInstanceOf[ListValue], name)
 }

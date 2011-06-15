@@ -7,8 +7,7 @@ scala_lib(
 scala_lib(
   name = "runnable",
   srcs = glob([
-    "Scope.scala",
-    "unit/*.scala",
+    "Evaluators.scala",
     "value/methods/ValueMethod.scala",
   ]),
   deps = [

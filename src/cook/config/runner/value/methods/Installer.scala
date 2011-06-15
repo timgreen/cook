@@ -1,5 +1,7 @@
 package cook.config.runner.value.methods
 
+import cook.config.runner.value.ValueMethod
+
 object Installer {
 
   def install {

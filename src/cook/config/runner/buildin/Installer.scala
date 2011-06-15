@@ -1,6 +1,5 @@
 package cook.config.runner.buildin
 
-import cook.config.runner.Scope
 import cook.config.runner.value._
 
 object Installer {
@@ -11,22 +10,22 @@ object Installer {
   }
 
   def installConstValue {
-    Scope.ROOT_SCOPE.vars.put("true", BooleanValue.TRUE)
-    Scope.ROOT_SCOPE.vars.put("false", BooleanValue.FALSE)
-    Scope.ROOT_SCOPE.vars.put("null", new NullValue)
+    Scope.ROOT_SCOPE("true") = BooleanValue.TRUE
+    Scope.ROOT_SCOPE("false") = BooleanValue.FALSE
+    Scope.ROOT_SCOPE("null") = NullValue()
   }
 
   def installBuildinFunction {
-    Scope.ROOT_SCOPE.funcs.put("abspath", AbsPath)
-    Scope.ROOT_SCOPE.funcs.put("echo",    Echo)
-    Scope.ROOT_SCOPE.funcs.put("error",   Error)
-    Scope.ROOT_SCOPE.funcs.put("genrule", Genrule)
-    Scope.ROOT_SCOPE.funcs.put("glob",    Glob)
-    Scope.ROOT_SCOPE.funcs.put("include", Include)
-    Scope.ROOT_SCOPE.funcs.put("label",   Label)
-    Scope.ROOT_SCOPE.funcs.put("labels",  Labels)
-    Scope.ROOT_SCOPE.funcs.put("os",      Os)
-    Scope.ROOT_SCOPE.funcs.put("path",    Path)
+    Scope.ROOT_SCOPE("abspath") = AbsPath
+    Scope.ROOT_SCOPE("echo")    = Echo
+    Scope.ROOT_SCOPE("error")   = Error
+    Scope.ROOT_SCOPE("genrule") = Genrule
+    Scope.ROOT_SCOPE("glob")    = Glob
+    Scope.ROOT_SCOPE("include") = Include
+    Scope.ROOT_SCOPE("label")   = Label
+    Scope.ROOT_SCOPE("labels")  = Labels
+    Scope.ROOT_SCOPE("os")      = Os
+    Scope.ROOT_SCOPE("path")    = Path
   }
 
 }

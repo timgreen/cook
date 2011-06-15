@@ -6,7 +6,7 @@ import scala.collection.mutable.HashMap
 
 import cook.config.parser._
 import cook.config.parser.unit._
-import cook.config.runner.unit.RunnableUnitWrapper._
+import cook.config.runner.value.Scope
 import cook.util.FileUtil
 
 object ConfigType extends Enumeration {
@@ -36,7 +36,7 @@ object CookRunner {
     val config = CookParser.parse(configFile)
     checkConfigType(configFile, config, configType)
 
-    config.run(FileUtil.relativeDirToRoot(configFile), scope)
+    CookConfigEvaluator.eval(FileUtil.relativeDirToRoot(configFile), scope, config)
 
     configToScopeMap.put(configFile.getPath, scope)
     scope
@@ -68,24 +68,21 @@ object CookRunner {
 
     // a. COOK_ROOT can only call function "include"
     // b. cooki can not call function "include"
+    // c. COOK has no limitation
     configType match {
-      case ConfigType.COOK_ROOT => {
+      case ConfigType.COOK_ROOT =>
         if (!config.statements.forall(isIncludeFunctionCall)) {
           throw new EvalException(
               "COOK_ROOT \"%s\" can only call function \"include\"",
               configFile.getPath)
         }
-      }
-      case ConfigType.cooki => {
+      case ConfigType.cooki =>
         if (!config.statements.forall(notContainIncludeCall)) {
           throw new EvalException(
               "cooki file \"%s\" can not call function \"include\"",
               configFile.getPath)
         }
-      }
-      case ConfigType.COOK => {
-        // No check needed
-      }
+      case ConfigType.COOK =>  // No check needed
     }
   }
 }

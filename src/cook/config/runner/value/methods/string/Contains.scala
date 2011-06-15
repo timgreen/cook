@@ -3,8 +3,6 @@ package cook.config.runner.value.methods
 import scala.collection.mutable.HashMap
 
 import cook.config.parser.unit._
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 
 object ContainsArgsDef {
@@ -16,19 +14,12 @@ object ContainsArgsDef {
   }
 }
 
-class Contains(v: StringValue, name: String)
-    extends ValueMethod(v, name, ContainsArgsDef()) {
+object Contains extends ValueMethod(ContainsArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = v.str
+  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+    val s = v.toStr
     val sub = argsValue("substring").toStr
 
     BooleanValue(s.contains(sub))
   }
-}
-
-object Contains extends ValueMethodBuilder {
-
-  def apply(v: Value, name: String): ValueMethod =
-      new Contains(v.asInstanceOf[StringValue], name)
 }

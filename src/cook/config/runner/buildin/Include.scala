@@ -7,9 +7,6 @@ import java.io.File
 import cook.config.runner.ConfigType
 import cook.config.runner.CookRunner
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit.RunnableUnitWrapper._
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util.FileUtil
 
@@ -22,9 +19,9 @@ import cook.util.FileUtil
  * include("scala")
  * include("subdir/scala")
  */
-object Include extends RunnableFuncDef("include", Scope.ROOT_SCOPE, IncludeArgsDef(), null, null) {
+object Include extends BuildinFunction(IncludeArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val filename = argsValue("filename").toStr
     val pathFromRoot =
         if (filename.startsWith("//")) {

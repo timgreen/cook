@@ -5,8 +5,6 @@ import scala.collection.mutable.HashMap
 import java.io.File
 
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.target.Target
 import cook.target.TargetManager
@@ -26,9 +24,9 @@ import cook.util.FileUtil
  *     cmds = [ "cat $INPUTS > b" ]
  * )
  */
-object Genrule extends RunnableFuncDef("genrule", Scope.ROOT_SCOPE, GenruleArgsDef(), null, null) {
+object Genrule extends BuildinFunction(GenruleArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     // create rule "path:name" and store it
 
     val name = argsValue("name").toStr

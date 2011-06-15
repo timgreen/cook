@@ -181,9 +181,8 @@ class Target(
     } finally {
       log.close
     }
-    p.waitFor
 
-    if (p.exitValue != 0) {
+    if (p.waitFor != 0) {
       if (!outputToStd) {
         Source.fromFile(logFile).getLines foreach println
       }
@@ -193,7 +192,7 @@ class Target(
 
   def writeCmdsToShellFile(cmds: String, shFile: File) {
     val p = new PrintStream(shFile)
-    p.print(cmds)
+    p.println(cmds)
     p.close
   }
 

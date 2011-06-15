@@ -1,5 +1,7 @@
 package cook.config.runner.value
 
+import scala.collection.mutable.HashMap
+
 import cook.config.parser.unit._
 import cook.config.runner.EvalException
 import cook.util._
@@ -17,6 +19,7 @@ abstract class Value(val typeName: String) {
     case "isLabel" => BooleanValue.FALSE
     case "isFileLabel" => BooleanValue.FALSE
     case "isTargetLabel" => BooleanValue.FALSE
+    case "isFunction" => BooleanValue.FALSE
     case _ => throw new EvalException("Unsupportted attr \"%s\" on %s", id, typeName)
   }
   def unaryOp(op: String): Value = {
@@ -117,7 +120,6 @@ case class BooleanValue(bool: Boolean) extends Value("Bool") {
   override def toString(): String = bool.toString
 }
 object BooleanValue {
-
   val TRUE  = BooleanValue(true)
   val FALSE = BooleanValue(false)
 }
@@ -196,6 +198,7 @@ case class FileLabelValue(fileLabel: FileLabel) extends LabelValue("FileLabel") 
     case "file" => StringValue(fileLabel.file.getAbsolutePath)
     case _ => super.attr(id)
   }
+  override def toString(): String = "<FileLabel:" + fileLabel.file.getAbsolutePath + ">"
 }
 
 object FileLabelValue {
@@ -214,4 +217,28 @@ case class TargetLabelValue(targetLabel: TargetLabel) extends LabelValue("Target
     case "outputDir" => StringValue(targetLabel.outputDir.getAbsolutePath)
     case _ => super.attr(id)
   }
+  override def toString(): String = "<TargetLabel:" + targetLabel.targetName + ">"
+}
+
+class ArgsDef(val names: Seq[String], val defaultValues: HashMap[String, Value])
+class FunctionValue(val path: String,
+                    val scope: Scope,
+                    val argsDef: ArgsDef,
+                    val statements: Seq[FuncStatement],
+                    val returnStatement: Option[Expr]) extends Value("Function") {
+
+  override def get(): Any = {
+    throw new UnsupportedOperationException("FunctionValue doesn't have wrapped data")
+  }
+  override def attr(id: String): Value = id match {
+    case "isFunction" => BooleanValue.TRUE
+    case _ => super.attr(id)
+  }
+  override def toString(): String = "<FunctionValue>"
+}
+abstract class BuildinFunction(argsDef: ArgsDef)
+    extends FunctionValue(null, null, argsDef, null, null) {
+
+  def eval(path: String, argsValue: Scope): Value
+  override def toString(): String = "<BuildinFunction>"
 }

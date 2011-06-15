@@ -5,8 +5,6 @@ import scala.collection.mutable.HashMap
 import java.io.File
 
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.util.{Label => UtilLabel}
 
@@ -21,9 +19,9 @@ import cook.util.{Label => UtilLabel}
  * label(":target")
  * label("File.java")
  */
-object Label extends RunnableFuncDef("label", Scope.ROOT_SCOPE, LabelArgsDef(), null, null) {
+object Label extends BuildinFunction(LabelArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     var label = argsValue("label").toStr
     LabelValue(UtilLabel(path, label))
   }

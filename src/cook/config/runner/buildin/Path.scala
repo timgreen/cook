@@ -2,8 +2,6 @@ package cook.config.runner.buildin
 
 import scala.collection.mutable.HashMap
 
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 
 /**
@@ -15,9 +13,9 @@ import cook.config.runner.value._
  *
  * path()
  */
-object Path extends RunnableFuncDef("path", Scope.ROOT_SCOPE, PathArgsDef(), null, null) {
+object Path extends BuildinFunction(PathArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = StringValue(path)
+  override def eval(path: String, argsValue: Scope): Value = StringValue(path)
 }
 
 object PathArgsDef {

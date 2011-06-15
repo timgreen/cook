@@ -3,8 +3,6 @@ package cook.config.runner.value.methods
 import scala.collection.mutable.HashMap
 
 import cook.config.parser.unit._
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 
 object SplitArgsDef {
@@ -16,11 +14,10 @@ object SplitArgsDef {
   }
 }
 
-class Split(v: StringValue, name: String)
-    extends ValueMethod(v, name, SplitArgsDef()) {
+object Split extends ValueMethod(SplitArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
-    val s = v.str
+  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+    val s = v.toStr
     val seps = argsValue("sep")
     val result =
         seps match {
@@ -29,10 +26,4 @@ class Split(v: StringValue, name: String)
         }
     ListValue(result.map { StringValue(_) })
   }
-}
-
-object Split extends ValueMethodBuilder {
-
-  def apply(v: Value, name: String): ValueMethod =
-      new Split(v.asInstanceOf[StringValue], name)
 }

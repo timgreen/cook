@@ -6,8 +6,6 @@ import java.io.File
 
 import cook.app.console.CookConsole
 import cook.config.runner.EvalException
-import cook.config.runner.Scope
-import cook.config.runner.unit._
 import cook.config.runner.value._
 import cook.target.Target
 import cook.target.TargetManager
@@ -22,9 +20,9 @@ import cook.util.FileUtil
  *
  * echo("hello")
  */
-object Echo extends RunnableFuncDef("echo", Scope.ROOT_SCOPE, EchoArgsDef(), null, null) {
+object Echo extends BuildinFunction(EchoArgsDef()) {
 
-  override def run(path: String, argsValue: ArgsValue): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val message = argsValue("message").toString
     CookConsole.println(message)
 
