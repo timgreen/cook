@@ -105,6 +105,9 @@ class Semantics extends SemanticsBase {
         } else if (rhs(0).isA("FuncCall")) {
           val funcCall = rhs(0).get.asInstanceOf[FuncCall]
           funcCall
+        } else if (rhs(0).isA("LambdaDef")) {
+          val lambdaDef = rhs(0).get.asInstanceOf[LambdaDef]
+          lambdaDef
         } else if (rhs(0).isA("LBRK")) {
           val exprList =
               if (rhs(1).isA("ExprList")) {
@@ -215,6 +218,29 @@ class Semantics extends SemanticsBase {
         }
 
     lhs.put(new FuncDef(name, argDefs, statementsBuilder.result, returnStatement))
+  }
+
+  def lambdaDef {
+    val argDefs =
+        if (rhs(2).isA("ArgDefList")) {
+          rhs(2).get.asInstanceOf[Seq[ArgDef]]
+        } else {
+          Seq[ArgDef]()
+        }
+
+    var i = 3
+    val statementsBuilder = new VectorBuilder[FuncStatement]
+    while (!rhs(i).isA("ReturnStatement")) {
+      if (rhs(i).isA("FuncStatement")) {
+        // TODO(timgreen): fix append
+        statementsBuilder += rhs(i).get.asInstanceOf[FuncStatement]
+      }
+      i = i + 1
+    }
+
+    val returnStatement = rhs(i).get.asInstanceOf[Expr]
+
+    lhs.put(new LambdaDef(argDefs, statementsBuilder.result, returnStatement))
   }
 
   def funcStatement {

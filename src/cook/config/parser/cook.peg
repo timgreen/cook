@@ -28,6 +28,7 @@ SimpleExprItem     = ( IntegerConstant
                      / StringLiteral
                      / CharLiteral
                      / FuncCall
+                     / LambdaDef
                      / Identifier ![(]
                      / ListComprehensions
                      / LBRK ExprList? !FOR RBRK
@@ -49,6 +50,9 @@ SelectorSuffix     = DOT ( Identifier ![(] / FuncCall )                        {
 FuncDef            = DEF !Keyword Identifier LPAR ArgDefList? RPAR LWING
                      FuncStatement* ReturnStatement? RWING                     {funcDef} ;
 
+LambdaDef          = LAMBDA LPAR ArgDefList? RPAR LWING
+                     FuncStatement* ReturnStatement RWING                      {lambdaDef} ;
+
 FuncStatement      = ( FuncCall / Assginment / IfStatement )                   {funcStatement} ;
 
 ReturnStatement    = RETURN Expr                                               {returnStatement} ;
@@ -65,9 +69,10 @@ IfStatement        = IF LPAR Expr RPAR LWING FuncStatement* RWING
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / CONST / IF / ELSE / FOR / IN ) ;
+Keyword  = ( DEF / LAMBDA / RETURN / INCLUDE / SUBCLUDE / GLOB / PATH / ECHO / GENRULE / CONST / IF / ELSE / FOR / IN ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
+LAMBDA   = "lambda"   ! IdChar Spacing ;
 RETURN   = "return"   ! IdChar Spacing ;
 
 IF       = "if"       ! IdChar Spacing ;

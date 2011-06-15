@@ -19,6 +19,9 @@ case class StringLiteral(str: String) extends SimpleExprItem
 case class CharLiteral(c: Char) extends SimpleExprItem
 case class Identifier(id: String) extends SimpleExprItem
 case class FuncCall(name: String, args: Seq[Arg]) extends SimpleExprItem
+case class LambdaDef(argDefs: Seq[ArgDef],
+                     statements: Seq[FuncStatement],
+                     returnStatement: Expr) extends SimpleExprItem
 case class ExprList(exprs: Seq[Expr]) extends SimpleExprItem
 case class Expr(exprItems: Seq[ExprItem], ops: Seq[String]) extends SimpleExprItem
 case class ListComprehensions(expr: Expr,
