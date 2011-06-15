@@ -23,6 +23,7 @@ object Clean extends SubCommand("clean", "Clean up cook output") {
         deleteRecursively(target.buildShFile)
         deleteRecursively(target.runLogFile)
         deleteRecursively(target.runShFile)
+        deleteRecursively(target.cacheMetaFile)
 
         CookConsole.println("Done")
       }

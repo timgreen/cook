@@ -203,16 +203,13 @@ class Target(
 
   var isBuilded = false
 
-  def getCacheMetaFile =
-      FileUtil.getBuildCacheMetaFile(path, name)
-
   /**
    * One target is cached, if and only if
    *   - all deps is cahced
    *   - all input is not changed since last build
    */
   def checkIfCached(): Boolean = {
-    val metaFile = getCacheMetaFile
+    val metaFile = cacheMetaFile
     if (!metaFile.exists) {
       return false
     }
@@ -242,7 +239,7 @@ class Target(
   }
 
   def saveCacheMeta {
-    val cache = new Cache(getCacheMetaFile)
+    val cache = new Cache(cacheMetaFile)
     cache.deps ++= deps.map(_.targetName)
     cache.inputs ++= inputFiles.map((i) => {
       i.getAbsolutePath -> i.lastModified
@@ -254,4 +251,6 @@ class Target(
   def runLogFile = FileUtil.getRunLogFile(path, name)
   def buildShFile = FileUtil.getBuildShFile(path, name)
   def runShFile = FileUtil.getRunShFile(path, name)
+  def cacheMetaFile = FileUtil.getBuildCacheMetaFile(path, name)
+
 }
