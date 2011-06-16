@@ -2,6 +2,7 @@ scala_lib(
   name = "methods",
   srcs = glob([
     "Installer.scala",
+    "SimpleMethodBuilder.scala",
     "*/*.scala",
   ]),
   deps = [

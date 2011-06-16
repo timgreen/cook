@@ -6,14 +6,17 @@ object Installer {
 
   def install {
     // list
-    ValueMethod.listMethods.put("join", Join)
-    ValueMethod.listMethods.put("mkString", Join)
-    ValueMethod.listMethods.put("get", Get)
+    ValueMethod.listMethodBuilders("join") = SimpleMethodBuilder(Join)
+    ValueMethod.listMethodBuilders("mkString") = SimpleMethodBuilder(Join)
+    ValueMethod.listMethodBuilders("get") = SimpleMethodBuilder(Get)
 
     // string
-    ValueMethod.stringMethods.put("contains", Contains)
-    ValueMethod.stringMethods.put("split", Split)
-    ValueMethod.stringMethods.put("startsWith", StartsWith)
-    ValueMethod.stringMethods.put("endsWith", EndsWith)
+    ValueMethod.stringMethodBuilders("contains") = SimpleMethodBuilder(Contains)
+    ValueMethod.stringMethodBuilders("split") = SimpleMethodBuilder(Split)
+    ValueMethod.stringMethodBuilders("startsWith") = SimpleMethodBuilder(StartsWith)
+    ValueMethod.stringMethodBuilders("endsWith") = SimpleMethodBuilder(EndsWith)
+
+    // function value
+    ValueMethod.functionValueMethodBuilders("call") = CallBuilder
   }
 }
