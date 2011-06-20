@@ -72,6 +72,13 @@ abstract class Value(var name: String, val typeName: String) {
     case _ => throw new EvalException(errorMessage, args: _*)
   }
 
+  def toFuntionValue: FunctionValue =
+      toFuntionValue("<%s>:%s should be FunctionValue", typeName, name)
+  def toFuntionValue(errorMessage: String, args: Any*): FunctionValue = this match {
+    case functionValue: FunctionValue => functionValue
+    case _ => throw new EvalException(errorMessage, args: _*)
+  }
+
   def toListStr: Seq[String] = toListStr("<%s>:%s should be List StringValue", typeName, name)
   def toListStr(errorMessage: String, args: Any*) = {
     this.toListValue(errorMessage, args: _*).map { _.toStr(errorMessage, args: _*) }

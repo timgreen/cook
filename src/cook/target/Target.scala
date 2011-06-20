@@ -7,21 +7,29 @@ import java.util.Date
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.immutable.VectorBuilder
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.io.Source
 
 import org.apache.tools.ant.DirectoryScanner
 
 import cook.app.console.CookConsole
+import cook.config.runner.value._
 import cook.util._
 
 class Target(
     val path: String,
     val name: String,
+    val outputType: String,
     val cmds: Seq[String],
     val inputs: Seq[FileLabel],
     val deps: Seq[TargetLabel],
-    val exeCmds: Seq[String]) {
+    val exeCmds: Seq[String],
+    val preBuild: FunctionValue,
+    val postBuild: FunctionValue,
+    val preRun: FunctionValue) {
+
+  val values = new HashMap[String, Value]
 
   def targetName(): String = {
     path + ":" + name
