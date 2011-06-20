@@ -55,6 +55,12 @@ abstract class Value(var name: String, val typeName: String) {
     case _ => throw new EvalException(errorMessage, args: _*)
   }
 
+  def toMap: HashMap[String, Value] = toMap("<%s>:%s should be MapValue", typeName, name)
+  def toMap(errorMessage: String, args: Any*) = this match {
+    case MapValue(_, map) => map
+    case _ => throw new EvalException(errorMessage, args: _*)
+  }
+
   def toTargetLabel: TargetLabel = toTargetLabel("<%s>:%s should be TargetLabel", typeName, name)
   def toTargetLabel(errorMessage: String, args: Any*) = this match {
     case TargetLabelValue(_, targetLabel) => targetLabel
@@ -74,7 +80,7 @@ abstract class Value(var name: String, val typeName: String) {
 
   def toFuntionValue: FunctionValue =
       toFuntionValue("<%s>:%s should be FunctionValue", typeName, name)
-  def toFuntionValue(errorMessage: String, args: Any*): FunctionValue = this match {
+  def toFuntionValue(errorMessage: String, args: Any*) = this match {
     case functionValue: FunctionValue => functionValue
     case _ => throw new EvalException(errorMessage, args: _*)
   }
@@ -249,7 +255,7 @@ case class TargetLabelValue(n: String, targetLabel: TargetLabel)
     case "isLabel" => BooleanValue(attrName(id), true)
     case "isTargetLabel" => BooleanValue(attrName(id), true)
     case "outputDir" => StringValue(attrName(id), targetLabel.outputDir.getAbsolutePath)
-    case _ => super.attrOrMethod(null, id)
+    case _ => super.attrOrMethod(ValueMethod.targetLabelMethodBuilders, id)
   }
 }
 

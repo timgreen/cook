@@ -1,4 +1,4 @@
-package cook.config.runner.value.methods
+package cook.config.runner.value.methods.string
 
 import scala.collection.mutable.HashMap
 

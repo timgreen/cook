@@ -29,7 +29,7 @@ class Target(
     val postBuild: FunctionValue,
     val preRun: FunctionValue) {
 
-  val values = new HashMap[String, Value]
+  var values = new HashMap[String, Value]
 
   def targetName(): String = {
     path + ":" + name

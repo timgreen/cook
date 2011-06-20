@@ -1,0 +1,10 @@
+scala_lib(
+  name = "target_methods",
+  srcs = glob([
+    "*.scala",
+  ]),
+  deps = [
+    "//src/cook/config/runner/value:value",
+    "//src/cook/target:target",
+  ]
+)

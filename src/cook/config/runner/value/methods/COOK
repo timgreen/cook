@@ -5,8 +5,9 @@ scala_lib(
     "*/*.scala",
   ]),
   deps = [
-    "//src/cook/config/parser:cookParser",
+    "list:list_methods",
+    "string:string_methods",
+    "target:target_methods",
     "//src/cook/config/runner/value:value",
-    "//src/cook/config/runner:evaluators",
   ]
 )
