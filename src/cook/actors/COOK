@@ -7,7 +7,7 @@ scala_lib(
     "//src/cook/app/console:console",
     "//src/cook/app/config:config",
     "//src/cook/config/parser:parser",
-    "//src/cook/config/runner:runnable",
+    "//src/cook/config/runner:runner",
     "//src/cook/target:target",
     "//src/cook/util:util",
   ]

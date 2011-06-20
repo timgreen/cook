@@ -24,7 +24,7 @@ import cook.util.FileUtil
  *     cmds = [ "cat $INPUTS > b" ]
  * )
  */
-object Genrule extends BuildinFunction(GenruleArgsDef()) {
+object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     // create rule "path:name" and store it
@@ -39,7 +39,7 @@ object Genrule extends BuildinFunction(GenruleArgsDef()) {
     TargetManager.push(
         new Target(path, name, cmds, inputs, deps, exeCmds))
 
-    NullValue()
+    VoidValue("genrule()")
   }
 }
 
@@ -48,9 +48,9 @@ object GenruleArgsDef {
   def apply(): ArgsDef = {
     val names = Seq[String]("name", "inputs", "cmds", "exeCmds", "deps")
     val defaultValues = new HashMap[String, Value]
-    defaultValues.put("inputs", ListValue())
-    defaultValues.put("exeCmds", ListValue())
-    defaultValues.put("deps", ListValue())
+    defaultValues.put("inputs", ListValue("inputs"))
+    defaultValues.put("exeCmds", ListValue("exeCmds"))
+    defaultValues.put("deps", ListValue("deps"))
 
     new ArgsDef(names, defaultValues)
   }

@@ -15,10 +15,17 @@ object GetArgsDef {
   }
 }
 
-object Get extends ValueMethod(GetArgsDef()) {
+class Get(v: Value) extends ValueMethod(v.name + ".get", v, GetArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val i = argsValue("i").toInt
-    v.toListValue("")(i)
+    val value = v.toListValue("")(i)
+    value.name = v.name + "[" + i + "]"
+    value
   }
+}
+
+object GetBuilder extends ValueMethodBuilder {
+
+  override def apply(v: Value): ValueMethod = new Get(v)
 }

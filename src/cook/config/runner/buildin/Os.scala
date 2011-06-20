@@ -14,7 +14,7 @@ import cook.util._
  *
  * os()
  */
-object Os extends BuildinFunction(OsArgsDef()) {
+object Os extends BuildinFunction("os", OsArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     val osName = sys.Prop.StringProp("os.name").get.toLowerCase;
@@ -27,7 +27,7 @@ object Os extends BuildinFunction(OsArgsDef()) {
           "unknown"
         }
 
-    StringValue(name)
+    StringValue("os()", name)
   }
 }
 
@@ -36,7 +36,6 @@ object OsArgsDef {
   def apply() = {
     val names = Seq[String]()
     val defaultValues = new HashMap[String, Value]
-    defaultValues.put("file", StringValue(""))
 
     new ArgsDef(names, defaultValues)
   }

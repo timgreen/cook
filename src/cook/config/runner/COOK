@@ -1,20 +1,37 @@
 scala_lib(
+  name = "configtype",
+  srcs = [ "ConfigType.scala" ],
+)
+
+scala_lib(
   name = "exception",
   srcs = [ "EvalException.scala" ],
   deps = [ "//src/cook/util:util" ],
 )
 
 scala_lib(
-  name = "runnable",
-  srcs = glob([
+  name = "evaluators",
+  srcs = [
     "Evaluators.scala",
-    "value/methods/ValueMethod.scala",
-  ]),
+  ],
   deps = [
+    ":configtype",
     ":exception",
     "//src/cook/config/parser:parser",
     "//src/cook/config/runner/value:value",
     # cp
     "//lib/ant.jar",
   ],
+)
+
+scala_lib(
+  name = "runner",
+  srcs = [
+    "CookRunner.scala",
+  ],
+  deps = [
+    ":evaluators",
+    # cp
+    "//lib/ant.jar",
+  ]
 )

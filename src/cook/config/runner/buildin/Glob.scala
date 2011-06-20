@@ -19,12 +19,12 @@ import cook.util._
  *
  * glob(["*.java"])
  */
-object Glob extends BuildinFunction(GlobArgsDef()) {
+object Glob extends BuildinFunction("glob", GlobArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     var l = argsValue("filters")
     if (l.typeName != "List") {
-      l = ListValue(Seq(l))
+      l = ListValue(l.name, Seq(l))
     }
     val filters = l.toListStr("Buildin function \"glob\" only aceppt string or string list")
 
@@ -35,8 +35,8 @@ object Glob extends BuildinFunction(GlobArgsDef()) {
 
     val files = dirScanner.getIncludedFiles
 
-    ListValue(files.map((f) => {
-      FileLabelValue(new FileLabel(path, f))
+    ListValue("glob()", files.map((f) => {
+        FileLabelValue("<unknown>", new FileLabel(path, f))
     }))
   }
 }

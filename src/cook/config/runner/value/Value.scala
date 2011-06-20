@@ -6,239 +6,246 @@ import cook.config.parser.unit._
 import cook.config.runner.EvalException
 import cook.util._
 
-abstract class Value(val typeName: String) {
+abstract class Value(var name: String, val typeName: String) {
 
-  def attr(id: String): Value = id match {
-    case "tos" => StringValue(this.toString)
-    case "isNull" => BooleanValue.FALSE
-    case "isChar" => BooleanValue.FALSE
-    case "isBool" => BooleanValue.FALSE
-    case "isStr" => BooleanValue.FALSE
-    case "isInt" => BooleanValue.FALSE
-    case "isList" => BooleanValue.FALSE
-    case "isLabel" => BooleanValue.FALSE
-    case "isFileLabel" => BooleanValue.FALSE
-    case "isTargetLabel" => BooleanValue.FALSE
-    case "isFunction" => BooleanValue.FALSE
-    case _ => throw new EvalException("Unsupportted attr \"%s\" on %s", id, typeName)
+  protected def attrName(id: String) = name + "." + id
+  protected def attrOrMethod(
+      methodBuilders: HashMap[String, ValueMethodBuilder], id: String): Value = {
+    if (methodBuilders != null) {
+      methodBuilders.get(id) match {
+        case Some(builder) => builder(this)
+        case None => NullValue(attrName(id))
+      }
+    } else {
+      NullValue(attrName(id))
+    }
   }
+  def attr(id: String): Value
   def unaryOp(op: String): Value = {
-    throw new EvalException("Unsupportted UnaryOperation \"%s\" on %s", op, typeName)
+    throw new EvalException("Unsupportted UnaryOperation \"%s\" on <%s>: %s", op, typeName, name)
   }
 
+  def isTrue = true
+  def isVoid = false
   def isNull = false
   def get(): Any
 
-  def toString(): String
-
   // Type convert
-  def toChar: Char = toChar("Need CharValue here")
-  def toChar(errorMessage: String) = this match {
-    case CharValue(c) => c
-    case _ => throw new EvalException(errorMessage)
+  def toChar: Char = toChar("<%s>:%s should be CharValue", typeName, name)
+  def toChar(errorMessage: String, args: Any*) = this match {
+    case CharValue(_, c) => c
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toStr: String = toStr("Need StringValue here")
-  def toStr(errorMessage: String) = this match {
-    case StringValue(str) => str
-    case _ => throw new EvalException(errorMessage)
+  def toStr: String = toStr("<%s>:%s should be StringValue", typeName, name)
+  def toStr(errorMessage: String, args: Any*) = this match {
+    case StringValue(_, str) => str
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toInt: Int = toInt("Need NumberValue here")
-  def toInt(errorMessage: String) = this match {
-    case NumberValue(int) => int
-    case _ => throw new EvalException(errorMessage)
+  def toInt: Int = toInt("<%s>:%s should be NumberValue", typeName, name)
+  def toInt(errorMessage: String, args: Any*) = this match {
+    case NumberValue(_, int) => int
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toBool: Boolean = toBool("Need BooleanValue here")
-  def toBool(errorMessage: String) = this match {
-    case BooleanValue(bool) => bool
-    case _ => throw new EvalException(errorMessage)
+  def toBool: Boolean = toBool("<%s>:%s should be BooleanValue", typeName, name)
+  def toBool(errorMessage: String, args: Any*) = this match {
+    case BooleanValue(_, bool) => bool
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toTargetLabel: TargetLabel = toTargetLabel("Need TargetLabel here")
-  def toTargetLabel(errorMessage: String) = this match {
-    case TargetLabelValue(targetLabel) => targetLabel
-    case _ => throw new EvalException(errorMessage)
+  def toTargetLabel: TargetLabel = toTargetLabel("<%s>:%s should be TargetLabel", typeName, name)
+  def toTargetLabel(errorMessage: String, args: Any*) = this match {
+    case TargetLabelValue(_, targetLabel) => targetLabel
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toFileLabel: FileLabel = toFileLabel("Need FileLabel here")
-  def toFileLabel(errorMessage: String) = this match {
-    case FileLabelValue(fileLabel) => fileLabel
-    case _ => throw new EvalException(errorMessage)
+  def toFileLabel: FileLabel = toFileLabel("<%s>:%s should be FileLabel", typeName, name)
+  def toFileLabel(errorMessage: String, args: Any*) = this match {
+    case FileLabelValue(_, fileLabel) => fileLabel
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toListValue(errorMessage: String): Seq[Value] = this match {
-    case ListValue(list) => list
-    case _ => throw new EvalException(errorMessage)
+  def toListValue(errorMessage: String, args: Any*): Seq[Value] = this match {
+    case ListValue(_, list) => list
+    case _ => throw new EvalException(errorMessage, args: _*)
   }
 
-  def toListStr: Seq[String] = toListStr("Need List StringValue here")
-  def toListStr(errorMessage: String) = {
-    this.toListValue(errorMessage).map { _.toStr(errorMessage) }
+  def toListStr: Seq[String] = toListStr("<%s>:%s should be List StringValue", typeName, name)
+  def toListStr(errorMessage: String, args: Any*) = {
+    this.toListValue(errorMessage, args: _*).map { _.toStr(errorMessage, args: _*) }
   }
 
-  def toListChar: Seq[Char] = toListChar("Need List CharValue here")
-  def toListChar(errorMessage: String) = {
-    this.toListValue(errorMessage).map { _.toChar(errorMessage) }
+  def toListChar: Seq[Char] = toListChar("<%s>:%s should be List CharValue", typeName, name)
+  def toListChar(errorMessage: String, args: Any*) = {
+    this.toListValue(errorMessage, args: _*).map { _.toChar(errorMessage, args: _*) }
   }
 
-  def toListTargetLabel: Seq[TargetLabel] = toListTargetLabel("Need List TargetLabel here")
-  def toListTargetLabel(errorMessage: String) = {
-    this.toListValue(errorMessage).map { _.toTargetLabel(errorMessage) }
+  def toListTargetLabel: Seq[TargetLabel] =
+      toListTargetLabel("<%s>:%s should be List TargetLabel", typeName, name)
+  def toListTargetLabel(errorMessage: String, args: Any*) = {
+    this.toListValue(errorMessage, args: _*).map { _.toTargetLabel(errorMessage, args: _*) }
   }
 
-  def toListFileLabel: Seq[FileLabel] = toListFileLabel("Need List FileLabel here")
-  def toListFileLabel(errorMessage: String) = {
-    this.toListValue(errorMessage).map { _.toFileLabel(errorMessage) }
+  def toListFileLabel: Seq[FileLabel] =
+      toListFileLabel("<%s>:%s should be List FileLabel", typeName, name)
+  def toListFileLabel(errorMessage: String, args: Any*) = {
+    this.toListValue(errorMessage, args: _*).map { _.toFileLabel(errorMessage, args: _*) }
   }
 }
 
-case class NullValue() extends Value("Null") {
+case class VoidValue(n: String) extends Value(n, "Void") {
 
+  override def isTrue: Boolean = {
+    throw new UnsupportedOperationException("<VoidValue>:%s can not be cast to bool".format(name))
+  }
+  override def isVoid = true
+  override def get(): Any = {
+    throw new UnsupportedOperationException("VoidValue doesn't have wrapped data")
+  }
+  override def attr(id: String): Value = id match {
+    case "isVoid" => BooleanValue(attrName(id), true)
+    case _ => throw new EvalException("Error on access attr \"%s\" on VoidValue %s", id, name)
+
+  }
+}
+
+case class NullValue(n: String) extends Value(n, "Null") {
+
+  override def isTrue: Boolean = false
   override def isNull = true
   override def get(): Any = null
-  override def toString(): String = "null"
   override def attr(id: String): Value = id match {
-    case "isNull" => BooleanValue.TRUE
-    case _ => super.attr(id)
+    case "isNull" => BooleanValue(attrName(id), true)
+    case _ => throw new EvalException("Error on access attr \"%s\" on NullValue %s", id, name)
   }
 }
 
-case class BooleanValue(bool: Boolean) extends Value("Bool") {
+case class BooleanValue(n: String, bool: Boolean) extends Value(n, "Bool") {
 
+  override def isTrue: Boolean = bool
   override def unaryOp(op: String): Value = op match {
-    case "!" => BooleanValue(!bool)
+    case "!" => BooleanValue("!" + name, !bool)
     case _ => super.unaryOp(op)
   }
   override def attr(id: String): Value = id match {
-    case "isBool" => BooleanValue.TRUE
-    case _ => super.attr(id)
+    case "isBool" => BooleanValue(attrName(id), true)
+    case _ => super.attrOrMethod(null, id)
   }
 
   override def get(): Any = bool
-  override def toString(): String = bool.toString
-}
-object BooleanValue {
-  val TRUE  = BooleanValue(true)
-  val FALSE = BooleanValue(false)
 }
 
-case class NumberValue(int: Int) extends Value("Number") {
+case class NumberValue(n: String, int: Int) extends Value(n, "Number") {
 
+  override def isTrue: Boolean = (int != 0)
   override def get(): Any = int
   override def attr(id: String): Value = id match {
-    case "isInt" => BooleanValue.TRUE
-    case _ => super.attr(id)
+    case "isInt" => BooleanValue(attrName(id), true)
+    case _ => super.attrOrMethod(null, id)
   }
-  override def toString(): String = int.toString
 }
 
-case class StringValue(str: String) extends Value("String") {
+case class StringValue(n: String, str: String) extends Value(n, "String") {
 
+  override def isTrue: Boolean = str.nonEmpty
   override def attr(id: String): Value = id match {
-    case "isStr" => BooleanValue.TRUE
-    case "size" => NumberValue(str.size)
-    case "length" => NumberValue(str.length)
-    case "isEmpty" => BooleanValue(str.isEmpty)
-    case "nonEmpty" => BooleanValue(str.nonEmpty)
-    case _ => super.attr(id)
+    case "isStr" => BooleanValue(attrName(id), true)
+    case "size" => NumberValue(attrName(id), str.size)
+    case "length" => NumberValue(attrName(id), str.length)
+    case "isEmpty" => BooleanValue(attrName(id), str.isEmpty)
+    case "nonEmpty" => BooleanValue(attrName(id), str.nonEmpty)
+    case _ => super.attrOrMethod(ValueMethod.stringMethodBuilders, id)
   }
 
   override def get(): Any = str
-  override def toString(): String = str
 }
 
-case class CharValue(c: Char) extends Value("Char") {
+case class CharValue(n: String, c: Char) extends Value(n, "Char") {
 
   override def get(): Any = c
   override def attr(id: String): Value = id match {
-    case "isChar" => BooleanValue.TRUE
-    case _ => super.attr(id)
+    case "isChar" => BooleanValue(attrName(id), true)
+    case _ => super.attrOrMethod(null, id)
   }
-  override def toString(): String = c.toString
 }
 
-case class ListValue(list: Seq[Value]) extends Value("List") {
+case class ListValue(n: String, list: Seq[Value]) extends Value(n, "List") {
 
   override def attr(id: String): Value = id match {
-    case "isList" => BooleanValue.TRUE
-    case "size" => NumberValue(list.size)
-    case "length" => NumberValue(list.length)
-    case "isEmpty" => BooleanValue(list.isEmpty)
-    case "nonEmpty" => BooleanValue(list.nonEmpty)
-    case _ => super.attr(id)
+    case "isList" => BooleanValue(attrName(id), true)
+    case "size" => NumberValue(attrName(id), list.size)
+    case "length" => NumberValue(attrName(id), list.length)
+    case "isEmpty" => BooleanValue(attrName(id), list.isEmpty)
+    case "nonEmpty" => BooleanValue(attrName(id), list.nonEmpty)
+    case _ => super.attrOrMethod(ValueMethod.listMethodBuilders, id)
   }
 
   override def get(): Any = list
-  override def toString(): String = list.mkString("[", ", ", "]")
 }
 
 object ListValue {
 
-  def apply(): ListValue = ListValue(Seq[Value]())
+  def apply(n: String): ListValue = ListValue(n, Seq[Value]())
 }
 
-abstract class LabelValue(typeName: String) extends Value(typeName)
-
+abstract class LabelValue(n: String, typeName: String) extends Value(n, typeName)
 object LabelValue {
 
-  def apply(label: Label): LabelValue = label match {
-    case fileLabel: FileLabel => FileLabelValue(fileLabel)
-    case targetLabel: TargetLabel => TargetLabelValue(targetLabel)
+  def apply(n: String, label: Label): LabelValue = label match {
+    case fileLabel: FileLabel => FileLabelValue(n, fileLabel)
+    case targetLabel: TargetLabel => TargetLabelValue(n, targetLabel)
   }
 }
 
-case class FileLabelValue(fileLabel: FileLabel) extends LabelValue("FileLabel") {
+case class FileLabelValue(n: String, fileLabel: FileLabel) extends LabelValue(n, "FileLabel") {
 
   override def get(): Any = fileLabel
   override def attr(id: String): Value = id match {
-    case "isLabel" => BooleanValue.TRUE
-    case "isFileLabel" => BooleanValue.TRUE
-    case "file" => StringValue(fileLabel.file.getAbsolutePath)
-    case _ => super.attr(id)
+    case "isLabel" => BooleanValue(attrName(id), true)
+    case "isFileLabel" => BooleanValue(attrName(id), true)
+    case "file" => StringValue(attrName(id), fileLabel.file.getAbsolutePath)
+    case _ => super.attrOrMethod(null, id)
   }
-  override def toString(): String = "<FileLabel:" + fileLabel.file.getAbsolutePath + ">"
 }
 
 object FileLabelValue {
 
-  def apply(absPath: String): FileLabelValue = {
-    FileLabelValue(new FileLabel(null, absPath))
+  def apply(n: String, absPath: String): FileLabelValue = {
+    FileLabelValue(n, new FileLabel(null, absPath))
   }
 }
 
-case class TargetLabelValue(targetLabel: TargetLabel) extends LabelValue("TargetLabel") {
+case class TargetLabelValue(n: String, targetLabel: TargetLabel)
+    extends LabelValue(n, "TargetLabel") {
 
   override def get(): Any = targetLabel
   override def attr(id: String): Value = id match {
-    case "isLabel" => BooleanValue.TRUE
-    case "isTargetLabel" => BooleanValue.TRUE
-    case "outputDir" => StringValue(targetLabel.outputDir.getAbsolutePath)
-    case _ => super.attr(id)
+    case "isLabel" => BooleanValue(attrName(id), true)
+    case "isTargetLabel" => BooleanValue(attrName(id), true)
+    case "outputDir" => StringValue(attrName(id), targetLabel.outputDir.getAbsolutePath)
+    case _ => super.attrOrMethod(null, id)
   }
-  override def toString(): String = "<TargetLabel:" + targetLabel.targetName + ">"
 }
 
 class ArgsDef(val names: Seq[String], val defaultValues: HashMap[String, Value])
-class FunctionValue(val path: String,
+class FunctionValue(n: String,
+                    val path: String,
                     val scope: Scope,
                     val argsDef: ArgsDef,
-                    val statements: Seq[FuncStatement],
-                    val returnStatement: Option[Expr]) extends Value("Function") {
+                    val statements: Seq[Statement]) extends Value(n, "Function") {
 
   override def get(): Any = {
     throw new UnsupportedOperationException("FunctionValue doesn't have wrapped data")
   }
   override def attr(id: String): Value = id match {
-    case "isFunction" => BooleanValue.TRUE
-    case _ => super.attr(id)
+    case "isFunction" => BooleanValue(attrName(id), true)
+    case _ => super.attrOrMethod(null, id)
   }
-  override def toString(): String = "<FunctionValue>"
 }
-abstract class BuildinFunction(argsDef: ArgsDef)
-    extends FunctionValue(null, null, argsDef, null, null) {
+abstract class BuildinFunction(n: String, argsDef: ArgsDef)
+    extends FunctionValue(n, null, null, argsDef, null) {
 
   def eval(path: String, argsValue: Scope): Value
-  override def toString(): String = "<BuildinFunction>"
 }

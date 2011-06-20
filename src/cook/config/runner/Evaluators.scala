@@ -1,149 +1,293 @@
 package cook.config.runner
 
+import scala.annotation.tailrec
 import scala.collection.immutable.VectorBuilder
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 
 import cook.config.parser.unit._
+import cook.config.runner.ConfigType.{ ConfigType, COOK, cooki, COOK_ROOT }
 import cook.config.runner.value._
+
+case class CookReturn(value: Value) extends Throwable
 
 object CookConfigEvaluator {
 
-  def eval(path: String, scope: Scope, cookConfig: CookConfig): Value = {
+  def eval(configType: ConfigType, path: String, scope: Scope, cookConfig: CookConfig): Value = {
     cookConfig.statements.foreach {
-      StatementEvaluator.eval(path, scope, _)
+      StatementEvaluator.eval(configType, path, scope, _)
     }
-    NullValue()
+    VoidValue("Void")
   }
 }
+
+// Statement
 
 object StatementEvaluator {
 
-  def eval(path: String, scope: Scope, statement: Statement): Value = statement match {
-    case funcStatement: FuncStatement => FuncStatementEvaluator.eval(path, scope, funcStatement)
-    case funcDef: FuncDef => FuncDefEvaluator.eval(path, scope, funcDef)
-    case _ => throw new EvalException("this should never happen: unknown subclass of Statement")
-  }
+  def eval(configType: ConfigType, path: String, scope: Scope, statement: Statement): Value =
+      statement match {
+        case funcDef: FuncDef => FuncDefEvaluator.eval(configType, path, scope, funcDef)
+        case assginment: Assginment => AssginmentEvaluator.eval(configType, path, scope, assginment)
+        case ifStatement: IfStatement =>
+          IfStatementEvaluator.eval(configType, path, scope, ifStatement)
+        case exprStatement: ExprStatement =>
+          ExprStatementEvaluator.eval(configType, path, scope, exprStatement)
+        case returnStatement: ReturnStatement =>
+          ReturnStatementEvaluator.eval(configType, path, scope, returnStatement)
+        case _ => throw new EvalException(
+            "this should never happen: unknown subclass of Statement: " + statement)
+      }
 }
 
-object FuncStatementEvaluator {
+object FuncDefEvaluator {
 
-  def eval(path: String, scope: Scope, funcStatement: FuncStatement): Value = funcStatement match {
-    case assginment: Assginment => AssginmentEvaluator.eval(path, scope, assginment)
-    case simpleExprItem: SimpleExprItem => SimpleExprItemEvaluator.eval(path, scope, simpleExprItem)
-    case ifStatement: IfStatement => IfStatementEvaluator.eval(path, scope, ifStatement)
-    case _ => throw new EvalException("this should never happen: unknown subclass of FuncStatement")
+  def eval(configType: ConfigType, path: String, scope: Scope, funcDef: FuncDef): Value = {
+    if (scope.defineInCurrent(funcDef.name)) {
+      throw new EvalException("Function \"%s\" already defined in current scope", funcDef.name)
+    }
+    if (scope.definedInParent(funcDef.name)) {
+      // TODO(timgreen): log warning
+    }
+    // TODO(timgreen): error on override buildin
+
+    val argsDef = ArgsEvaluator.eval(configType, path, scope, funcDef.argDefs)
+    val functionValue = new FunctionValue(funcDef.name, path, scope, argsDef, funcDef.statements)
+
+    scope(funcDef.name) = functionValue
+    functionValue
   }
 }
 
 object AssginmentEvaluator {
 
-  def eval(path: String, scope: Scope, assginment: Assginment): Value = {
+  def eval(configType: ConfigType, path: String, scope: Scope, assginment: Assginment): Value = {
     if (scope.definedInParent(assginment.id)) {
       // TODO(timgreen): log warning
     }
+    // TODO(timgreen): error on override buildin
 
-    scope(assginment.id) = ExprEvaluator.eval(path, scope, assginment.expr)
+    val value = ExprEvaluator.eval(configType, path, scope, assginment.expr)
+    value.name = assginment.id
+    if (value.isVoid) {
+      throw new EvalException("Can not assign void to %s", assginment.id)
+    }
 
-    // NOTE(timgreen): return null for assginment
-    NullValue()
+    scope(assginment.id) = value
+
+    // NOTE(timgreen): return void for assginment
+    VoidValue("Void")
+  }
+}
+
+object IfStatementEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, ifStatement: IfStatement): Value = {
+    val cond = ExprEvaluator.eval(configType, path, scope, ifStatement.cond).isTrue
+    val block = if (cond) {
+      ifStatement.trueBlock
+    } else {
+      ifStatement.falseBlock
+    }
+
+    BlockStatementsEvaluator.eval(configType, path, scope, block)
+  }
+}
+
+object ExprStatementEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      exprStatement: ExprStatement): Value = {
+    ExprEvaluator.eval(configType, path, scope, exprStatement.expr)
+  }
+}
+
+object ReturnStatementEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      returnStatement: ReturnStatement): Value = {
+    val returnValue = returnStatement.expr match {
+      case Some(expr) => ExprEvaluator.eval(configType, path, scope, expr)
+      case None => VoidValue("Void")
+    }
+    // NOTE(timgreen): use exception to deliver return value
+    throw CookReturn(returnValue)
+  }
+}
+
+// Expr
+
+object ExprEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, expr: Expr): Value = {
+    val it = expr.exprItems.iterator
+    val v = ExprItemEvaluator.eval(configType, path, scope, it.next)
+    expr.ops.foldLeft(v) {
+      ValueOp.eval(_, _, ExprItemEvaluator.eval(configType, path, scope, it.next))
+    }
   }
 }
 
 object ExprItemEvaluator {
 
-  def eval(path: String, scope: Scope, exprItem: ExprItem): Value = exprItem match {
-    case exprItemWithSuffix: ExprItemWithSuffix =>
-      val v = SimpleExprItemEvaluator.eval(path, scope, exprItemWithSuffix.simpleExprItem)
-      exprItemWithSuffix.selectorSuffixs.foldLeft(v) {
-        (v, selectorSuffix) => SelectorSuffixEvaluator.eval(path, scope, v, selectorSuffix)
+  def eval(configType: ConfigType, path: String, scope: Scope, exprItem: ExprItem): Value =
+      exprItem match {
+        case exprItemWithSuffix: ExprItemWithSuffix =>
+          val v = SimpleExprItemEvaluator.eval(
+              configType, path, scope, exprItemWithSuffix.simpleExprItem)
+          exprItemWithSuffix.suffixs.foldLeft(v) {
+            (v, suffix) => SuffixEvaluator.eval(configType, path, scope, v, suffix)
+          }
+        case exprItemWithUnary: ExprItemWithUnary =>
+          val item = ExprItemEvaluator.eval(configType, path, scope, exprItemWithUnary.exprItem)
+          item.unaryOp(exprItemWithUnary.unaryOp)
+        case _ => throw new EvalException("this should never happen: unknown subclass of ExprItem")
       }
-    case exprItemWithUnary: ExprItemWithUnary =>
-      val item = ExprItemEvaluator.eval(path, scope, exprItemWithUnary.exprItem)
-      item.unaryOp(exprItemWithUnary.unaryOp)
-    case _ => throw new EvalException("this should never happen: unknown subclass of ExprItem")
+}
+
+object ExprItemWithSuffixEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      exprItemWithSuffix: ExprItemWithSuffix): Value = {
+    val v = SimpleExprItemEvaluator.eval(configType, path, scope, exprItemWithSuffix.simpleExprItem)
+    exprItemWithSuffix.suffixs.foldLeft(v) {
+      (v, suffix) => SuffixEvaluator.eval(configType, path, scope, v, suffix)
+    }
   }
 }
 
-object SimpleExprItemEvaluator {
+object ExprItemWithUnaryEvaluator {
 
-  def eval(path: String, scope: Scope, simpleExprItem: SimpleExprItem): Value =
-      simpleExprItem match {
-        case integerConstant: IntegerConstant => NumberValue(integerConstant.int)
-        case stringLiteral: StringLiteral => StringValue(stringLiteral.str)
-        case charLiteral: CharLiteral => CharValue(charLiteral.c)
-        case identifier: Identifier => IdentifierEvaluator.eval(path, scope, identifier)
-        case funcCall: FuncCall => FuncCallEvaluator.eval(path, scope, funcCall)
-        case lambdaDef: LambdaDef => LambdaDefEvaluator.eval(path, scope, lambdaDef)
-        case exprList: ExprList => ExprListEvaluator.eval(path, scope, exprList)
-        case expr: Expr => ExprEvaluator.eval(path, scope, expr)
-        case listComprehensions: ListComprehensions =>
-          ListComprehensionsEvaluator.eval(path, scope, listComprehensions)
-        case _ => throw new EvalException("this should never happen: unknown class of SimpleExprItem")
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      exprItemWithUnary: ExprItemWithUnary): Value = {
+    val item = ExprItemEvaluator.eval(configType, path, scope, exprItemWithUnary.exprItem)
+    item.unaryOp(exprItemWithUnary.unaryOp)
+  }
+}
+
+object SuffixEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, v: Value, suffix: Suffix): Value =
+      suffix match {
+        case idSuffix: IdSuffix => IdSuffixEvaluator.eval(configType, path, scope, v, idSuffix)
+        case callSuffix: CallSuffix =>
+          CallSuffixEvaluator.eval(configType, path, scope, v, callSuffix)
+        case _ =>
+          throw new EvalException("this should never happen: unknown subclass of Suffix")
       }
 }
 
-object IdentifierEvaluator {
+object IdSuffixEvaluator {
 
-  def eval(path: String, scope: Scope, identifier: Identifier): Value =
-      scope.get(identifier.id) match {
-        case Some(value) => value
-        case None => throw new EvalException("var \"%s\" is not defined", identifier.id)
-      }
+  // TODO(timgreen): support function value
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      v: Value,
+      idSuffix: IdSuffix): Value = {
+    v.attr(idSuffix.id)
+  }
 }
 
-object FuncCallEvaluator {
+object CallSuffixEvaluator {
 
-  def eval(path: String, scope: Scope, funcCall: FuncCall): Value = {
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      v: Value,
+      callSuffix: CallSuffix): Value = {
     // Steps:
     // 1. check function def
     // 2. eval args into values, & wrapper into ArgList object
     // 3. call function in new scope
     // 4. return result
 
-    val functionValue =
-        scope.get(funcCall.name) match {
-          case Some(functionValue) =>
-            if (!functionValue.isInstanceOf[FunctionValue]) {
-              throw new EvalException(
-                  "value \"%s\" is not function, can not be called", funcCall.name)
-            }
-            functionValue.asInstanceOf[FunctionValue]
-          case None => throw new EvalException("func \"%s\" is not defined", funcCall.name)
-        }
+    if (!v.isInstanceOf[FunctionValue]) {
+      // TODO(timgreen): func name
+      throw new EvalException("value is not function, can not be called")
+    }
+    val functionValue = v.asInstanceOf[FunctionValue]
+    val args = ArgsValueEvaluator.eval(
+        configType, path, scope, functionValue.name, functionValue.argsDef, callSuffix.args)
 
-    val args =
-        ArgsValueEvaluator.eval(path, scope, funcCall.name, functionValue.argsDef, funcCall.args)
-    FunctionValueEvaluator.eval(path, args, functionValue)
+    FunctionValueCallEvaluator.eval(configType, path, args, functionValue)
+  }
+}
+
+// SimpleExprItem
+
+object SimpleExprItemEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      simpleExprItem: SimpleExprItem): Value = {
+    simpleExprItem match {
+      case IntegerConstant(int) => NumberValue(int.toString, int)
+      case StringLiteral(str) => StringValue("\"" + str + "\"", str)
+      case CharLiteral(c) => CharValue("'" + c + "'", c)
+      case identifier: Identifier => IdentifierEvaluator.eval(configType, path, scope, identifier)
+      case lambdaDef: LambdaDef => LambdaDefEvaluator.eval(configType, path, scope, lambdaDef)
+      case exprList: ExprList => ExprListEvaluator.eval(configType, path, scope, exprList)
+      case listComprehensions: ListComprehensions =>
+        ListComprehensionsEvaluator.eval(configType, path, scope, listComprehensions)
+      case expr: Expr => ExprEvaluator.eval(configType, path, scope, expr)
+      case _ => throw new EvalException("this should never happen: unknown class of SimpleExprItem")
+    }
+  }
+}
+
+object IdentifierEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, identifier: Identifier): Value =
+      scope.get(identifier.id) match {
+        case Some(value) => value
+        case None => throw new EvalException("var \"%s\" is not defined", identifier.id)
+      }
+}
+
+object LambdaDefEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, lambdaDef: LambdaDef): Value = {
+    val argsDef = ArgsEvaluator.eval(configType, path, scope, lambdaDef.argDefs)
+    new FunctionValue("<lambda function>", path, scope, argsDef, lambdaDef.statements)
   }
 }
 
 object ExprListEvaluator {
 
-  def eval(path: String, scope: Scope, exprList: ExprList): Value =
-      ListValue(exprList.exprs.map {
-        ExprEvaluator.eval(path, scope, _)
+  def eval(configType: ConfigType, path: String, scope: Scope, exprList: ExprList): Value =
+      ListValue("<list>", exprList.exprs.map {
+        ExprEvaluator.eval(configType, path, scope, _)
       })
-}
-
-object ExprEvaluator {
-
-  def eval(path: String, scope: Scope, expr: Expr): Value = {
-    val it = expr.exprItems.iterator
-    val v = ExprItemEvaluator.eval(path, scope, it.next)
-    expr.ops.foldLeft(v) {
-      ValueOp.eval(_, _, ExprItemEvaluator.eval(path, scope, it.next))
-    }
-  }
-
 }
 
 object ListComprehensionsEvaluator {
 
-  def eval(path: String, scope: Scope, listComprehensions: ListComprehensions): Value = {
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      listComprehensions: ListComprehensions): Value = {
     val listScope = Scope(scope)
     val list: Seq[Value] = scope.get(listComprehensions.list) match {
-      case Some(ListValue(list)) => list
+      case Some(ListValue(_, list)) => list
+      // TODO(timgreen): name
       case _ => throw new EvalException("Need list value in ListComprehensions")
     }
 
@@ -153,85 +297,32 @@ object ListComprehensionsEvaluator {
 
     for (i <- list) {
       listScope(it) = i
-      val cond =
-          listComprehensions.cond match {
-            case Some(cond) => {
-              ExprEvaluator.eval(path, listScope, cond) match {
-                case BooleanValue(bool) => bool
-                case _ => throw new EvalException("Need bool value in ListComprehensions condition")
-              }
-            }
-            case None => true
-          }
+      val cond = listComprehensions.cond match {
+        case Some(cond) => ExprEvaluator.eval(configType, path, listScope, cond).isTrue
+        case None => true
+      }
 
       if (cond) {
-        resultBuilder += ExprEvaluator.eval(path, listScope, expr)
+        resultBuilder += ExprEvaluator.eval(configType, path, listScope, expr)
       }
     }
 
-    ListValue(resultBuilder.result)
+    ListValue("<generated list>", resultBuilder.result)
   }
 }
 
-object SelectorSuffixEvaluator {
-
-  def eval(path: String, scope: Scope, v: Value, selectorSuffix: SelectorSuffix): Value =
-      selectorSuffix match {
-        case idSuffix: IdSuffix => v.attr(idSuffix.id)
-        case cs: CallSuffix =>
-          val methodDef = ValueMethod(v, cs.call.name)
-          val args = ArgsValueEvaluator.eval(
-              path, scope, cs.call.name, methodDef.argsDef, cs.call.args)
-          methodDef.eval(path, args, v)
-        case _ =>
-          throw new EvalException("this should never happen: unknown subclass of SelectorSuffix")
-      }
-}
-
-object FunctionValueEvaluator {
-
-  def eval(path: String, argsValue: Scope, functionValue: FunctionValue): Value = functionValue match {
-    case buildinFunction: BuildinFunction =>
-      buildinFunction.eval(path, argsValue)
-    case _ =>
-      for (statement <- functionValue.statements) {
-        StatementEvaluator.eval(path, argsValue, statement)
-      }
-
-      functionValue.returnStatement match {
-        case Some(expr) => ExprEvaluator.eval(path, argsValue, expr)
-        case None => NullValue()
-      }
-  }
-}
-
-object IfStatementEvaluator {
-
-  def eval(path: String, scope: Scope, ifStatement: IfStatement): Value = {
-    val block =
-        ExprEvaluator.eval(path, scope, ifStatement.cond) match {
-          case BooleanValue.TRUE => ifStatement.trueBlock
-          case BooleanValue.FALSE => ifStatement.falseBlock
-          case _ => throw new EvalException("need Boolean value in if cond")
-        }
-
-    block.foreach {
-      StatementEvaluator.eval(path, scope, _)
-    }
-
-    NullValue()
-  }
-}
+// Arg
 
 object ArgsEvaluator {
 
-  def eval(path: String, scope: Scope, argDefs: Seq[ArgDef]): ArgsDef = {
+  def eval(configType: ConfigType, path: String, scope: Scope, argDefs: Seq[ArgDef]): ArgsDef = {
+    checkArgs(argDefs)
     val defaultValues = new HashMap[String, Value]
     val names = argDefs.map {
       _ match {
         case ArgDefName(name) => name
         case ArgDefNameValue(name, expr) =>
-          defaultValues(name) = ExprEvaluator.eval(path, scope, expr)
+          defaultValues(name) = ExprEvaluator.eval(configType, path, scope, expr)
           name
         case _ => throw new EvalException("this should never happen: unknown class of ArgDef")
       }
@@ -239,38 +330,37 @@ object ArgsEvaluator {
 
     new ArgsDef(names, defaultValues)
   }
-}
 
-object FuncDefEvaluator {
-
-  def eval(path: String, scope: Scope, funcDef: FuncDef): Value = {
-    if (scope.defineInCurrent(funcDef.name)) {
-      throw new EvalException("Function \"%s\" already defined in current scope", funcDef.name)
+  private def checkArgs(args: Seq[ArgDef]) {
+    try {
+      checkArgsSeq(args)
+    } catch {
+      case e: ArgListException => throw new EvalException(
+        "Default value should only appear at tail of arg def list: %s", args.map( _ match {
+            case ArgDefName(name) => name
+            case ArgDefNameValue(name, expr) => name + "=<default value>"
+        }).mkString("[", ", ", "]"))
     }
-    if (scope.definedInParent(funcDef.name)) {
-      // TODO(timgreen): log warning
+  }
+
+  @tailrec
+  private def checkArgsSeq(args: Seq[ArgDef]) {
+    args.headOption match {
+      case Some(ArgDefName(_)) => checkArgsSeq(args.tail)
+      case _ =>
+        if (!args.forall { _.isInstanceOf[ArgDefNameValue] }) {
+          throw new ArgListException
+        }
     }
-
-    val argsDef = ArgsEvaluator.eval(path, scope, funcDef.argDefs)
-    val functionValue =
-        new FunctionValue(path, scope, argsDef, funcDef.statements, funcDef.returnStatement)
-
-    scope(funcDef.name) = functionValue
-    functionValue
   }
-}
 
-object LambdaDefEvaluator {
-
-  def eval(path: String, scope: Scope, lambdaDef: LambdaDef): Value = {
-    val argsDef = ArgsEvaluator.eval(path, scope, lambdaDef.argDefs)
-    new FunctionValue(path, scope, argsDef, lambdaDef.statements, Some(lambdaDef.returnStatement))
-  }
+  class ArgListException extends Throwable
 }
 
 object ArgsValueEvaluator {
 
   def eval(
+      configType: ConfigType,
       path: String,
       scope: Scope,
       funcName: String,
@@ -280,74 +370,120 @@ object ArgsValueEvaluator {
     // 1. check wether args match argsDef
     // 2. create ArgsValue map
 
+    checkArgs(argsDef, args, funcName)
+
     val argsValue = Scope(scope)
-    val isNamedList =
-        (args.length != argsDef.names.length) ||
-        (!args.isEmpty && args.head.isInstanceOf[ArgNamedValue])
+    argsValue.values ++= argsDef.defaultValues
 
-    if (isNamedList) {  // Option named list
-      argsValue.values ++= argsDef.defaultValues
-      val names = new HashSet[String]
-      for (arg <- args) arg match {
-        case ArgNamedValue(name, expr) => {
-          if (names.contains(name)) {
-            throw new EvalException(
-                "dulpicated name \"%s\", in named-args func call \"%s\"",
-                name,
-                funcName)
-          }
-          names += name
-          argsValue(name) = ExprEvaluator.eval(path, scope, expr)
+    val names = new HashSet[String]
+
+    for (i <- 0 until args.length) args(i) match {
+      case ArgValue(expr) =>
+        val value = ExprEvaluator.eval(configType, path, scope, expr)
+        value.name = argsDef.names(i)
+        argsValue(value.name) = value
+      case ArgNamedValue(name, expr) => {
+        if (names.contains(name)) {
+          throw new EvalException(
+              "dulpicated name \"%s\", in named-args func call \"%s\"",
+              name,
+              funcName)
         }
-        case _ => throw new EvalException(
-            "name is required in named-args func call \"%s\"", funcName)
-      }
-
-      val argsUnknown = names -- argsDef.names
-      if (argsUnknown.nonEmpty) {
-        throw new EvalException(
-            "Found unknown arg(s) in func call \"%s\": %s",
-            funcName,
-            argsUnknown.mkString(", "))
-      }
-
-      val argsMissing = argsDef.names.toSet -- argsValue.values.keys
-      if (argsMissing.nonEmpty) {
-        throw new EvalException(
-            "Miss required arg(s) in func call \"%s\": %s",
-            funcName,
-            argsMissing.mkString(", "))
-      }
-
-    } else {  // Full list
-      if (args.length != argsDef.names.length) {
-        throw new EvalException(
-            "Wrong arg number in fulllist-args func call \"%s\", except %d but got %d",
-            funcName,
-            argsDef.names.length,
-            args.length)
-      }
-      val nameIter = argsDef.names.iterator
-      for (arg <- args) {
-        val name = nameIter.next
-        val expr = arg match {
-          case ArgValue(expr) => expr
-          case ArgNamedValue(argName, expr) => {
-            if (argName != name) {
-              throw new EvalException(
-                  "Wrong order for arg name \"%s\", in fulllist-args func call \"%s\", " +
-                  "should be \"%s\"",
-                  argName,
-                  funcName,
-                  name)
-            }
-            expr
-          }
-        }
-        argsValue(name) = ExprEvaluator.eval(path, scope, expr)
+        names += name
+        val value = ExprEvaluator.eval(configType, path, scope, expr)
+        value.name = name
+        argsValue(name) = value
       }
     }
 
+    val argsUnknown = names -- argsDef.names
+    if (argsUnknown.nonEmpty) {
+      throw new EvalException(
+          "Found unknown arg(s) in func call \"%s\": %s",
+          funcName,
+          argsUnknown.mkString(", "))
+    }
+
+    val argsMissing = argsDef.names.toSet -- argsValue.values.keys
+    if (argsMissing.nonEmpty) {
+      throw new EvalException(
+          "Miss required arg(s) in func call \"%s\": %s",
+          funcName,
+          argsMissing.mkString(", "))
+    }
+
     argsValue
+  }
+
+  private def checkArgs(argsDef: ArgsDef, args: Seq[Arg], funcName: String) {
+    if (args.length > argsDef.names.length) {
+      throw new EvalException("Wrong arg number of function call \"%s\"", funcName)
+    }
+
+    try {
+      checkArgsSeq(args)
+    } catch {
+      case e: ArgListException => throw new EvalException(
+        "Named value should only appear at tail of arg list: %s", args.map ( _ match {
+            case ArgValue(_) => "<value>"
+            case ArgNamedValue(name, _) => name + "=<value>"
+          }).mkString("[", ", ", "]"))
+    }
+  }
+
+  @tailrec
+  private def checkArgsSeq(args: Seq[Arg]) {
+    args.headOption match {
+      case Some(ArgValue(_)) => checkArgsSeq(args.tail)
+      case _ =>
+        if (!args.forall { _.isInstanceOf[ArgNamedValue] }) {
+          throw new ArgListException
+        }
+    }
+  }
+
+  class ArgListException extends Throwable
+}
+
+// Others
+
+object FunctionValueCallEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      argsValue: Scope,
+      functionValue: FunctionValue): Value = {
+
+    // TODO(timgreen): check config type
+    // a. COOK_ROOT can only call function "include"
+    // b. cooki can not call function "include"
+    // c. COOK has no limitation
+    functionValue match {
+      case buildinFunction: BuildinFunction =>
+        buildinFunction.eval(path, argsValue)
+      case _ =>
+        val result =
+            BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
+        result.name = functionValue.name + "()"
+        result
+    }
+  }
+}
+
+object BlockStatementsEvaluator {
+
+  def eval(
+      configType: ConfigType,
+      path: String,
+      scope: Scope,
+      statements: Seq[Statement]): Value = {
+
+    var lastValue: Value = null
+    for (s <- statements) {
+      lastValue = StatementEvaluator.eval(configType, path, scope, s)
+    }
+
+    lastValue
   }
 }

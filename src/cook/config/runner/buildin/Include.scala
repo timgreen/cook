@@ -19,7 +19,7 @@ import cook.util.FileUtil
  * include("scala")
  * include("subdir/scala")
  */
-object Include extends BuildinFunction(IncludeArgsDef()) {
+object Include extends BuildinFunction("include", IncludeArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     val filename = argsValue("filename").toStr
@@ -35,7 +35,7 @@ object Include extends BuildinFunction(IncludeArgsDef()) {
     // NOTE(timgreen): argsValue.parent is out scope, the caller's scope
     argsValue.parent.merge(scope)
 
-    NullValue()
+    VoidValue("include()")
   }
 }
 

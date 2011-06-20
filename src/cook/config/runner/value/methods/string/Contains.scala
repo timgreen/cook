@@ -14,12 +14,17 @@ object ContainsArgsDef {
   }
 }
 
-object Contains extends ValueMethod(ContainsArgsDef()) {
+class Contains(v: Value) extends ValueMethod(v.name + ".contains", v, ContainsArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val s = v.toStr
     val sub = argsValue("substring").toStr
 
-    BooleanValue(s.contains(sub))
+    BooleanValue(v.name + ".contains(\" + sub + \")", s.contains(sub))
   }
+}
+
+object ContainsBuilder extends ValueMethodBuilder {
+
+  override def apply(v: Value): ValueMethod = new Contains(v)
 }

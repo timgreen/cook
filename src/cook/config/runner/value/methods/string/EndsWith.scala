@@ -14,12 +14,17 @@ object EndsWithArgsDef {
   }
 }
 
-object EndsWith extends ValueMethod(EndsWithArgsDef()) {
+class EndsWith(v: Value) extends ValueMethod(v.name + ".endsWith", v, EndsWithArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val s = v.toStr
     val str = argsValue("str").toStr
 
-    BooleanValue(s.endsWith(str))
+    BooleanValue(v.name + ".endsWith(\"" + str + "\")", s.endsWith(str))
   }
+}
+
+object EndsWithBuilder extends ValueMethodBuilder {
+
+  override def apply(v: Value): ValueMethod = new EndsWith(v)
 }

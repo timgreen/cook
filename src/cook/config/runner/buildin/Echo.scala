@@ -20,13 +20,13 @@ import cook.util.FileUtil
  *
  * echo("hello")
  */
-object Echo extends BuildinFunction(EchoArgsDef()) {
+object Echo extends BuildinFunction("echo", EchoArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     val message = argsValue("message").toString
     CookConsole.println(message)
 
-    NullValue()
+    VoidValue("echo()")
   }
 }
 

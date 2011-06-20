@@ -19,11 +19,11 @@ import cook.util.{Label => UtilLabel}
  * label(":target")
  * label("File.java")
  */
-object Label extends BuildinFunction(LabelArgsDef()) {
+object Label extends BuildinFunction("label", LabelArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     var label = argsValue("label").toStr
-    LabelValue(UtilLabel(path, label))
+    LabelValue("label()", UtilLabel(path, label))
   }
 }
 

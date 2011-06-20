@@ -14,10 +14,10 @@ import cook.util._
  *
  * abspath()
  */
-object AbsPath extends BuildinFunction(AbsPathArgsDef()) {
+object AbsPath extends BuildinFunction("abspath", AbsPathArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
-    StringValue(new FileLabel(path, argsValue("file").toStr).file.getAbsolutePath)
+    StringValue("abspath()", new FileLabel(path, argsValue("file").toStr).file.getAbsolutePath)
   }
 }
 
@@ -26,7 +26,7 @@ object AbsPathArgsDef {
   def apply() = {
     val names = Seq[String]("file")
     val defaultValues = new HashMap[String, Value]
-    defaultValues.put("file", StringValue(""))
+    defaultValues.put("file", StringValue("file", ""))
 
     new ArgsDef(names, defaultValues)
   }

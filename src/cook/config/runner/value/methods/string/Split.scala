@@ -14,16 +14,21 @@ object SplitArgsDef {
   }
 }
 
-object Split extends ValueMethod(SplitArgsDef()) {
+class Split(v: Value) extends ValueMethod(v.name + ".split", v, SplitArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val s = v.toStr
     val seps = argsValue("sep")
     val result =
         seps match {
-          case CharValue(sep) => s.split(sep)
+          case CharValue(_, sep) => s.split(sep)
           case _ => s.split(seps.toListChar.toArray)
         }
-    ListValue(result.map { StringValue(_) })
+    ListValue(v.name + ".split()", result.map { StringValue("", _) })
   }
+}
+
+object SplitBuilder extends ValueMethodBuilder {
+
+  override def apply(v: Value): ValueMethod = new Split(v)
 }

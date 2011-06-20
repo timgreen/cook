@@ -9,11 +9,6 @@ import cook.config.parser.unit._
 import cook.config.runner.value.Scope
 import cook.util.FileUtil
 
-object ConfigType extends Enumeration {
-  type ConfigType = Value
-  val COOK, cooki, COOK_ROOT = Value
-}
-
 object CookRunner {
 
   import ConfigType._
@@ -32,11 +27,16 @@ object CookRunner {
     }
 
     val scope = Scope()
-
     val config = CookParser.parse(configFile)
-    checkConfigType(configFile, config, configType)
-
-    CookConfigEvaluator.eval(FileUtil.relativeDirToRoot(configFile), scope, config)
+    try {
+      CookConfigEvaluator.eval(configType, FileUtil.relativeDirToRoot(configFile), scope, config)
+    } catch {
+      case e: EvalException =>
+        throw new EvalException(
+            "Error when eval Cook config file: \"%s\":\n%s",
+            configFile.getPath,
+            e.getMessage)
+    }
 
     configToScopeMap.put(configFile.getPath, scope)
     scope
@@ -52,37 +52,5 @@ object CookRunner {
     }
 
     Scope.ROOT_SCOPE.merge(run(cookRoot, COOK_ROOT))
-  }
-
-  def checkConfigType(configFile: File, config: CookConfig, configType: ConfigType) {
-    def isIncludeFunctionCall(s: Statement): Boolean = s match {
-      case FuncCall(name, _) => name == "include"
-      case _ => false
-    }
-
-    def notContainIncludeCall(s: Statement): Boolean = s match {
-      case FuncCall(name, _) => name != "include"
-      case FuncDef(_, _, statements, _) => statements.forall(notContainIncludeCall)
-      case _ => true
-    }
-
-    // a. COOK_ROOT can only call function "include"
-    // b. cooki can not call function "include"
-    // c. COOK has no limitation
-    configType match {
-      case ConfigType.COOK_ROOT =>
-        if (!config.statements.forall(isIncludeFunctionCall)) {
-          throw new EvalException(
-              "COOK_ROOT \"%s\" can only call function \"include\"",
-              configFile.getPath)
-        }
-      case ConfigType.cooki =>
-        if (!config.statements.forall(notContainIncludeCall)) {
-          throw new EvalException(
-              "cooki file \"%s\" can not call function \"include\"",
-              configFile.getPath)
-        }
-      case ConfigType.COOK =>  // No check needed
-    }
   }
 }

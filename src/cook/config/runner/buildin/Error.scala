@@ -13,7 +13,7 @@ import cook.util._
  *
  * error("error message")
  */
-object Error extends BuildinFunction(ErrorArgsDef()) {
+object Error extends BuildinFunction("error", ErrorArgsDef()) {
 
   override def eval(path: String, argsValue: Scope): Value = {
     val message = argsValue("message").toStr

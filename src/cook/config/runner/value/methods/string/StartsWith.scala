@@ -14,12 +14,17 @@ object StartsWithArgsDef {
   }
 }
 
-object StartsWith extends ValueMethod(StartsWithArgsDef()) {
+class StartsWith(v: Value) extends ValueMethod(v.name + ".startsWith", v, StartsWithArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope, v: Value): Value = {
+  override def eval(path: String, argsValue: Scope): Value = {
     val s = v.toStr
     val str = argsValue("str").toStr
 
-    BooleanValue(s.startsWith(str))
+    BooleanValue(v.name + ".startsWith(\"" + str + "\")", s.startsWith(str))
   }
+}
+
+object StartsWithBuilder extends ValueMethodBuilder {
+
+  override def apply(v: Value): ValueMethod = new StartsWith(v)
 }

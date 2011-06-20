@@ -13,9 +13,9 @@ import cook.config.runner.value._
  *
  * path()
  */
-object Path extends BuildinFunction(PathArgsDef()) {
+object Path extends BuildinFunction("path", PathArgsDef()) {
 
-  override def eval(path: String, argsValue: Scope): Value = StringValue(path)
+  override def eval(path: String, argsValue: Scope): Value = StringValue("path()", path)
 }
 
 object PathArgsDef {
