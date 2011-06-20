@@ -478,8 +478,11 @@ object FunctionValueCallEvaluator {
       case buildinFunction: BuildinFunction =>
         buildinFunction.eval(path, argsValue)
       case _ =>
-        val result =
-            BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
+        val result = try {
+          BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
+        } catch {
+          case CookReturn(v) => v
+        }
         result.name = functionValue.name + "()"
         result
     }
