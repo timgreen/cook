@@ -12,7 +12,7 @@ scala_lib(
   name = "semantics",
   srcs = [
     "Semantics.scala",
-    "unit/Unit.scala",
+    "Units.scala",
   ],
   deps = [
     "//src/cook/util:util",

@@ -2,32 +2,48 @@ package cook.config.parser.unit
 
 class CookConfig(val statements: Seq[Statement])
 
+// Statement
+
 abstract class Statement
+case class FuncDef(name: String,
+                   argDefs: Seq[ArgDef],
+                   statements: Seq[Statement]) extends Statement
+case class Assginment(id: String, expr: Expr) extends Statement
+case class IfStatement(cond: Expr,
+                       trueBlock: Seq[Statement],
+                       falseBlock: Seq[Statement]) extends Statement
+case class ExprStatement(expr: Expr) extends Statement
+case class ReturnStatement(expr: Option[Expr]) extends Statement
 
-abstract class FuncStatement extends Statement
-case class Assginment(id: String, expr: Expr) extends FuncStatement
+// Expr
 
+case class Expr(exprItems: Seq[ExprItem], ops: Seq[String]) extends SimpleExprItem
 abstract class ExprItem
 case class ExprItemWithSuffix(val simpleExprItem: SimpleExprItem,
-                              val selectorSuffixs: Seq[SelectorSuffix]) extends ExprItem
+                              val suffixs: Seq[Suffix]) extends ExprItem
 case class ExprItemWithUnary(val unaryOp: String,
                              val exprItem: ExprItem) extends ExprItem
 
-abstract class SimpleExprItem extends FuncStatement
+abstract class Suffix
+case class IdSuffix(id: String) extends Suffix
+case class CallSuffix(args: Seq[Arg]) extends Suffix
+
+// SimpleExprItem
+
+abstract class SimpleExprItem extends Statement
 case class IntegerConstant(int: Int) extends SimpleExprItem
 case class StringLiteral(str: String) extends SimpleExprItem
 case class CharLiteral(c: Char) extends SimpleExprItem
 case class Identifier(id: String) extends SimpleExprItem
-case class FuncCall(name: String, args: Seq[Arg]) extends SimpleExprItem
 case class LambdaDef(argDefs: Seq[ArgDef],
-                     statements: Seq[FuncStatement],
-                     returnStatement: Expr) extends SimpleExprItem
+                     statements: Seq[Statement]) extends SimpleExprItem
 case class ExprList(exprs: Seq[Expr]) extends SimpleExprItem
-case class Expr(exprItems: Seq[ExprItem], ops: Seq[String]) extends SimpleExprItem
 case class ListComprehensions(expr: Expr,
                               it: String,
                               list: String,
                               cond: Option[Expr]) extends SimpleExprItem
+
+// Arg
 
 abstract class Arg
 case class ArgValue(expr: Expr) extends Arg
@@ -37,15 +53,3 @@ abstract class ArgDef
 case class ArgDefName(name: String) extends ArgDef
 case class ArgDefNameValue(name: String, expr: Expr) extends ArgDef
 
-abstract class SelectorSuffix
-case class IdSuffix(id: String) extends SelectorSuffix
-case class CallSuffix(call: FuncCall) extends SelectorSuffix
-
-case class FuncDef(name: String,
-                   argDefs: Seq[ArgDef],
-                   statements: Seq[FuncStatement],
-                   returnStatement: Option[Expr]) extends Statement
-
-case class IfStatement(cond: Expr,
-                       trueBlock: Seq[FuncStatement],
-                       falseBlock: Seq[FuncStatement]) extends FuncStatement

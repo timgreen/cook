@@ -23,39 +23,75 @@ class Semantics extends SemanticsBase {
     config = new CookConfig(statements)
   }
 
+  // Statement
+
   def statement {
     lhs.put(rhs(0).get)
   }
 
-  def funcCall {
-    val id   = rhs(0).get.asInstanceOf[String]
-    val args =
-        if (rhs(2).isA("ArgList")) {
-          rhs(2).get.asInstanceOf[Seq[Arg]]
+  def funcDef {
+    val name = rhs(1).get.asInstanceOf[String]
+    val argDefs =
+        if (rhs(3).isA("ArgDefList")) {
+          rhs(3).get.asInstanceOf[Seq[ArgDef]]
         } else {
-          Seq[Arg]()
+          Seq[ArgDef]()
         }
-    lhs.put(new FuncCall(id, args))
-  }
 
-  def listComprehensions {
-    val expr = rhs(1).get.asInstanceOf[Expr]
-    val it = rhs(3).get.asInstanceOf[String]
-    val list = rhs(5).get.asInstanceOf[String]
-    val cond =
-        if (rhsSize > 7) {
-          Some(rhs(7).get.asInstanceOf[Expr])
-        } else {
-          None
-        }
-    lhs.put(ListComprehensions(expr, it, list, cond))
+    var i = 4
+    val statementsBuilder = new VectorBuilder[Statement]
+    while (!rhs(i).isA("RWING")) {
+      // TODO(timgreen): fix append
+      if (rhs(i).isA("Statement")) {
+        statementsBuilder += rhs(i).get.asInstanceOf[Statement]
+      }
+      i = i + 1
+    }
+
+    lhs.put(new FuncDef(name, argDefs, statementsBuilder.result))
   }
 
   def assginment {
-    val id    = rhs(0).get.asInstanceOf[String]
-    val value = rhs(2).get.asInstanceOf[Expr]
-    lhs.put(new Assginment(id, value))
+    val id   = rhs(0).get.asInstanceOf[String]
+    val expr = rhs(2).get.asInstanceOf[Expr]
+    lhs.put(new Assginment(id, expr))
   }
+
+  def ifStatement {
+    val cond = rhs(2).get.asInstanceOf[Expr]
+    val trueBlockBuilder = new VectorBuilder[Statement]
+    var i = 5
+    while (!rhs(i).isA("RWING")) {
+      trueBlockBuilder += rhs(i).get.asInstanceOf[Statement]
+      i = i + 1
+    }
+    val falseBlockBuilder = new VectorBuilder[Statement]
+    i = i + 3
+    if (i < rhsSize) {
+      while (!rhs(i).isA("RWING")) {
+        falseBlockBuilder += rhs(i).get.asInstanceOf[Statement]
+        i = i + 1
+      }
+    }
+
+    lhs.put(IfStatement(cond, trueBlockBuilder.result, falseBlockBuilder.result))
+  }
+
+  def exprStatement {
+    val expr = rhs(0).get.asInstanceOf[Expr]
+    lhs.put(ExprStatement(expr))
+  }
+
+  def returnStatement {
+    val expr = if (rhs(1).isA("Expr")) {
+      Some(rhs(1).get.asInstanceOf[Expr])
+    } else {
+      None
+    }
+    lhs.put(ReturnStatement(expr))
+  }
+
+  // Expr
 
   def expr {
     val exprItems =
@@ -75,11 +111,11 @@ class Semantics extends SemanticsBase {
 
   def exprItemWithSuffix {
     val simpleExprItem = rhs(0).get.asInstanceOf[SimpleExprItem]
-    val selectorSuffixs =
-        for (i <- 1 until rhsSize if rhs(i).isA("SelectorSuffix")) yield {
-          rhs(i).get.asInstanceOf[SelectorSuffix]
+    val suffixs =
+        for (i <- 1 until rhsSize if rhs(i).isA("CallSuffix") || rhs(i).isA("IdSuffix")) yield {
+          rhs(i).get.asInstanceOf[Suffix]
         }
-    lhs.put(new ExprItemWithSuffix(simpleExprItem, selectorSuffixs))
+    lhs.put(new ExprItemWithSuffix(simpleExprItem, suffixs))
   }
 
   def exprItemWithUnary {
@@ -87,6 +123,23 @@ class Semantics extends SemanticsBase {
     val exprItem = rhs(1).get.asInstanceOf[ExprItem]
     lhs.put(new ExprItemWithUnary(unaryOp, exprItem))
   }
+
+  def idSuffix {
+    val id = rhs(1).get.asInstanceOf[String]
+    lhs.put(IdSuffix(id))
+  }
+
+  def callSuffix {
+    val args =
+        if (rhs(1).isA("ArgList")) {
+          rhs(1).get.asInstanceOf[Seq[Arg]]
+        } else {
+          Seq[Arg]()
+        }
+    lhs.put(CallSuffix(args))
+  }
+
+  // SimpleExprItem
 
   def simpleExprItem {
     val e =
@@ -99,15 +152,15 @@ class Semantics extends SemanticsBase {
         } else if (rhs(0).isA("CharLiteral")) {
           val c = rhs(0).get.asInstanceOf[Char]
           new CharLiteral(c)
-        } else if (rhs(0).isA("Identifier")) {
-          val id = rhs(0).get.asInstanceOf[String]
-          new Identifier(id)
-        } else if (rhs(0).isA("FuncCall")) {
-          val funcCall = rhs(0).get.asInstanceOf[FuncCall]
-          funcCall
         } else if (rhs(0).isA("LambdaDef")) {
           val lambdaDef = rhs(0).get.asInstanceOf[LambdaDef]
           lambdaDef
+        } else if (rhs(0).isA("Identifier")) {
+          val id = rhs(0).get.asInstanceOf[String]
+          new Identifier(id)
+        } else if (rhs(0).isA("ListComprehensions")) {
+          val listComprehensions = rhs(0).get.asInstanceOf[ListComprehensions]
+          listComprehensions
         } else if (rhs(0).isA("LBRK")) {
           val exprList =
               if (rhs(1).isA("ExprList")) {
@@ -116,19 +169,46 @@ class Semantics extends SemanticsBase {
                 Seq[Expr]()
               }
           new ExprList(exprList)
-        } else if (rhs(0).isA("ListComprehensions")) {
-          val listComprehensions = rhs(0).get.asInstanceOf[ListComprehensions]
-          listComprehensions
-        } else if (rhs(0).isA("ExprItemWithUnary")) {
-          val exprItemWithUnary = rhs(0).get.asInstanceOf[ExprItemWithUnary]
-          exprItemWithUnary
-        } else if (rhs(1).isA("Expr")) {
+        } else if (rhs(0).isA("LPAR")) {
           val expr = rhs(1).get.asInstanceOf[Expr]
           expr
         }
     lhs.put(e)
   }
 
+  def lambdaDef {
+    val argDefs =
+        if (rhs(2).isA("ArgDefList")) {
+          rhs(2).get.asInstanceOf[Seq[ArgDef]]
+        } else {
+          Seq[ArgDef]()
+        }
+
+    var i = 3
+    val statementsBuilder = new VectorBuilder[Statement]
+    while (!rhs(i).isA("RWING")) {
+      if (rhs(i).isA("Statement")) {
+        // TODO(timgreen): fix append
+        statementsBuilder += rhs(i).get.asInstanceOf[Statement]
+      }
+      i = i + 1
+    }
+
+    lhs.put(new LambdaDef(argDefs, statementsBuilder.result))
+  }
+
+  def listComprehensions {
+    val expr = rhs(1).get.asInstanceOf[Expr]
+    val it = rhs(3).get.asInstanceOf[String]
+    val list = rhs(5).get.asInstanceOf[String]
+    val cond =
+        if (rhsSize > 7) {
+          Some(rhs(7).get.asInstanceOf[Expr])
+        } else {
+          None
+        }
+    lhs.put(ListComprehensions(expr, it, list, cond))
+  }
 
   def exprList {
     val exprs =
@@ -137,6 +217,8 @@ class Semantics extends SemanticsBase {
         }
     lhs.put(exprs)
   }
+
+  // Arg
 
   def argList {
     val args =
@@ -177,99 +259,6 @@ class Semantics extends SemanticsBase {
           new ArgDefName(name)
         }
     lhs.put(ad)
-  }
-
-  def selectorSuffix {
-    val s =
-        if (rhs(1).isA("Identifier")) {
-          val id = rhs(1).get.asInstanceOf[String]
-          new IdSuffix(id)
-        } else {
-          val call = rhs(1).get.asInstanceOf[FuncCall]
-          new CallSuffix(call)
-        }
-    lhs.put(s)
-  }
-
-  def funcDef {
-    val name = rhs(1).get.asInstanceOf[String]
-    val argDefs =
-        if (rhs(3).isA("ArgDefList")) {
-          rhs(3).get.asInstanceOf[Seq[ArgDef]]
-        } else {
-          Seq[ArgDef]()
-        }
-
-    var i = 4
-    val statementsBuilder = new VectorBuilder[FuncStatement]
-    while (!rhs(i).isA("ReturnStatement") && !rhs(i).isA("RWING")) {
-      if (rhs(i).isA("FuncStatement")) {
-        // TODO(timgreen): fix append
-        statementsBuilder += rhs(i).get.asInstanceOf[FuncStatement]
-      }
-      i = i + 1
-    }
-
-    val returnStatement =
-        if (rhs(i).isA("ReturnStatement")) {
-          Some(rhs(i).get.asInstanceOf[Expr])
-        } else {
-          None
-        }
-
-    lhs.put(new FuncDef(name, argDefs, statementsBuilder.result, returnStatement))
-  }
-
-  def lambdaDef {
-    val argDefs =
-        if (rhs(2).isA("ArgDefList")) {
-          rhs(2).get.asInstanceOf[Seq[ArgDef]]
-        } else {
-          Seq[ArgDef]()
-        }
-
-    var i = 3
-    val statementsBuilder = new VectorBuilder[FuncStatement]
-    while (!rhs(i).isA("ReturnStatement")) {
-      if (rhs(i).isA("FuncStatement")) {
-        // TODO(timgreen): fix append
-        statementsBuilder += rhs(i).get.asInstanceOf[FuncStatement]
-      }
-      i = i + 1
-    }
-
-    val returnStatement = rhs(i).get.asInstanceOf[Expr]
-
-    lhs.put(new LambdaDef(argDefs, statementsBuilder.result, returnStatement))
-  }
-
-  def funcStatement {
-    lhs.put(rhs(0).get)
-  }
-
-  def returnStatement {
-    val expr = rhs(1).get.asInstanceOf[Expr]
-    lhs.put(expr)
-  }
-
-  def ifStatement {
-    val cond = rhs(2).get.asInstanceOf[Expr]
-    val trueBlockBuilder = new VectorBuilder[FuncStatement]
-    var i = 5
-    while (!rhs(i).isA("RWING")) {
-      trueBlockBuilder += rhs(i).get.asInstanceOf[FuncStatement]
-      i = i + 1
-    }
-    val falseBlockBuilder = new VectorBuilder[FuncStatement]
-    i = i + 3
-    if (i < rhsSize) {
-      while (!rhs(i).isA("RWING")) {
-        falseBlockBuilder += rhs(i).get.asInstanceOf[FuncStatement]
-        i = i + 1
-      }
-    }
-
-    lhs.put(IfStatement(cond, trueBlockBuilder.result, falseBlockBuilder.result))
   }
 
   // Lexical elements

@@ -5,13 +5,28 @@
 
 CookConfig         = Spacing Statement* EOT                                    {cookConfig} ;
 
-Statement          = ( FuncStatement / FuncDef )                               {statement} ;
+// Statement
 
-FuncCall           = !Keyword Identifier LPAR ArgList? RPAR                    {funcCall} ;
+Statement          = ( FuncDef
+                     / Assginment
+                     / IfStatement
+                     / ExprStatement
+                     / ReturnStatement
+                     )                                                         {statement} ;
 
-ListComprehensions = LBRK Expr FOR Identifier IN Identifier ( IF Expr )? RBRK  {listComprehensions} ;
+FuncDef            = DEF !Keyword Identifier LPAR ArgDefList? RPAR LWING
+                     Statement* RWING                                          {funcDef} ;
 
 Assginment         = !Keyword Identifier EQU Expr                              {assginment} ;
+
+IfStatement        = IF LPAR Expr RPAR LWING Statement* RWING
+                     ( ELSE LWING Statement* RWING )?                          {ifStatement} ;
+
+ExprStatement      = Expr                                                      {exprStatement} ;
+
+ReturnStatement    = RETURN Expr?                                              {returnStatement} ;
+
+// Expr
 
 Expr               = ExprItem ( Operation ExprItem )*                          {expr} ;
 
@@ -19,23 +34,33 @@ ExprItem           = ( ExprItemWithSuffix
                      / ExprItemWithUnary
                      )                                                         {exprItem} ;
 
-
-ExprItemWithSuffix = SimpleExprItem ( SelectorSuffix )*                        {exprItemWithSuffix} ;
+ExprItemWithSuffix = SimpleExprItem ( CallSuffix / IdSuffix )*                 {exprItemWithSuffix} ;
 
 ExprItemWithUnary  = UnaryOperation ExprItem                                   {exprItemWithUnary} ;
+
+IdSuffix           = DOT !Keyword Identifier                                   {idSuffix} ;
+
+CallSuffix         = LPAR ArgList? RPAR                                        {callSuffix} ;
+
+// SimpleExprItem
 
 SimpleExprItem     = ( IntegerConstant
                      / StringLiteral
                      / CharLiteral
-                     / FuncCall
                      / LambdaDef
-                     / Identifier ![(]
+                     / !Keyword Identifier
                      / ListComprehensions
                      / LBRK ExprList? !FOR RBRK
                      / LPAR Expr RPAR
                      )                                                         {simpleExprItem} ;
 
+LambdaDef          = LAMBDA LPAR ArgDefList? RPAR LWING Statement* RWING       {lambdaDef} ;
+
+ListComprehensions = LBRK Expr FOR Identifier IN Identifier ( IF Expr )? RBRK  {listComprehensions} ;
+
 ExprList           = Expr ( COMMA Expr )* COMMA?                               {exprList} ;
+
+// Arg
 
 ArgList            = Arg ( COMMA Arg )* COMMA?                                 {argList} ;
 
@@ -44,21 +69,6 @@ Arg                = ( !Keyword Identifier EQU Expr / Expr )                   {
 ArgDefList         = ArgDef ( COMMA ArgDef )* COMMA?                           {argDefList} ;
 
 ArgDef             = !Keyword Identifier ( EQU Expr )?                         {argDef};
-
-SelectorSuffix     = DOT ( Identifier ![(] / FuncCall )                        {selectorSuffix} ;
-
-FuncDef            = DEF !Keyword Identifier LPAR ArgDefList? RPAR LWING
-                     FuncStatement* ReturnStatement? RWING                     {funcDef} ;
-
-LambdaDef          = LAMBDA LPAR ArgDefList? RPAR LWING
-                     FuncStatement* ReturnStatement RWING                      {lambdaDef} ;
-
-FuncStatement      = ( FuncCall / Assginment / IfStatement )                   {funcStatement} ;
-
-ReturnStatement    = RETURN Expr                                               {returnStatement} ;
-
-IfStatement        = IF LPAR Expr RPAR LWING FuncStatement* RWING
-                     ( ELSE LWING FuncStatement* RWING )?                      {ifStatement} ;
 
 
 //-----------------------------------------------------------------------//
@@ -69,7 +79,7 @@ IfStatement        = IF LPAR Expr RPAR LWING FuncStatement* RWING
 //  Keywords
 //-------------------------------------------------------------------------
 
-Keyword  = ( DEF / LAMBDA / RETURN / CONST / IF / ELSE / FOR / IN ) ;
+Keyword  = ( DEF / LAMBDA / RETURN / IF / ELSE / FOR / IN ) ;
 
 DEF      = "def"      ! IdChar Spacing ;
 LAMBDA   = "lambda"   ! IdChar Spacing ;
