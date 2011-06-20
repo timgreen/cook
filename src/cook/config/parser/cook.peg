@@ -52,6 +52,7 @@ SimpleExprItem     = ( IntegerConstant
                      / ListComprehensions
                      / LBRK ExprList? !FOR RBRK
                      / LPAR Expr RPAR
+                     / LWING Map RWING
                      )                                                         {simpleExprItem} ;
 
 LambdaDef          = LAMBDA LPAR ArgDefList? RPAR LWING Statement* RWING       {lambdaDef} ;
@@ -59,6 +60,12 @@ LambdaDef          = LAMBDA LPAR ArgDefList? RPAR LWING Statement* RWING       {
 ListComprehensions = LBRK Expr FOR Identifier IN Identifier ( IF Expr )? RBRK  {listComprehensions} ;
 
 ExprList           = Expr ( COMMA Expr )* COMMA?                               {exprList} ;
+
+// Map
+
+Map                = MapKeyValue ( COMMA MapKeyValue )* COMMA?                 {map} ;
+
+MapKeyValue        = !Keyword Identifier COLON Expr                            {mapKeyValue} ;
 
 // Arg
 
@@ -213,6 +220,7 @@ MOD        =  "%"  ![=>]  Spacing ;
 DOT        =  "."         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
+COLON      =  ":"         Spacing ;
 
 LT         =  "<"  ![=]   Spacing ;
 GT         =  ">"  ![=]   Spacing ;

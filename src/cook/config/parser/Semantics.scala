@@ -172,6 +172,9 @@ class Semantics extends SemanticsBase {
         } else if (rhs(0).isA("LPAR")) {
           val expr = rhs(1).get.asInstanceOf[Expr]
           expr
+        } else if (rhs(0).isA("LWING")) {
+          val map = rhs(1).get.asInstanceOf[Map]
+          map
         }
     lhs.put(e)
   }
@@ -216,6 +219,22 @@ class Semantics extends SemanticsBase {
           rhs(i).get.asInstanceOf[Expr]
         }
     lhs.put(exprs)
+  }
+
+  // Map
+
+  def map {
+    val keyValues =
+        for (i <- 0 until rhsSize if rhs(i).isA("MapKeyValue")) yield {
+          rhs(i).get.asInstanceOf[MapKeyValue]
+        }
+    lhs.put(Map(keyValues))
+  }
+
+  def mapKeyValue {
+    val key = rhs(0).get.asInstanceOf[String]
+    val expr = rhs(2).get.asInstanceOf[Expr]
+    lhs.put(MapKeyValue(key, expr))
   }
 
   // Arg

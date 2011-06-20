@@ -247,6 +247,7 @@ object SimpleExprItemEvaluator {
       case listComprehensions: ListComprehensions =>
         ListComprehensionsEvaluator.eval(configType, path, scope, listComprehensions)
       case expr: Expr => ExprEvaluator.eval(configType, path, scope, expr)
+      case map: Map => MapEvaluator.eval(configType, path, scope, map)
       case _ => throw new EvalException("this should never happen: unknown class of SimpleExprItem")
     }
   }
@@ -308,6 +309,20 @@ object ListComprehensionsEvaluator {
     }
 
     ListValue("<generated list>", resultBuilder.result)
+  }
+}
+
+object MapEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, map: Map): Value = {
+    val mapValue = new HashMap[String, Value]
+    for (keyValue <- map.keyValues) {
+      if (mapValue.contains(keyValue.key)) {
+        throw new EvalException("Found duplicated key \"%s\" in map value", keyValue.key)
+      }
+      mapValue(keyValue.key) = ExprEvaluator.eval(configType, path, scope, keyValue.expr)
+    }
+    MapValue("<map>", mapValue)
   }
 }
 

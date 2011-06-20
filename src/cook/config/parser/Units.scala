@@ -42,6 +42,11 @@ case class ListComprehensions(expr: Expr,
                               it: String,
                               list: String,
                               cond: Option[Expr]) extends SimpleExprItem
+case class Map(keyValues: Seq[MapKeyValue]) extends SimpleExprItem
+
+// Map
+
+case class MapKeyValue(key: String, expr: Expr)
 
 // Arg
 

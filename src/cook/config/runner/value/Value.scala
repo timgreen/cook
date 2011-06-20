@@ -190,6 +190,23 @@ object ListValue {
   def apply(n: String): ListValue = ListValue(n, Seq[Value]())
 }
 
+case class MapValue(n: String, map: HashMap[String, Value]) extends Value(n, "Map") {
+  override def get(): Any = map
+  override def attr(id: String): Value = {
+    if (map.contains(id)) {
+      val v = map(id)
+      v.name = attrName(id)
+      v
+    } else {
+      id match {
+        case "isMap" => BooleanValue(attrName(id), true)
+        case "size" => NumberValue(attrName(id), map.size)
+        case _ => super.attrOrMethod(null, id)
+      }
+    }
+  }
+}
+
 abstract class LabelValue(n: String, typeName: String) extends Value(n, typeName)
 object LabelValue {
 
