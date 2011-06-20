@@ -26,6 +26,7 @@ import cook.util.FileUtil
  */
 object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
 
+
   override def eval(path: String, argsValue: Scope): Value = {
     // create rule "path:name" and store it
 
@@ -35,9 +36,18 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
     val inputs = argsValue("inputs").toListFileLabel
     val deps = argsValue("deps").toListTargetLabel
     val exeCmds = argsValue("exeCmds").toListStr
-    val preBuild = argsValue("preBuild").toFuntionValue
-    val postBuild = argsValue("postBuild").toFuntionValue
-    val preRun = argsValue("preRun").toFuntionValue
+
+    def getFunctionValue(key: String): FunctionValue = {
+      val v = argsValue(key)
+      if (v.isNull) {
+        null
+      } else {
+        v.toFuntionValue
+      }
+    }
+    val preBuild = getFunctionValue("preBuild")
+    val postBuild = getFunctionValue("postBuild")
+    val preRun = getFunctionValue("preRun")
 
     val targetName = "%s:%s".format(path, name)
 
