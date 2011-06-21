@@ -28,9 +28,16 @@ object Glob extends BuildinFunction("glob", GlobArgsDef()) {
     }
     val filters = l.toListStr("Buildin function \"glob\" only aceppt string or string list")
 
+    val baseDir = argsValue("baseDir")
+    val baseDirFile = if (baseDir.isNull) {
+      FileUtil(path)
+    } else {
+      FileUtil(baseDir.toStr)
+    }
+
     val dirScanner = new DirectoryScanner
     dirScanner.setIncludes(filters.toArray)
-    dirScanner.setBasedir(FileUtil(path))
+    dirScanner.setBasedir(baseDirFile)
     dirScanner.scan
 
     val files = dirScanner.getIncludedFiles
@@ -43,5 +50,10 @@ object Glob extends BuildinFunction("glob", GlobArgsDef()) {
 
 object GlobArgsDef {
 
-  def apply() = new ArgsDef(Seq[String]("filters"), new HashMap[String, Value])
+  def apply() = {
+    val names = Seq[String]("filters", "baseDir")
+    val defaultValues = new HashMap[String, Value]
+    defaultValues("baseDir") = NullValue("baseDir")
+    new ArgsDef(names, defaultValues)
+  }
 }
