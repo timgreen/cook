@@ -12,6 +12,7 @@ case class Assginment(id: String, expr: Expr) extends Statement
 case class IfStatement(cond: Expr,
                        trueBlock: Seq[Statement],
                        falseBlock: Seq[Statement]) extends Statement
+case class ForStatement(it: String, expr: Expr, block: Seq[Statement]) extends Statement
 case class ExprStatement(expr: Expr) extends Statement
 case class ReturnStatement(expr: Option[Expr]) extends Statement
 

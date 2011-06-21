@@ -31,6 +31,8 @@ object StatementEvaluator {
         case assginment: Assginment => AssginmentEvaluator.eval(configType, path, scope, assginment)
         case ifStatement: IfStatement =>
           IfStatementEvaluator.eval(configType, path, scope, ifStatement)
+        case forStatement: ForStatement =>
+          ForStatementEvaluator.eval(configType, path, scope, forStatement)
         case exprStatement: ExprStatement =>
           ExprStatementEvaluator.eval(configType, path, scope, exprStatement)
         case returnStatement: ReturnStatement =>
@@ -91,6 +93,21 @@ object IfStatementEvaluator {
     }
 
     BlockStatementsEvaluator.eval(configType, path, scope, block)
+  }
+}
+
+object ForStatementEvaluator {
+
+  def eval(configType: ConfigType, path: String, scope: Scope, forStatement: ForStatement): Value = {
+    val expr = ExprEvaluator.eval(configType, path, scope, forStatement.expr)
+    val list = expr.toListValue("Need list value in for statement: %s", expr.name)
+    val forScope = Scope(scope)
+    for (v <- list) {
+      forScope(forStatement.it) = v
+      BlockStatementsEvaluator.eval(configType, path, forScope, forStatement.block)
+    }
+
+    VoidValue("for{}")
   }
 }
 

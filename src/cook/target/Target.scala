@@ -275,7 +275,7 @@ class Target(
   }
 
   private def evalFunction(functionValue: FunctionValue): Value = {
-    val args = Scope(scope)
+    val args = Scope(functionValue.scope)
     val argName = functionValue.argsDef.names.head
     args(argName) = TargetLabelValue(argName, new TargetLabel(path, name))
     FunctionValueCallEvaluator.eval(ConfigType.COOK, path, args, functionValue)

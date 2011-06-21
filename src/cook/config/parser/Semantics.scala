@@ -77,6 +77,16 @@ class Semantics extends SemanticsBase {
     lhs.put(IfStatement(cond, trueBlockBuilder.result, falseBlockBuilder.result))
   }
 
+  def forStatement {
+    val it = rhs(2).get.asInstanceOf[String]
+    val expr = rhs(4).get.asInstanceOf[Expr]
+    val block = for (i <- 7 until rhsSize if rhs(i).isA("Statement")) yield {
+      rhs(i).get.asInstanceOf[Statement]
+    }
+
+    lhs.put(ForStatement(it, expr, block))
+  }
+
   def exprStatement {
     val expr = rhs(0).get.asInstanceOf[Expr]
     lhs.put(ExprStatement(expr))

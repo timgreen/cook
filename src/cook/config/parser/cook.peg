@@ -10,6 +10,7 @@ CookConfig         = Spacing Statement* EOT                                    {
 Statement          = ( FuncDef
                      / Assginment
                      / IfStatement
+                     / ForStatement
                      / ExprStatement
                      / ReturnStatement
                      )                                                         {statement} ;
@@ -21,6 +22,9 @@ Assginment         = !Keyword Identifier EQU Expr                              {
 
 IfStatement        = IF LPAR Expr RPAR LWING Statement* RWING
                      ( ELSE LWING Statement* RWING )?                          {ifStatement} ;
+
+ForStatement       = FOR LPAR !Keyword Identifier ASSIGN Expr RPAR
+                     LWING Statement* RWING                                    {forStatement} ;
 
 ExprStatement      = Expr                                                      {exprStatement} ;
 
@@ -216,13 +220,13 @@ STAR       =  "*"         Spacing ;
 DIV        =  "/"  ![=]   Spacing ;
 MOD        =  "%"  ![=>]  Spacing ;
 
-
 DOT        =  "."         Spacing ;
 EQU        =  "="  !"="   Spacing ;
 COMMA      =  ","         Spacing ;
 COLON      =  ":"         Spacing ;
+ASSIGN     =  "<-"        Spacing ;
 
-LT         =  "<"  ![=]   Spacing ;
+LT         =  "<"  ![=-]  Spacing ;
 GT         =  ">"  ![=]   Spacing ;
 LE         =  "<="        Spacing ;
 GE         =  ">="        Spacing ;
