@@ -11,11 +11,14 @@ import scala.collection.mutable.Queue
 
 import cook.app.config.Config
 import cook.app.console.CookConsole
+import cook.config.runner._
 import cook.target._
 import cook.util._
 
 case class Cached(targetName: String)
 case class Built(targetName: String)
+
+case class ExitValue(e: Int)
 
 class BuildActor(val targetName: String, controlActor: ControlActor) extends Actor {
 
@@ -23,7 +26,13 @@ class BuildActor(val targetName: String, controlActor: ControlActor) extends Act
     link(controlActor)
 
     val target = TargetManager.getTarget(targetName)
-    target.build
+
+    val exitValue = try {
+      target.build
+    } catch {
+      case e: EvalException => throw e
+      case _ => 2
+    }
 
     if (target.isCached) {
       controlActor ! Cached(targetName)
@@ -31,7 +40,11 @@ class BuildActor(val targetName: String, controlActor: ControlActor) extends Act
       controlActor ! Built(targetName)
     }
 
-    unlink(controlActor)
+    if (exitValue != 0) {
+      exit(ExitValue(exitValue))
+    } else {
+      exit
+    }
   }
 }
 
@@ -48,7 +61,9 @@ class ControlActor(analyst: Analyst) extends Actor {
       case 'BuildThemAll =>
         tryStartMoreBuildActor
 
-        while (!analyst.isFinished) {
+        var hasError = false
+        var exitCode = 0
+        while (!analyst.isFinished && !hasError) {
           receive {
             case Cached(targetName) =>
               analyst.setCached(targetName)
@@ -58,12 +73,25 @@ class ControlActor(analyst: Analyst) extends Actor {
               analyst.setBuilt(targetName)
               updateBuildStatus(analyst)
               tryStartMoreBuildActor
-            case Exit(from, reason) =>
-              exit(reason)
+            case Exit(from, reason) => reason match {
+              case 'normal =>
+              case ExitValue(e) =>
+                hasError = true
+                exitCode = e
+              case e: EvalException =>
+                hasError = true
+                e.printStackTrace
+                exitCode = 1
+              case _ =>
+
+                hasError = true
+                exitCode = 255
+                CookConsole.println(reason.toString)
+            }
           }
         }
 
-        reply(0)
+        reply(exitCode)
     }
   }
 

@@ -31,7 +31,13 @@ object FileUtil {
 
   def apply(filename: String): File = getFileFromRoot(filename)
 
-  def getFileFromRoot(filename: String): File = new File(root, filename)
+  def getFileFromRoot(filename: String): File = {
+    if (filename.startsWith("/")) {
+      new File(filename)
+    } else {
+      new File(root, filename)
+    }
+  }
 
   def getCookRootFile = getFileFromRoot(COOK_ROOT_FILENAME)
 

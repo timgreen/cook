@@ -41,7 +41,7 @@ class Target(
    */
   def isExecutable = (exeCmds.nonEmpty) || (preRun != null)
 
-  def execute() {
+  def execute(): Int = {
     if (!isExecutable) {
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
@@ -60,7 +60,7 @@ class Target(
    * Target it self doesn't care about deps, it only care about the input and output,
    * deps will be done by Target Manager.
    */
-  def build() {
+  def build(): Int = {
     // 0. save current timestamp
     // 1. check whether all inputs is ready
     // 2. run cmd
@@ -81,7 +81,10 @@ class Target(
         evalFunction(preBuild).toListStr(
             "Return value for target(\"%s\").preBuild() should be String List", targetName)
       }
-      runCmds(c, buildLogFile, buildShFile, false)
+      val exitValue = runCmds(c, buildLogFile, buildShFile, false)
+      if (exitValue != 0) {
+        return exitValue
+      }
       saveCacheMeta
     }
 
@@ -90,6 +93,8 @@ class Target(
     if (postBuild != null) {
       evalFunction(postBuild)
     }
+
+    0
   }
 
   def outputDir(): File = {
@@ -146,7 +151,7 @@ class Target(
     }
   }
 
-  private def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean) {
+  private def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean): Int = {
     mkOutputDir
     val envCmds = Seq[String](
       "OUTPUT_DIR=\"%s\"" format stringEscape(outputDir.getAbsolutePath),
@@ -182,8 +187,9 @@ class Target(
       if (!outputToStd) {
         Source.fromFile(logFile).getLines foreach println
       }
-      System.exit(p.exitValue)
     }
+
+    p.exitValue
   }
 
   private def writeCmdsToShellFile(cmds: String, shFile: File) {
@@ -245,7 +251,7 @@ class Target(
   private def evalFunction(functionValue: FunctionValue): Value = {
     val args = Scope(functionValue.scope)
     val argName = functionValue.argsDef.names.head
-    args(argName) = TargetLabelValue(argName, new TargetLabel(path, name))
+    args(argName) = TargetLabelValue(argName, new TargetLabel(path, ":" + name))
     FunctionValueCallEvaluator.eval(ConfigType.COOK, path, args, functionValue)
   }
 

@@ -43,7 +43,7 @@ object Glob extends BuildinFunction("glob", GlobArgsDef()) {
     val files = dirScanner.getIncludedFiles
 
     ListValue("glob()", files.map((f) => {
-        FileLabelValue("<unknown>", new FileLabel(path, f))
+        FileLabelValue("<unknown>", new FileLabel(baseDirFile.getAbsolutePath, f))
     }))
   }
 }

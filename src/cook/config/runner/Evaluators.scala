@@ -234,8 +234,8 @@ object CallSuffixEvaluator {
     // 4. return result
 
     if (!v.isInstanceOf[FunctionValue]) {
-      // TODO(timgreen): func name
-      throw new EvalException("value is not function, can not be called")
+      throw new EvalException(
+          "Value <%s>:%s is not function, can not be called", v.typeName, v.name)
     }
     val functionValue = v.asInstanceOf[FunctionValue]
     val args = ArgsValueEvaluator.eval(
@@ -499,6 +499,8 @@ object FunctionValueCallEvaluator {
           BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
         } catch {
           case CookReturn(v) => v
+          case e: EvalException =>
+            throw new EvalException(e, "Got error when eval function \"%s\"", functionValue.name)
         }
         result.name = functionValue.name + "()"
         result
