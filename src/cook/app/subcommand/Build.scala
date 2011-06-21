@@ -22,8 +22,6 @@ object Build extends SubCommand("build", "Build targets") {
         }
 
     Builder.build(targetLabels)
-
-    0
   }
 
   def help() {

@@ -39,7 +39,7 @@ class Target(
   /**
    * Only executeable target can be run by "cook run"
    */
-  def isExecutable = (exeCmds != null) || (preRun != null)
+  def isExecutable = (exeCmds.nonEmpty) || (preRun != null)
 
   def execute() {
     if (!isExecutable) {

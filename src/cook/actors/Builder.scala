@@ -44,26 +44,27 @@ class ControlActor(analyst: Analyst) extends Actor {
     trapExit = true
     CookConsole.mark('buildStatus)
 
-    tryStartMoreBuildActor
+    receive {
+      case 'BuildThemAll =>
+        tryStartMoreBuildActor
 
-    while (!analyst.isFinished) {
-      receive {
-        case Cached(targetName) =>
-          analyst.setCached(targetName)
-          updateBuildStatus(analyst)
-          tryStartMoreBuildActor
-        case Built(targetName) =>
-          analyst.setBuilt(targetName)
-          updateBuildStatus(analyst)
-          tryStartMoreBuildActor
-        case Exit(from, reason) =>
-          exit(reason)
-      }
+        while (!analyst.isFinished) {
+          receive {
+            case Cached(targetName) =>
+              analyst.setCached(targetName)
+              updateBuildStatus(analyst)
+              tryStartMoreBuildActor
+            case Built(targetName) =>
+              analyst.setBuilt(targetName)
+              updateBuildStatus(analyst)
+              tryStartMoreBuildActor
+            case Exit(from, reason) =>
+              exit(reason)
+          }
+        }
+
+        reply(0)
     }
-
-    lock.lock
-    finish.signal
-    lock.unlock
   }
 
   @tailrec
@@ -119,18 +120,11 @@ class ControlActor(analyst: Analyst) extends Actor {
 
 object Builder {
 
-  def build(targetLabels: Seq[TargetLabel]) {
+  def build(targetLabels: Seq[TargetLabel]): Int = {
     val analyst = Analyst(targetLabels: _*)
     val controlActor = new ControlActor(analyst)
     controlActor.start
-
-    controlActor.lock.lock
-    while (controlActor.getState != Terminated) {
-      controlActor.finish.await
-    }
-    controlActor.lock.unlock
-
-    CookConsole.println("")
+    (controlActor !? 'BuildThemAll).asInstanceOf[Int]
   }
 
 }
