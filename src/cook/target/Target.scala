@@ -46,7 +46,7 @@ class Target(
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
 
-    val c = if (exeCmds != null) {
+    val c = if (exeCmds.nonEmpty) {
       exeCmds
     } else {
       evalFunction(preRun).toListStr(
@@ -68,7 +68,6 @@ class Target(
 
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
-    depOutputDirs = prepareDepOutputDirs(deps)
     if (isBuilded) {
       throw new TargetException(
           "One target should never been build twice: target \"%s\"",
@@ -76,7 +75,7 @@ class Target(
     }
 
     if (!isCached) {
-      val c = if (cmds != null) {
+      val c = if (cmds.nonEmpty) {
         cmds
       } else {
         evalFunction(preBuild).toListStr(
@@ -92,21 +91,6 @@ class Target(
       evalFunction(postBuild)
     }
   }
-
-/*
-  def outputs(): Seq[File] = {
-    if (!isBuilded) {
-      throw new TargetException("Outputs will become available after build: target \"%s\"", name)
-    }
-
-    val ds = new DirectoryScanner
-    ds.setBasedir(outputDir)
-    ds.scan
-    ds.getIncludedFiles.map {
-      new File(outputDir, _)
-    }
-  }
-  */
 
   def outputDir(): File = {
     FileUtil.getBuildOutputDir(path, name)
@@ -125,7 +109,6 @@ class Target(
   lazy val isCached: Boolean = checkIfCached
 
   private var inputFiles: Seq[File] = null
-  private var depOutputDirs: Seq[File] = null
 
   private def prepareInputFiles(inputs: Seq[FileLabel]) = labelToFiles(inputs)
 
@@ -167,24 +150,10 @@ class Target(
     mkOutputDir
     val envCmds = Seq[String](
       "OUTPUT_DIR=\"%s\"" format stringEscape(outputDir.getAbsolutePath),
-      "NAME=\"%s\"" format stringEscape(name),
-      // TODO(timgreen): figure out a better way to pass array values
-      "INPUTS=\"%s\"" format stringEscape(inputFiles.map(_.getAbsolutePath).mkString("|")),
-      "DEP_OUTPUT_DIRS=\"%s\"" format stringEscape(depOutputDirs.map(_.getAbsolutePath).mkString("|")),
-      "ALL_DEP_OUTPUT_DIRS=\"%s\"" format stringEscape(allDepOutputDirs.mkString("|")),
-      ""
-    )
-    val splitArrayValueCmds = Seq[String](
-      "OLD_IFS=\"$IFS\"",
-      "IFS='|'",
-      "INPUTS=( $INPUTS )",
-      "DEP_OUTPUT_DIRS=( $DEP_OUTPUT_DIRS )",
-      "ALL_DEP_OUTPUT_DIRS=( $ALL_DEP_OUTPUT_DIRS )",
-      "IFS=\"$OLD_IFS\"",
-      ""
+      "NAME=\"%s\"" format stringEscape(name)
     )
 
-    writeCmdsToShellFile((envCmds ++ splitArrayValueCmds ++ cmds).mkString("\n"), shFile)
+    writeCmdsToShellFile((envCmds ++ cmds).mkString("\n"), shFile)
 
     val pb = new ProcessBuilder(
         "/bin/bash", shFile.getAbsolutePath)
