@@ -14,6 +14,7 @@ import scala.io.Source
 import org.apache.tools.ant.DirectoryScanner
 
 import cook.app.console.CookConsole
+import cook.config.runner._
 import cook.config.runner.value._
 import cook.util._
 
@@ -38,14 +39,21 @@ class Target(
   /**
    * Only executeable target can be run by "cook run"
    */
-  def isExecutable = exeCmds.nonEmpty
+  def isExecutable = (exeCmds != null) || (preRun != null)
 
   def execute() {
     if (!isExecutable) {
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
 
-    runCmds(exeCmds, runLogFile, runShFile, true)
+    val c = if (exeCmds != null) {
+      exeCmds
+    } else {
+      evalFunction(preRun).toListStr(
+          "Return value for target(\"%s\").preRun() should be String List", targetName)
+    }
+
+    runCmds(c, runLogFile, runShFile, true)
   }
 
   /**
@@ -68,12 +76,24 @@ class Target(
     }
 
     if (!isCached) {
-      runCmds(cmds, buildLogFile, buildShFile, false)
+      val c = if (cmds != null) {
+        cmds
+      } else {
+        evalFunction(preBuild).toListStr(
+            "Return value for target(\"%s\").preBuild() should be String List", targetName)
+      }
+      runCmds(c, buildLogFile, buildShFile, false)
+      saveCacheMeta
     }
+
     isBuilded = true
-    saveCacheMeta
+
+    if (postBuild != null) {
+      evalFunction(postBuild)
+    }
   }
 
+/*
   def outputs(): Seq[File] = {
     if (!isBuilded) {
       throw new TargetException("Outputs will become available after build: target \"%s\"", name)
@@ -86,6 +106,7 @@ class Target(
       new File(outputDir, _)
     }
   }
+  */
 
   def outputDir(): File = {
     FileUtil.getBuildOutputDir(path, name)
@@ -103,23 +124,22 @@ class Target(
 
   lazy val isCached: Boolean = checkIfCached
 
-  private[target]
-  var inputFiles: Seq[File] = null
-  var depOutputDirs: Seq[File] = null
+  private var inputFiles: Seq[File] = null
+  private var depOutputDirs: Seq[File] = null
 
-  def prepareInputFiles(inputs: Seq[FileLabel]) = labelToFiles(inputs)
+  private def prepareInputFiles(inputs: Seq[FileLabel]) = labelToFiles(inputs)
 
   /**
    * Get dep targets output dirs.
    */
-  def prepareDepOutputDirs(deps: Seq[TargetLabel]) : Seq[File] = {
+  private def prepareDepOutputDirs(deps: Seq[TargetLabel]) : Seq[File] = {
     for (t <- deps) yield {
       val target = TargetManager.getTarget(t)
       target.outputDir
     }
   }
 
-  def mkOutputDir() {
+  private def mkOutputDir() {
     if (!outputDir.isDirectory && !outputDir.mkdirs) {
       throw new TargetException(
           "Can not create output dir for target \"%s\": %s", name, outputDir.getPath)
@@ -127,15 +147,15 @@ class Target(
   }
 
   /**
-   * Convert Seq[label: String] to Seq[File]
+   * Convert Seq[label: FileLabel] to Seq[File]
    */
-  def labelToFiles(labels: Seq[FileLabel]): Seq[File] = {
+  private def labelToFiles(labels: Seq[FileLabel]): Seq[File] = {
     val files = labels.map(_.file)
     checkFiles(files)
     files
   }
 
-  def checkFiles(files: Seq[File]) {
+  private def checkFiles(files: Seq[File]) {
     for (f <- files) {
       if (!f.exists) {
         throw new TargetException("Target \"%s\" required input file \"%s\" not exists", targetName, f.getPath)
@@ -143,7 +163,7 @@ class Target(
     }
   }
 
-  def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean) {
+  private def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean) {
     mkOutputDir
     val envCmds = Seq[String](
       "OUTPUT_DIR=\"%s\"" format stringEscape(outputDir.getAbsolutePath),
@@ -198,24 +218,24 @@ class Target(
     }
   }
 
-  def writeCmdsToShellFile(cmds: String, shFile: File) {
+  private def writeCmdsToShellFile(cmds: String, shFile: File) {
     val p = new PrintStream(shFile)
     p.println(cmds)
     p.close
   }
 
-  def stringEscape(str: String): String = {
+  private def stringEscape(str: String): String = {
     str.replaceAll("\"", "\\\"")
   }
 
-  var isBuilded = false
+  private var isBuilded = false
 
   /**
    * One target is cached, if and only if
    *   - all deps is cahced
    *   - all input is not changed since last build
    */
-  def checkIfCached(): Boolean = {
+  private def checkIfCached(): Boolean = {
     val metaFile = cacheMetaFile
     if (!metaFile.exists) {
       return false
@@ -245,13 +265,20 @@ class Target(
     return true
   }
 
-  def saveCacheMeta {
+  private def saveCacheMeta {
     val cache = new Cache(cacheMetaFile)
     cache.deps ++= deps.map(_.targetName)
     cache.inputs ++= inputFiles.map((i) => {
       i.getAbsolutePath -> i.lastModified
     })
     cache.write
+  }
+
+  private def evalFunction(functionValue: FunctionValue): Value = {
+    val args = Scope(scope)
+    val argName = functionValue.argsDef.names.head
+    args(argName) = TargetLabelValue(argName, new TargetLabel(path, name))
+    FunctionValueCallEvaluator.eval(ConfigType.COOK, path, args, functionValue)
   }
 
   def buildLogFile = FileUtil.getBuildLogFile(path, name)

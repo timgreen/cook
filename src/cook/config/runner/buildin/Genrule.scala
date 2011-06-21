@@ -51,13 +51,18 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
 
     val targetName = "%s:%s".format(path, name)
 
-    if ((preBuild != null) && (cmds != null)) {
+    if ((preBuild != null) && cmds.nonEmpty) {
       throw new EvalException(
           "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
           targetName)
     }
+    if ((preBuild == null) && cmds.isEmpty) {
+      throw new EvalException(
+          "Found error in genrule(%s), \"preBuild\" & \"cmds\" can not both be null",
+          targetName)
+    }
 
-    if ((preRun != null) && (exeCmds != null)) {
+    if ((preRun != null) && exeCmds.nonEmpty) {
       throw new EvalException(
           "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
           targetName)
@@ -99,6 +104,7 @@ object GenruleArgsDef {
         "postBuild",
         "preRun")
     val defaultValues = new HashMap[String, Value]
+    defaultValues.put("cmds",      ListValue("cmds"))
     defaultValues.put("inputs",    ListValue("inputs"))
     defaultValues.put("deps",      ListValue("deps"))
     defaultValues.put("exeCmds",   ListValue("exeCmds"))
