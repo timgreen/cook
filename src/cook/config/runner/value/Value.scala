@@ -254,6 +254,7 @@ case class TargetLabelValue(n: String, targetLabel: TargetLabel)
   override def attr(id: String): Value = id match {
     case "isLabel" => BooleanValue(attrName(id), true)
     case "isTargetLabel" => BooleanValue(attrName(id), true)
+    case "name" => StringValue(attrName(id), targetLabel.targetName)
     case "outputDir" => StringValue(attrName(id), targetLabel.outputDir.getAbsolutePath)
     case _ => super.attrOrMethod(ValueMethod.targetLabelMethodBuilders, id)
   }
