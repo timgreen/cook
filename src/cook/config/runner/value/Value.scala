@@ -135,7 +135,7 @@ case class NullValue(n: String) extends Value(n, "Null") {
   }
 }
 
-case class BooleanValue(n: String, bool: Boolean) extends Value(n, "Bool") {
+case class BooleanValue(n: String, var bool: Boolean) extends Value(n, "Bool") {
 
   override def isTrue: Boolean = bool
   override def unaryOp(op: String): Value = op match {
@@ -150,7 +150,7 @@ case class BooleanValue(n: String, bool: Boolean) extends Value(n, "Bool") {
   override def get(): Any = bool
 }
 
-case class NumberValue(n: String, int: Int) extends Value(n, "Number") {
+case class NumberValue(n: String, var int: Int) extends Value(n, "Number") {
 
   override def isTrue: Boolean = (int != 0)
   override def get(): Any = int
@@ -160,7 +160,7 @@ case class NumberValue(n: String, int: Int) extends Value(n, "Number") {
   }
 }
 
-case class StringValue(n: String, str: String) extends Value(n, "String") {
+case class StringValue(n: String, var str: String) extends Value(n, "String") {
 
   override def isTrue: Boolean = str.nonEmpty
   override def attr(id: String): Value = id match {
@@ -175,7 +175,7 @@ case class StringValue(n: String, str: String) extends Value(n, "String") {
   override def get(): Any = str
 }
 
-case class CharValue(n: String, c: Char) extends Value(n, "Char") {
+case class CharValue(n: String, var c: Char) extends Value(n, "Char") {
 
   override def get(): Any = c
   override def attr(id: String): Value = id match {
@@ -184,7 +184,7 @@ case class CharValue(n: String, c: Char) extends Value(n, "Char") {
   }
 }
 
-case class ListValue(n: String, list: Seq[Value]) extends Value(n, "List") {
+case class ListValue(n: String, var list: Seq[Value]) extends Value(n, "List") {
 
   override def attr(id: String): Value = id match {
     case "isList" => BooleanValue(attrName(id), true)
@@ -203,7 +203,7 @@ object ListValue {
   def apply(n: String): ListValue = ListValue(n, Seq[Value]())
 }
 
-case class MapValue(n: String, map: HashMap[String, Value]) extends Value(n, "Map") {
+case class MapValue(n: String, var map: HashMap[String, Value]) extends Value(n, "Map") {
   override def get(): Any = map
   override def attr(id: String): Value = {
     if (map.contains(id)) {
@@ -229,7 +229,7 @@ object LabelValue {
   }
 }
 
-case class FileLabelValue(n: String, fileLabel: FileLabel) extends LabelValue(n, "FileLabel") {
+case class FileLabelValue(n: String, var fileLabel: FileLabel) extends LabelValue(n, "FileLabel") {
 
   override def get(): Any = fileLabel
   override def attr(id: String): Value = id match {
@@ -247,7 +247,7 @@ object FileLabelValue {
   }
 }
 
-case class TargetLabelValue(n: String, targetLabel: TargetLabel)
+case class TargetLabelValue(n: String, var targetLabel: TargetLabel)
     extends LabelValue(n, "TargetLabel") {
 
   override def get(): Any = targetLabel

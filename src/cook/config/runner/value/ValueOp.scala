@@ -31,7 +31,10 @@ object ValueOp {
     "<=" -> LeOp,
     ">=" -> GeOp,
     "==" -> EquEquOp,
-    "!=" -> BangEquOp
+    "!=" -> BangEquOp,
+
+    "+=" -> PlusEquOp,
+    "++=" -> IncEquOp
   )
 
   def error(a: Value, op: String, b: Value): Value = {
@@ -180,3 +183,36 @@ object BangEquOp extends ValueOp("!=") {
     BooleanValue(resultName, !EquEquOp.eval(a, b).asInstanceOf[BooleanValue].bool)
   }
 }
+
+object PlusEquOp extends ValueOp("+=") {
+
+  override def eval(a: Value, b: Value): Value = {
+    val resultName = rn(a, b)
+    (a, b) match {
+      case (a: NumberValue, NumberValue(_, bi)) =>
+        a.int += bi
+        VoidValue(resultName)
+      case (a: ListValue, _) =>
+        a.list = a.list :+ b
+        VoidValue(resultName)
+      case (a: StringValue, StringValue(_, bs)) =>
+        a.str = a.str + bs
+        VoidValue(resultName)
+      case _ => super.eval(a, b)
+    }
+  }
+}
+
+object IncEquOp extends ValueOp("++=") {
+
+  override def eval(a: Value, b: Value): Value = {
+    val resultName = rn(a, b)
+    (a, b) match {
+      case (a: ListValue, ListValue(_, bl)) =>
+        a.list = a.list ++ bl
+        VoidValue(resultName)
+      case _ => super.eval(a, b)
+    }
+  }
+}
+

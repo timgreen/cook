@@ -133,6 +133,9 @@ Operation = ( PLUS
             / GE
             / EQUEQU
             / BANGEQU
+
+            / PLUSEQU
+            / INCEQU
             );
 
 //-------------------------------------------------------------------------
@@ -215,7 +218,7 @@ BANG       =  "!"  ![=]   Spacing ;
 
 PLUS       =  "+"  ![+=]  Spacing ;
 MINUS      =  "-"  ![\-=>]Spacing ;
-INC        =  "++"        Spacing ;
+INC        =  "++" ![=]   Spacing ;
 STAR       =  "*"         Spacing ;
 DIV        =  "/"  ![=]   Spacing ;
 MOD        =  "%"  ![=>]  Spacing ;
@@ -232,6 +235,9 @@ LE         =  "<="        Spacing ;
 GE         =  ">="        Spacing ;
 EQUEQU     =  "=="        Spacing ;
 BANGEQU    =  "!="        Spacing ;
+
+PLUSEQU    =  "+="        Spacing ;
+INCEQU     =  "++="       Spacing ;
 
 EOL        =  [\r\n] / !_ ;
 EOT        =  !_    ;
