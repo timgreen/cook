@@ -514,7 +514,7 @@ object BlockStatementsEvaluator {
       scope: Scope,
       statements: Seq[Statement]): Value = {
 
-    var lastValue: Value = null
+    var lastValue: Value = VoidValue("")
     for (s <- statements) {
       lastValue = StatementEvaluator.eval(configType, path, scope, s)
     }

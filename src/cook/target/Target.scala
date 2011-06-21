@@ -155,8 +155,7 @@ class Target(
 
     writeCmdsToShellFile((envCmds ++ cmds).mkString("\n"), shFile)
 
-    val pb = new ProcessBuilder(
-        "/bin/bash", shFile.getAbsolutePath)
+    val pb = new ProcessBuilder("/bin/bash", shFile.getAbsolutePath)
     pb.directory(outputDir)
     pb.redirectErrorStream(true)
 
