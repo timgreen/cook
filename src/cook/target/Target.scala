@@ -74,13 +74,13 @@ class Target(
           targetName)
     }
 
+    val c = if (cmds.nonEmpty) {
+      cmds
+    } else {
+      evalFunction(preBuild).toListStr(
+          "Return value for target(\"%s\").preBuild() should be String List", targetName)
+    }
     if (!isCached) {
-      val c = if (cmds.nonEmpty) {
-        cmds
-      } else {
-        evalFunction(preBuild).toListStr(
-            "Return value for target(\"%s\").preBuild() should be String List", targetName)
-      }
       val exitValue = runCmds(c, buildLogFile, buildShFile, false)
       if (exitValue != 0) {
         return exitValue
