@@ -1,22 +1,49 @@
 def scala_lib(name, srcs, deps = []) {
-  inputs = labels(srcs)
+  srcs = labels(srcs)
+  srcTargets = [s for s in srcs if s.isTargetLabel]
+  srcs = [s for s in srcs if s.isFileLabel]
 
   deps = labels(deps)
-  cp   = [d for d in deps if d.isFileLabel]
-  deps = [d for d in deps if d.isTargetLabel]
-
-  cp = [i.file for i in cp] ++ [i.outputDir for i in deps]
+  lib   = [d.file for d in deps if d.isFileLabel]
+  depTargets = [d for d in deps if d.isTargetLabel]
+  cp = []
 
   genrule(
     name = name,
-    inputs = inputs,
-    deps = deps,
-    cmds = [
-      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} %s)" % [cp.join(" ")],
-      "CP=$(printf :%s ${CP[*]})",
-      "CP=${CP:1}",
-      "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
-      "fsc -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
-    ]
+    outputType = "java_class",
+    inputs = srcs,
+    deps = depTargets ++ srcTargets,
+    preBuild = lambda(t) {
+      scalafiles = srcs
+      for (st <- srcTargets) {
+        if (st.outputType() != "scala_source") {
+          error("scala_lib.srcs should only contains target which has outputType='scala_source': " + st.name)
+        }
+        scalafiles ++= glob("**/*.scala", baseDir = st.outputDir)
+      }
+      scalafiles = [i.file for i in scalafiles]
+
+      for (d <- depTargets) {
+        if (d.outputType() == "java_class") {
+          cp += d.outputDir
+          cp ++= d.value("cp")
+          lib ++= d.value("lib")
+        } else {
+          error("scala_lib(\"" + t.name + "\").deps should only contains target which has outputType='java_class': " + d.name)
+        }
+      }
+
+      [
+        "SOURCES=(%s)" % [ scalafiles.join(" ") ],
+        "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
+        "fsc -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}",
+      ]
+    },
+    postBuild = lambda(t) {
+      t.setValues({
+        cp: cp,
+        lib: lib
+      })
+    }
   )
 }

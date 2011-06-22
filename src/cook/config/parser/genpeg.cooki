@@ -3,6 +3,7 @@
 # Generate java file from peg defines
 
 def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Semantics", runtime = null) {
+  src = label(src)
 
   if (runtime == null) {
     runtimeOption = ""
@@ -14,10 +15,11 @@ def genpeg_java(name, src, package, parserName = "Parser", semanticsName = "Sema
 
   genrule(
     name = name,
-    inputs = labels(src),
+    outputType = "java_source",
+    inputs = [ src ],
     cmds = [
       "CP=%s" % [lib.file],
-      "java -cp $CP mouse.Generate -G $INPUTS -p %s -P %s -S %s %s -D $OUTPUT_DIR" % [ package, parserName, semanticsName, runtimeOption ],
+      "java -cp $CP mouse.Generate -G %s -p %s -P %s -S %s %s -D $OUTPUT_DIR" % [ src.file, package, parserName, semanticsName, runtimeOption ],
     ],
   )
 }

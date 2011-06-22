@@ -1,82 +1,115 @@
 def java_lib(name, srcs, deps = []) {
-  inputs = labels(srcs)
+  srcs = labels(srcs)
+  srcTargets = [s for s in srcs if s.isTargetLabel]
+  srcs = [s for s in srcs if s.isFileLabel]
 
   deps = labels(deps)
-  cp   = [d for d in deps if d.isFileLabel]
-  deps = [d for d in deps if d.isTargetLabel]
-
-  cp = [i.file for i in cp] ++ [i.outputDir for i in deps]
+  lib   = [d.file for d in deps if d.isFileLabel]
+  depTargets = [d for d in deps if d.isTargetLabel]
+  cp = []
 
   genrule(
     name = name,
-    inputs = inputs,
-    deps = deps,
-    cmds = [
-      "CP=(${ALL_DEP_OUTPUT_DIRS[*]} %s)" % [cp.join(" ")],
-      "CP=$(printf :%s ${CP[*]})",
-      "CP=${CP:1}",
-      "[[ \"$CP\" == \"\" ]] || ADD_CP=\"-cp $CP\"",
-      "javac -d $OUTPUT_DIR $ADD_CP ${INPUTS[*]}",
-    ]
+    outputType = "java_class",
+    inputs = srcs,
+    deps = depTargets ++ srcTargets,
+    preBuild = lambda(t) {
+      javafiles = srcs
+      for (st <- srcTargets) {
+        if (st.outputType() != "java_source") {
+          error("java_lib.srcs should only contains target which has outputType='java_source': " + st.name)
+        }
+
+        javafiles ++= glob("**/*.java", baseDir = st.outputDir)
+      }
+      javafiles = [i.file for i in javafiles]
+
+      for (d <- depTargets) {
+        if (d.outputType() == "java_class") {
+          cp += d.outputDir
+          cp ++= d.value("cp")
+          lib ++= d.value("lib")
+        } else {
+          error("java_lib(\"" + t.name + "\").deps should only contains target which has outputType='java_class': " + d.name)
+        }
+      }
+
+      [
+        "SOURCES=(%s)" % [ javafiles.join(" ") ],
+        "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
+        "javac -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}"
+      ]
+    },
+    postBuild = lambda(t) {
+      t.setValues({
+        cp: cp,
+        lib: lib
+      })
+    }
   )
 }
 
-def jar(name, deps = [], libs = [], mainClass = null) {
-  deps = labels(deps)
-  libs = labels(libs)
+def jar(name, java_libs = [], mainClass = null) {
+  targets = labels(java_libs)
 
-  unjarCmds = ["jar xf \"%s\"" % [lib.file] for lib in libs]
-
+  for (t <- targets) {
+    if (!t.isTargetLabel) {
+      error("target jar(\"%s\").java_libs should only contains targets")
+    }
+  }
 
   if (mainClass == null) {
-    genrule(
-      name = name + ".jar",
-      deps = deps,
-      cmds = [
-        "rm -fr classes",
-        "mkdir classes",
-        "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        "jar cf $NAME -C classes ."
-      ]
-    )
-
-    genrule(
-      name = name + ".all.jar",
-      deps = deps,
-      cmds = [
-        "rm -fr classes",
-        "mkdir classes",
-        "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        "cd classes/",
-      ] ++ unjarCmds ++ [
-        "cd $OUTPUT_DIR",
-        "jar cf $NAME -C classes .",
-      ],
-    )
+    jarCmd = "jar cf $NAME -C classes ."
   } else {
-    genrule(
-      name = name + ".jar",
-      deps = deps,
-      cmds = [
-        "rm -fr classes",
-        "mkdir classes",
-        "for d in ${DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        "jar cfe $NAME %s -C classes ." % [ mainClass ]
-      ]
-    )
-
-    genrule(
-      name = name + ".all.jar",
-      deps = deps,
-      cmds = [
-        "rm -fr classes",
-        "mkdir classes",
-        "for d in ${ALL_DEP_OUTPUT_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        "cd classes/",
-      ] ++ unjarCmds ++ [
-        "cd $OUTPUT_DIR",
-        "jar cfe $NAME %s -C classes ." % [ mainClass ]
-      ],
-    )
+    jarCmd = "jar cfe $NAME %s -C classes ." % [ mainClass ]
   }
+
+  genrule(
+    name = name + ".jar",
+    outputType = "java_jar",
+    deps = targets,
+    preBuild = lambda(t) {
+      for (t <- targets) {
+        if (!t.isTargetLabel) {
+          error("target jar(\"%s\").java_libs should only contains target has outputType=java_class")
+        }
+      }
+
+      classDirs = [ t.outputDir for t in targets ]
+      [
+        "rm -fr classes",
+        "mkdir classes",
+        "CLASSES_DIRS=(%s)" % [ classDirs.join(" ") ],
+        "for d in ${CLASSES_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        jarCmd
+      ]
+    },
+  )
+
+  genrule(
+    name = name + ".all.jar",
+    outputType = "java_jar",
+    deps = targets,
+    preBuild = lambda(t) {
+      for (t <- targets) {
+        if (!t.isTargetLabel) {
+          error("target jar(\"%s\").java_libs should only contains target has outputType=java_class")
+        }
+      }
+
+      classDirs = []
+      for (t <- targets) {
+        classDirs += t.outputDir
+        classDirs ++= t.value("cp")
+      }
+
+      [
+        "rm -fr classes",
+        "mkdir classes",
+        "CLASSES_DIRS=(%s)" % [ classDirs.join(" ") ],
+        "for d in ${CLASSES_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
+        jarCmd
+      ]
+    },
+  )
 }
