@@ -22,7 +22,10 @@ object Run extends SubCommand("run", "Run target") {
     val currentDir = FileUtil.relativeDirToRoot(System.getProperty("user.dir"))
     val targetLabel = new TargetLabel(currentDir, args(0))
 
-    Builder.build(Seq(targetLabel))
+    val buildExitCode = Builder.build(Seq(targetLabel))
+    if (buildExitCode != 0) {
+      return buildExitCode
+    }
     Runner.run(targetLabel)
 
     0
