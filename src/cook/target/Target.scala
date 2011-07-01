@@ -41,7 +41,7 @@ class Target(
    */
   def isExecutable = (exeCmds.nonEmpty) || (preRun != null)
 
-  def execute(): Int = {
+  def execute(args: Array[String]): Int = {
     if (!isExecutable) {
       throw new TargetException("Target \"%s\" is not executeable", targetName)
     }
@@ -53,7 +53,7 @@ class Target(
           "Return value for target(\"%s\").preRun() should be String List", targetName)
     }
 
-    runCmds(c, runLogFile, runShFile, true)
+    runCmds(c, runLogFile, runShFile, true, args: _*)
   }
 
   /**
@@ -151,7 +151,7 @@ class Target(
     }
   }
 
-  private def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean): Int = {
+  private def runCmds(cmds: Seq[String], logFile: File, shFile: File, outputToStd: Boolean, args: String*): Int = {
     mkOutputDir
     val envCmds = Seq[String](
       "OUTPUT_DIR=\"%s\"" format stringEscape(outputDir.getAbsolutePath),
@@ -160,7 +160,8 @@ class Target(
 
     writeCmdsToShellFile((envCmds ++ cmds).mkString("\n"), shFile)
 
-    val pb = new ProcessBuilder("/bin/bash", shFile.getAbsolutePath)
+
+    val pb = new ProcessBuilder(("/bin/bash" :: shFile.getAbsolutePath :: args.toList) : _*)
     pb.directory(outputDir)
     pb.redirectErrorStream(true)
 

@@ -30,8 +30,9 @@ class BuildActor(val targetName: String, controlActor: ControlActor) extends Act
     val exitValue = try {
       target.build
     } catch {
-      case e: EvalException => throw e
-      case _ => 2
+      case e: Exception =>
+      e.printStackTrace
+      2
     }
 
     if (target.isCached) {

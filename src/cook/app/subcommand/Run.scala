@@ -12,11 +12,6 @@ object Run extends SubCommand("run", "Run target") {
       help
       return 1
     }
-    if (args.size > 1) {
-      CookConsole.println("can only run one target at a time")
-      help
-      return 1
-    }
 
     // TODO(timgreen): move to better place
     val currentDir = FileUtil.relativeDirToRoot(System.getProperty("user.dir"))
@@ -26,7 +21,7 @@ object Run extends SubCommand("run", "Run target") {
     if (buildExitCode != 0) {
       return buildExitCode
     }
-    Runner.run(targetLabel)
+    Runner.run(targetLabel, args.drop(1))
 
     0
   }

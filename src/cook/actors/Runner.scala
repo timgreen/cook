@@ -9,10 +9,10 @@ import cook.util._
 
 object Runner {
 
-  def run(targetLabel: TargetLabel) {
+  def run(targetLabel: TargetLabel, args: Array[String]) {
     CookConsole.println("Running target \"%s\"", targetLabel.targetName)
     val target = TargetManager.getTarget(targetLabel)
-    target.execute
+    target.execute(args)
   }
 }
 
