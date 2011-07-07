@@ -53,6 +53,7 @@ class Target(
           "Return value for target(\"%s\").preRun() should be String List", targetName)
     }
 
+    cleanBeforeExecute
     runCmds(c, runLogFile, runShFile, true, args: _*)
   }
 
@@ -81,6 +82,7 @@ class Target(
           "Return value for target(\"%s\").preBuild() should be String List", targetName)
     }
     if (!isCached) {
+      cleanBeforeBuild
       val exitValue = runCmds(c, buildLogFile, buildShFile, false)
       if (exitValue != 0) {
         return exitValue
@@ -262,4 +264,15 @@ class Target(
   def runShFile = FileUtil.getRunShFile(path, name)
   def cacheMetaFile = FileUtil.getBuildCacheMetaFile(path, name)
 
+  def cleanBeforeBuild {
+    DeleteUtil.deleteRecursively(outputDir)
+    DeleteUtil.deleteRecursively(buildLogFile)
+    DeleteUtil.deleteRecursively(buildShFile)
+    DeleteUtil.deleteRecursively(cacheMetaFile)
+  }
+
+  def cleanBeforeExecute {
+    DeleteUtil.deleteRecursively(runLogFile)
+    DeleteUtil.deleteRecursively(runShFile)
+  }
 }
