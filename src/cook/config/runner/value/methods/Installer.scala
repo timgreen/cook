@@ -12,6 +12,7 @@ object Installer {
     ValueMethod.listMethodBuilders("join") = JoinBuilder
     ValueMethod.listMethodBuilders("mkString") = JoinBuilder
     ValueMethod.listMethodBuilders("get") = GetBuilder
+    ValueMethod.listMethodBuilders("toSet") = ToSetBuilder
 
     // string
     ValueMethod.stringMethodBuilders("contains") = ContainsBuilder
