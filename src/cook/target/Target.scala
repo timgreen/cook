@@ -106,7 +106,12 @@ class Target(
   private def checkErrorWhenNoOutput(): Boolean = {
     if (!errorWhenNoOutput) return false
     val l = outputDir.list
-    return (l == null) || l.isEmpty
+    return if ((l == null) || l.isEmpty) {
+      println("Error: target '%s' has no output".format(targetName))
+      true
+    } else {
+      false
+    }
   }
 
   def outputDir = FileUtil.getBuildOutputDir(path, name)
@@ -169,7 +174,6 @@ class Target(
     )
 
     writeCmdsToShellFile((envCmds ++ cmds).mkString("\n"), shFile)
-
 
     val pb = new ProcessBuilder(("/bin/bash" :: shFile.getAbsolutePath :: args.toList) : _*)
     pb.directory(outputDir)

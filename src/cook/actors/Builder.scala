@@ -31,20 +31,19 @@ class BuildActor(val targetName: String, controlActor: ControlActor) extends Act
       target.build
     } catch {
       case e: Exception =>
+      println("Error when build target '%s'".format(targetName))
       e.printStackTrace
       2
+    }
+
+    if (exitValue != 0) {
+      System.exit(exitValue)
     }
 
     if (target.isCached) {
       controlActor ! Cached(targetName)
     } else {
       controlActor ! Built(targetName)
-    }
-
-    if (exitValue != 0) {
-      exit(ExitValue(exitValue))
-    } else {
-      exit
     }
   }
 }
@@ -55,7 +54,7 @@ class ControlActor(analyst: Analyst) extends Actor {
   val finish = lock.newCondition
 
   def act {
-    trapExit = true
+    trapExit = false
     CookConsole.mark('buildStatus)
 
     receive {
