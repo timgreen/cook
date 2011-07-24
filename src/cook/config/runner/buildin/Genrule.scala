@@ -36,6 +36,7 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
     val inputs = argsValue("inputs").toListFileLabel
     val deps = argsValue("deps").toListTargetLabel
     val exeCmds = argsValue("exeCmds").toListStr
+    val errorWhenNoOutput = argsValue("errorWhenNoOutput").toBool
 
     def getFunctionValue(key: String): FunctionValue = {
       val v = argsValue(key)
@@ -72,8 +73,19 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
     checkFunction(postBuild, "postBuild", targetName)
     checkFunction(preRun, "preRun", targetName)
 
-    TargetManager.push(new Target(
-        path, name, outputType, cmds, inputs, deps, exeCmds, preBuild, postBuild, preRun))
+    val t = new Target(
+        path,
+        name,
+        outputType,
+        cmds,
+        inputs,
+        deps,
+        exeCmds,
+        preBuild,
+        postBuild,
+        preRun,
+        errorWhenNoOutput)
+    TargetManager.push(t)
 
     VoidValue("genrule(" + targetName + ")")
   }
@@ -102,15 +114,17 @@ object GenruleArgsDef {
         "exeCmds",
         "preBuild",
         "postBuild",
+        "errorWhenNoOutput",
         "preRun")
     val defaultValues = new HashMap[String, Value]
-    defaultValues.put("cmds",      ListValue("cmds"))
-    defaultValues.put("inputs",    ListValue("inputs"))
-    defaultValues.put("deps",      ListValue("deps"))
-    defaultValues.put("exeCmds",   ListValue("exeCmds"))
-    defaultValues.put("preBuild",  NullValue("preBuild"))
-    defaultValues.put("postBuild", NullValue("postBuild"))
-    defaultValues.put("preRun",    NullValue("preRun"))
+    defaultValues.put("cmds",              ListValue("cmds"))
+    defaultValues.put("inputs",            ListValue("inputs"))
+    defaultValues.put("deps",              ListValue("deps"))
+    defaultValues.put("exeCmds",           ListValue("exeCmds"))
+    defaultValues.put("preBuild",          NullValue("preBuild"))
+    defaultValues.put("postBuild",         NullValue("postBuild"))
+    defaultValues.put("errorWhenNoOutput", BooleanValue("errorWhenNoOutput", true))
+    defaultValues.put("preRun",            NullValue("preRun"))
 
     new ArgsDef(names, defaultValues)
   }

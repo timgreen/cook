@@ -144,6 +144,8 @@ class ControlActor(analyst: Analyst) extends Actor {
       CookConsole.println(analyst.building.mkString(", "))
       CookConsole.reset
     }
+
+    CookConsole.println("")
   }
 }
 

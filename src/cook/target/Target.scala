@@ -28,7 +28,8 @@ class Target(
     val exeCmds: Seq[String],
     val preBuild: FunctionValue,
     val postBuild: FunctionValue,
-    val preRun: FunctionValue) {
+    val preRun: FunctionValue,
+    val errorWhenNoOutput: Boolean) {
 
   var values = new HashMap[String, Value]
 
@@ -84,9 +85,12 @@ class Target(
     if (!isCached) {
       cleanBeforeBuild
       val exitValue = runCmds(c, buildLogFile, buildShFile, false)
-      if (exitValue != 0) {
-        return exitValue
+
+      if (exitValue != 0 || checkErrorWhenNoOutput) {
+        Source.fromFile(buildLogFile).getLines foreach println
+        return 1
       }
+
       saveCacheMeta
     }
 
@@ -99,9 +103,13 @@ class Target(
     0
   }
 
-  def outputDir(): File = {
-    FileUtil.getBuildOutputDir(path, name)
+  private def checkErrorWhenNoOutput(): Boolean = {
+    if (!errorWhenNoOutput) return false
+    val l = outputDir.list
+    return (l == null) || l.isEmpty
   }
+
+  def outputDir = FileUtil.getBuildOutputDir(path, name)
 
   lazy val allDepOutputDirs: HashSet[String] = {
     val set = new HashSet[String]
@@ -186,13 +194,7 @@ class Target(
       log.close
     }
 
-    if (p.waitFor != 0) {
-      if (!outputToStd) {
-        Source.fromFile(logFile).getLines foreach println
-      }
-    }
-
-    p.exitValue
+    p.waitFor
   }
 
   private def writeCmdsToShellFile(cmds: String, shFile: File) {
