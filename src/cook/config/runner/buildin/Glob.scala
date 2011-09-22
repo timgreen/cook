@@ -35,8 +35,16 @@ object Glob extends BuildinFunction("glob", GlobArgsDef()) {
       FileUtil(baseDir.toStr)
     }
 
+    var e = argsValue("excludes")
+    if (e.typeName != "List") {
+      e = ListValue(e.name, Seq(e))
+    }
+    val excludes = e.toListStr("Buildin function \"glob\" only aceppt string or string list " +
+      "for 'excludes'")
+
     val dirScanner = new DirectoryScanner
     dirScanner.setIncludes(filters.toArray)
+    dirScanner.setExcludes(excludes.toArray)
     dirScanner.setBasedir(baseDirFile)
     dirScanner.scan
 
@@ -51,9 +59,10 @@ object Glob extends BuildinFunction("glob", GlobArgsDef()) {
 object GlobArgsDef {
 
   def apply() = {
-    val names = Seq[String]("filters", "baseDir")
+    val names = Seq[String]("filters", "baseDir", "excludes")
     val defaultValues = new HashMap[String, Value]
     defaultValues("baseDir") = NullValue("baseDir")
+    defaultValues("excludes") = ListValue("excludes")
     new ArgsDef(names, defaultValues)
   }
 }
