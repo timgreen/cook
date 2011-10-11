@@ -4,19 +4,12 @@ scala_lib(
 )
 
 scala_lib(
-  name = "exception",
-  srcs = [ "EvalException.scala" ],
-  deps = [ "//src/cook/util:util" ],
-)
-
-scala_lib(
   name = "evaluators",
   srcs = [
     "Evaluators.scala",
   ],
   deps = [
     ":configtype",
-    ":exception",
     "//src/cook/config/parser:parser",
     "//src/cook/config/runner/value:value",
     # cp

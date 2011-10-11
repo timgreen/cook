@@ -16,6 +16,7 @@ import org.apache.tools.ant.DirectoryScanner
 import cook.app.console.CookConsole
 import cook.config.runner._
 import cook.config.runner.value._
+import cook.error.ErrorMessageHandler
 import cook.util._
 
 class Target(
@@ -29,7 +30,7 @@ class Target(
     val preBuild: FunctionValue,
     val postBuild: FunctionValue,
     val preRun: FunctionValue,
-    val errorWhenNoOutput: Boolean) {
+    val errorWhenNoOutput: Boolean) extends ErrorMessageHandler {
 
   var values = new HashMap[String, Value]
 
@@ -44,7 +45,7 @@ class Target(
 
   def execute(args: Array[String]): Int = {
     if (!isExecutable) {
-      throw new TargetException("Target \"%s\" is not executeable", targetName)
+      reportError("Target \"%s\" is not executeable", targetName)
     }
 
     val c = if (exeCmds.nonEmpty) {
@@ -71,9 +72,7 @@ class Target(
     val currentTimestamp = new Date().getTime
     inputFiles = prepareInputFiles(inputs)
     if (isBuilded) {
-      throw new TargetException(
-          "One target should never been build twice: target \"%s\"",
-          targetName)
+      reportError("One target should never been build twice: target \"%s\"", targetName)
     }
 
     val c = if (cmds.nonEmpty) {
@@ -144,8 +143,7 @@ class Target(
 
   private def mkOutputDir() {
     if (!outputDir.isDirectory && !outputDir.mkdirs) {
-      throw new TargetException(
-          "Can not create output dir for target \"%s\": %s", name, outputDir.getPath)
+      reportError("Can not create output dir for target \"%s\": %s", name, outputDir.getPath)
     }
   }
 
@@ -161,7 +159,7 @@ class Target(
   private def checkFiles(files: Seq[File]) {
     for (f <- files) {
       if (!f.exists) {
-        throw new TargetException("Target \"%s\" required input file \"%s\" not exists", targetName, f.getPath)
+        reportError("Target \"%s\" required input file \"%s\" not exists", targetName, f.getPath)
       }
     }
   }

@@ -9,19 +9,21 @@ import scala.collection.mutable.HashSet
 import scala.io.Source
 import scala.util.control._
 
+import cook.error.ErrorMessageHandler
+
 abstract class Line
 case class Section(name: String) extends Line
 case class SetValue(item: String) extends Line
 case class MapValue(item: String, timestamp: Long) extends Line
 case class EndOfFile() extends Line
 
-class Cache(metaFile: File) {
+class Cache(metaFile: File) extends ErrorMessageHandler {
 
   def read() {
     val lineIt = Source.fromFile(metaFile).getLines
 
     if (readline(lineIt) != Section("deps")) {
-      throw new TargetException("Cache meta file format error, except section header deps")
+      reportError("Cache meta file format error, except section header deps")
     }
 
     val mybreaks = new Breaks
@@ -82,6 +84,6 @@ class Cache(metaFile: File) {
   }
 
   def invalid = {
-    throw new TargetException("Invalid cache meta file \"%s\"", metaFile.getPath)
+    reportError("Invalid cache meta file \"%s\"\n\nplease run cook clean to fix", metaFile.getPath)
   }
 }

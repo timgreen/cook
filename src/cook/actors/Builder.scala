@@ -12,6 +12,7 @@ import scala.collection.mutable.Queue
 import cook.app.config.Config
 import cook.app.console.CookConsole
 import cook.config.runner._
+import cook.error.CookException
 import cook.target._
 import cook.util._
 
@@ -78,9 +79,9 @@ class ControlActor(analyst: Analyst) extends Actor {
               case ExitValue(e) =>
                 hasError = true
                 exitCode = e
-              case e: EvalException =>
+              case e: CookException =>
                 hasError = true
-                e.printStackTrace
+                print(e)
                 exitCode = 1
               case _ =>
 

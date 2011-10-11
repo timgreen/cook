@@ -1,6 +1,6 @@
 package cook.config.runner.value
 
-import cook.config.runner.EvalException
+import cook.error.ErrorMessageHandler
 
 abstract class ValueOp(val op: String) {
 
@@ -9,7 +9,7 @@ abstract class ValueOp(val op: String) {
   protected def rn(a: Value, b: Value) = "(%s %s %s)".format(a.name, op, b.name)
 }
 
-object ValueOp {
+object ValueOp extends ErrorMessageHandler {
 
 
   def eval(a: Value, op: String, b: Value): Value = ops.get(op) match {
@@ -38,7 +38,7 @@ object ValueOp {
   )
 
   def error(a: Value, op: String, b: Value): Value = {
-    throw new EvalException("Unsupportted operation (%s %s %s)", a.typeName, op, b.typeName)
+    reportError("Unsupportted operation (%s %s %s)", a.typeName, op, b.typeName)
   }
 }
 

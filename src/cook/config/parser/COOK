@@ -39,6 +39,6 @@ scala_lib(
   deps = [
     ":parser",
     "runtime:runtime",
-    "//src/cook/util:util",
+    "//src/cook/error:error",
   ],
 )

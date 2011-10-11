@@ -2,12 +2,13 @@ package cook.actors
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
-import scala.collection.mutable.Stack
-import scala.collection.immutable.VectorBuilder
 
 import cook.app.console.CookConsole
+import cook.error.ErrorMessageHandler
 import cook.target._
 import cook.util._
+import scala.collection.immutable.VectorBuilder
+import scala.collection.mutable.Stack
 
 class Analyst {
 
@@ -97,7 +98,7 @@ class Analyst {
   val readyToBuild = new Stack[String]
 }
 
-object Analyst {
+object Analyst extends ErrorMessageHandler {
 
   def apply(targetLabels: TargetLabel*): Analyst = {
 
@@ -136,10 +137,8 @@ object Analyst {
       analyst.addDeps(dep.targetName, target.targetName)
 
       if (targetsProccessingSet.contains(dep.targetName)) {
-        // TODO(timgreen): better error message
         targetsProccessing.push(dep.targetName)
-        throw new CookBaseException(
-            "Found dependence circle: %s", targetsProccessing.mkString(" -> "))
+        reportError("Found dependence circle: %s", targetsProccessing.mkString(" -> "))
       }
       if (!targetsProccessed.contains(dep.targetName)) {
         analyzeDeps(dep, targetsProccessing, targetsProccessingSet, targetsProccessed, analyst)

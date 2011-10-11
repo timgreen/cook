@@ -4,9 +4,10 @@ import scala.collection.mutable.HashMap
 
 import cook.config.runner.ConfigType
 import cook.config.runner.CookRunner
+import cook.error.ErrorMessageHandler
 import cook.util.TargetLabel
 
-object TargetManager {
+object TargetManager extends ErrorMessageHandler {
 
   val targets = new HashMap[String, Target]
 
@@ -27,8 +28,7 @@ object TargetManager {
     targets.get(targetLabel.targetName) match {
       case Some(target) => target
       case None => {
-        throw new TargetException(
-            "Target \"%s\" is not defined".format(targetLabel.targetName))
+        reportError("Target \"%s\" is not defined".format(targetLabel.targetName))
       }
     }
   }

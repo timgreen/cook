@@ -5,7 +5,7 @@ import java.io.File
 import cook.config.parser.runtime.SourceFile
 import cook.config.parser.runtime.SourceString
 import cook.config.parser.unit._
-import cook.util._
+import cook.error.CookException
 
 object CookParser {
 
@@ -21,4 +21,4 @@ object CookParser {
   }
 }
 
-class ParserErrorException(error: String, args: Any*) extends CookBaseException(error, args: _*)
+class ParserErrorException(error: String, args: Any*) extends CookException(error, args: _*)

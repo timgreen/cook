@@ -8,6 +8,7 @@ import scala.collection.mutable.HashSet
 import cook.config.parser.unit._
 import cook.config.runner.ConfigType.{ ConfigType, COOK, cooki, COOK_ROOT }
 import cook.config.runner.value._
+import cook.error.ErrorMessageHandler
 
 case class CookReturn(value: Value) extends Throwable
 
@@ -23,7 +24,7 @@ object CookConfigEvaluator {
 
 // Statement
 
-object StatementEvaluator {
+object StatementEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, statement: Statement): Value =
       statement match {
@@ -37,16 +38,16 @@ object StatementEvaluator {
           ExprStatementEvaluator.eval(configType, path, scope, exprStatement)
         case returnStatement: ReturnStatement =>
           ReturnStatementEvaluator.eval(configType, path, scope, returnStatement)
-        case _ => throw new EvalException(
-            "this should never happen: unknown subclass of Statement: " + statement)
+        case _ =>
+          debugError("this should never happen: unknown subclass of Statement: %s", statement)
       }
 }
 
-object FuncDefEvaluator {
+object FuncDefEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, funcDef: FuncDef): Value = {
     if (scope.defineInCurrent(funcDef.name)) {
-      throw new EvalException("Function \"%s\" already defined in current scope", funcDef.name)
+      reportError("Function \"%s\" already defined in current scope", funcDef.name)
     }
     if (scope.definedInParent(funcDef.name)) {
       // TODO(timgreen): log warning
@@ -61,7 +62,7 @@ object FuncDefEvaluator {
   }
 }
 
-object AssginmentEvaluator {
+object AssginmentEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, assginment: Assginment): Value = {
     if (scope.definedInParent(assginment.id)) {
@@ -72,7 +73,7 @@ object AssginmentEvaluator {
     val value = ExprEvaluator.eval(configType, path, scope, assginment.expr)
     value.name = assginment.id
     if (value.isVoid) {
-      throw new EvalException("Can not assign void to %s", assginment.id)
+      reportError("Can not assign void to %s", assginment.id)
     }
 
     scope(assginment.id) = value
@@ -151,7 +152,7 @@ object ExprEvaluator {
   }
 }
 
-object ExprItemEvaluator {
+object ExprItemEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, exprItem: ExprItem): Value =
       exprItem match {
@@ -164,7 +165,8 @@ object ExprItemEvaluator {
         case exprItemWithUnary: ExprItemWithUnary =>
           val item = ExprItemEvaluator.eval(configType, path, scope, exprItemWithUnary.exprItem)
           item.unaryOp(exprItemWithUnary.unaryOp)
-        case _ => throw new EvalException("this should never happen: unknown subclass of ExprItem")
+        case _ =>
+          debugError("this should never happen: unknown subclass of ExprItem")
       }
 }
 
@@ -194,7 +196,7 @@ object ExprItemWithUnaryEvaluator {
   }
 }
 
-object SuffixEvaluator {
+object SuffixEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, v: Value, suffix: Suffix): Value =
       suffix match {
@@ -202,7 +204,7 @@ object SuffixEvaluator {
         case callSuffix: CallSuffix =>
           CallSuffixEvaluator.eval(configType, path, scope, v, callSuffix)
         case _ =>
-          throw new EvalException("this should never happen: unknown subclass of Suffix")
+          debugError("this should never happen: unknown subclass of Suffix")
       }
 }
 
@@ -219,7 +221,7 @@ object IdSuffixEvaluator {
   }
 }
 
-object CallSuffixEvaluator {
+object CallSuffixEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,
@@ -234,8 +236,7 @@ object CallSuffixEvaluator {
     // 4. return result
 
     if (!v.isInstanceOf[FunctionValue]) {
-      throw new EvalException(
-          "Value <%s>:%s is not function, can not be called", v.typeName, v.name)
+      reportError("Value <%s>:%s is not function, can not be called", v.typeName, v.name)
     }
     val functionValue = v.asInstanceOf[FunctionValue]
     val args = ArgsValueEvaluator.eval(
@@ -247,7 +248,7 @@ object CallSuffixEvaluator {
 
 // SimpleExprItem
 
-object SimpleExprItemEvaluator {
+object SimpleExprItemEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,
@@ -265,18 +266,18 @@ object SimpleExprItemEvaluator {
         ListComprehensionsEvaluator.eval(configType, path, scope, listComprehensions)
       case expr: Expr => ExprEvaluator.eval(configType, path, scope, expr)
       case map: Map => MapEvaluator.eval(configType, path, scope, map)
-      case _ => throw new EvalException("this should never happen: unknown class of SimpleExprItem")
+      case _ => debugError("this should never happen: unknown class of SimpleExprItem")
     }
   }
 }
 
-object IdentifierEvaluator {
+object IdentifierEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, identifier: Identifier): Value =
-      scope.get(identifier.id) match {
-        case Some(value) => value
-        case None => throw new EvalException("var \"%s\" is not defined", identifier.id)
-      }
+    scope.get(identifier.id) match {
+      case Some(value) => value
+      case None => reportError("var \"%s\" is not defined", identifier.id)
+    }
 }
 
 object LambdaDefEvaluator {
@@ -295,7 +296,7 @@ object ExprListEvaluator {
       })
 }
 
-object ListComprehensionsEvaluator {
+object ListComprehensionsEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,
@@ -306,7 +307,7 @@ object ListComprehensionsEvaluator {
     val list: Seq[Value] = scope.get(listComprehensions.list) match {
       case Some(ListValue(_, list)) => list
       // TODO(timgreen): name
-      case _ => throw new EvalException("Need list value in ListComprehensions")
+      case _ => reportError("Need list value in ListComprehensions")
     }
 
     val it = listComprehensions.it
@@ -329,13 +330,13 @@ object ListComprehensionsEvaluator {
   }
 }
 
-object MapEvaluator {
+object MapEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, map: Map): Value = {
     val mapValue = new HashMap[String, Value]
     for (keyValue <- map.keyValues) {
       if (mapValue.contains(keyValue.key)) {
-        throw new EvalException("Found duplicated key \"%s\" in map value", keyValue.key)
+        reportError("Found duplicated key \"%s\" in map value", keyValue.key)
       }
       mapValue(keyValue.key) = ExprEvaluator.eval(configType, path, scope, keyValue.expr)
     }
@@ -345,7 +346,7 @@ object MapEvaluator {
 
 // Arg
 
-object ArgsEvaluator {
+object ArgsEvaluator extends ErrorMessageHandler {
 
   def eval(configType: ConfigType, path: String, scope: Scope, argDefs: Seq[ArgDef]): ArgsDef = {
     checkArgs(argDefs)
@@ -356,7 +357,7 @@ object ArgsEvaluator {
         case ArgDefNameValue(name, expr) =>
           defaultValues(name) = ExprEvaluator.eval(configType, path, scope, expr)
           name
-        case _ => throw new EvalException("this should never happen: unknown class of ArgDef")
+        case _ => debugError("this should never happen: unknown class of ArgDef")
       }
     }
 
@@ -364,15 +365,7 @@ object ArgsEvaluator {
   }
 
   private def checkArgs(args: Seq[ArgDef]) {
-    try {
-      checkArgsSeq(args)
-    } catch {
-      case e: ArgListException => throw new EvalException(
-        "Default value should only appear at tail of arg def list: %s", args.map( _ match {
-            case ArgDefName(name) => name
-            case ArgDefNameValue(name, expr) => name + "=<default value>"
-        }).mkString("[", ", ", "]"))
-    }
+    checkArgsSeq(args)
   }
 
   @tailrec
@@ -381,15 +374,18 @@ object ArgsEvaluator {
       case Some(ArgDefName(_)) => checkArgsSeq(args.tail)
       case _ =>
         if (!args.forall { _.isInstanceOf[ArgDefNameValue] }) {
-          throw new ArgListException
+          reportError(
+            "Default value should only appear at tail of arg def list: %s", args.map( _ match {
+              case ArgDefName(name) => name
+              case ArgDefNameValue(name, expr) => name + "=<default value>"
+            }).mkString("[", ", ", "]")
+          )
         }
     }
   }
-
-  class ArgListException extends Throwable
 }
 
-object ArgsValueEvaluator {
+object ArgsValueEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,
@@ -416,10 +412,10 @@ object ArgsValueEvaluator {
         argsValue(value.name) = value
       case ArgNamedValue(name, expr) => {
         if (names.contains(name)) {
-          throw new EvalException(
-              "dulpicated name \"%s\", in named-args func call \"%s\"",
-              name,
-              funcName)
+          reportError(
+            "dulpicated name \"%s\", in named-args func call \"%s\"",
+            name,
+            funcName)
         }
         names += name
         val value = ExprEvaluator.eval(configType, path, scope, expr)
@@ -430,18 +426,18 @@ object ArgsValueEvaluator {
 
     val argsUnknown = names -- argsDef.names
     if (argsUnknown.nonEmpty) {
-      throw new EvalException(
-          "Found unknown arg(s) in func call \"%s\": %s",
-          funcName,
-          argsUnknown.mkString(", "))
+      reportError(
+        "Found unknown arg(s) in func call \"%s\": %s",
+        funcName,
+        argsUnknown.mkString(", "))
     }
 
     val argsMissing = argsDef.names.toSet -- argsValue.values.keys
     if (argsMissing.nonEmpty) {
-      throw new EvalException(
-          "Miss required arg(s) in func call \"%s\": %s",
-          funcName,
-          argsMissing.mkString(", "))
+      reportError(
+        "Miss required arg(s) in func call \"%s\": %s",
+        funcName,
+        argsMissing.mkString(", "))
     }
 
     argsValue
@@ -449,18 +445,10 @@ object ArgsValueEvaluator {
 
   private def checkArgs(argsDef: ArgsDef, args: Seq[Arg], funcName: String) {
     if (args.length > argsDef.names.length) {
-      throw new EvalException("Wrong arg number of function call \"%s\"", funcName)
+      reportError("Wrong arg number of function call \"%s\"", funcName)
     }
 
-    try {
-      checkArgsSeq(args)
-    } catch {
-      case e: ArgListException => throw new EvalException(
-        "Named value should only appear at tail of arg list: %s", args.map ( _ match {
-            case ArgValue(_) => "<value>"
-            case ArgNamedValue(name, _) => name + "=<value>"
-          }).mkString("[", ", ", "]"))
-    }
+    checkArgsSeq(args)
   }
 
   @tailrec
@@ -469,17 +457,20 @@ object ArgsValueEvaluator {
       case Some(ArgValue(_)) => checkArgsSeq(args.tail)
       case _ =>
         if (!args.forall { _.isInstanceOf[ArgNamedValue] }) {
-          throw new ArgListException
+          reportError(
+            "Named value should only appear at tail of arg list: %s", args.map ( _ match {
+              case ArgValue(_) => "<value>"
+              case ArgNamedValue(name, _) => name + "=<value>"
+            }).mkString("[", ", ", "]")
+          )
         }
     }
   }
-
-  class ArgListException extends Throwable
 }
 
 // Others
 
-object FunctionValueCallEvaluator {
+object FunctionValueCallEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,
@@ -496,11 +487,11 @@ object FunctionValueCallEvaluator {
         buildinFunction.eval(path, argsValue)
       case _ =>
         val result = try {
-          BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
+          wrapperError("Got error when eval function \"%s\"", functionValue.name) {
+            BlockStatementsEvaluator.eval(configType, path, argsValue, functionValue.statements)
+          }
         } catch {
           case CookReturn(v) => v
-          case e: EvalException =>
-            throw new EvalException(e, "Got error when eval function \"%s\"", functionValue.name)
         }
         result.name = functionValue.name + "()"
         result
@@ -508,7 +499,7 @@ object FunctionValueCallEvaluator {
   }
 }
 
-object BlockStatementsEvaluator {
+object BlockStatementsEvaluator extends ErrorMessageHandler {
 
   def eval(
       configType: ConfigType,

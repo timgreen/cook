@@ -3,10 +3,10 @@ package cook.config.runner.value
 import scala.collection.mutable.HashMap
 
 import cook.config.parser.unit._
-import cook.config.runner.EvalException
+import cook.error.ErrorMessageHandler
 import cook.util._
 
-abstract class Value(var name: String, val typeName: String) {
+abstract class Value(var name: String, val typeName: String) extends ErrorMessageHandler {
 
   protected def attrName(id: String) = name + "." + id
   protected def attrOrMethod(
@@ -22,7 +22,7 @@ abstract class Value(var name: String, val typeName: String) {
   }
   def attr(id: String): Value
   def unaryOp(op: String): Value = {
-    throw new EvalException("Unsupportted UnaryOperation \"%s\" on <%s>: %s", op, typeName, name)
+    reportError("Unsupportted UnaryOperation \"%s\" on <%s>: %s", op, typeName, name)
   }
 
   def isTrue = true
@@ -34,55 +34,55 @@ abstract class Value(var name: String, val typeName: String) {
   def toChar: Char = toChar("<%s>:%s should be CharValue", typeName, name)
   def toChar(errorMessage: String, args: Any*) = this match {
     case CharValue(_, c) => c
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toStr: String = toStr("<%s>:%s should be StringValue", typeName, name)
   def toStr(errorMessage: String, args: Any*) = this match {
     case StringValue(_, str) => str
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toInt: Int = toInt("<%s>:%s should be NumberValue", typeName, name)
   def toInt(errorMessage: String, args: Any*) = this match {
     case NumberValue(_, int) => int
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toBool: Boolean = toBool("<%s>:%s should be BooleanValue", typeName, name)
   def toBool(errorMessage: String, args: Any*) = this match {
     case BooleanValue(_, bool) => bool
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toMap: HashMap[String, Value] = toMap("<%s>:%s should be MapValue", typeName, name)
   def toMap(errorMessage: String, args: Any*) = this match {
     case MapValue(_, map) => map
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toTargetLabel: TargetLabel = toTargetLabel("<%s>:%s should be TargetLabel", typeName, name)
   def toTargetLabel(errorMessage: String, args: Any*) = this match {
     case TargetLabelValue(_, targetLabel) => targetLabel
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toFileLabel: FileLabel = toFileLabel("<%s>:%s should be FileLabel", typeName, name)
   def toFileLabel(errorMessage: String, args: Any*) = this match {
     case FileLabelValue(_, fileLabel) => fileLabel
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toListValue(errorMessage: String, args: Any*): Seq[Value] = this match {
     case ListValue(_, list) => list
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toFuntionValue: FunctionValue =
       toFuntionValue("<%s>:%s should be FunctionValue", typeName, name)
   def toFuntionValue(errorMessage: String, args: Any*) = this match {
     case functionValue: FunctionValue => functionValue
-    case _ => throw new EvalException(errorMessage, args: _*)
+    case _ => reportError(errorMessage, args: _*)
   }
 
   def toListStr: Seq[String] = toListStr("<%s>:%s should be List StringValue", typeName, name)
@@ -119,7 +119,7 @@ case class VoidValue(n: String) extends Value(n, "Void") {
   }
   override def attr(id: String): Value = id match {
     case "isVoid" => BooleanValue(attrName(id), true)
-    case _ => throw new EvalException("Error on access attr \"%s\" on VoidValue %s", id, name)
+    case _ => reportError("Error on access attr \"%s\" on VoidValue %s", id, name)
 
   }
 }
@@ -131,7 +131,7 @@ case class NullValue(n: String) extends Value(n, "Null") {
   override def get(): Any = null
   override def attr(id: String): Value = id match {
     case "isNull" => BooleanValue(attrName(id), true)
-    case _ => throw new EvalException("Error on access attr \"%s\" on NullValue %s", id, name)
+    case _ => reportError("Error on access attr \"%s\" on NullValue %s", id, name)
   }
 }
 

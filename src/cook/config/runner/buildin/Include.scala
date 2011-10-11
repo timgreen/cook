@@ -6,7 +6,6 @@ import java.io.File
 
 import cook.config.runner.ConfigType
 import cook.config.runner.CookRunner
-import cook.config.runner.EvalException
 import cook.config.runner.value._
 import cook.util.FileUtil
 

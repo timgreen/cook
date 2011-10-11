@@ -4,8 +4,8 @@ import scala.collection.mutable.HashMap
 
 import java.io.File
 
-import cook.config.runner.EvalException
 import cook.config.runner.value._
+import cook.error.ErrorMessageHandler
 import cook.util.{Label => UtilLabel}
 
 /**
@@ -18,7 +18,7 @@ import cook.util.{Label => UtilLabel}
  * labels("//lib/ant.jar")
  * labels(["//lib/ant.jar", ":target", "File.java"])
  */
-object Labels extends BuildinFunction("labels", LabelsArgsDef()) {
+object Labels extends BuildinFunction("labels", LabelsArgsDef()) with ErrorMessageHandler {
 
   override def eval(path: String, argsValue: Scope): Value = {
     var l = argsValue("labels")
@@ -30,7 +30,8 @@ object Labels extends BuildinFunction("labels", LabelsArgsDef()) {
     val labels = l.toListValue(error).map( _ match {
       case StringValue(_, str) => LabelValue("labels()", UtilLabel(path, str))
       case labelValue: LabelValue => labelValue
-      case _ => throw new EvalException(error)
+      case _ =>
+        reportError(error)
     })
 
 

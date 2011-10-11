@@ -3,7 +3,6 @@ scala_lib(
   srcs = glob("*.scala"),
   deps = [
       "//src/cook/config/parser:cookParser",
-      "//src/cook/config/runner:exception",
       "//src/cook/util:util",
   ]
 )

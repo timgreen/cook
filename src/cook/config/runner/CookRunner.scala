@@ -7,9 +7,10 @@ import scala.collection.mutable.HashMap
 import cook.config.parser._
 import cook.config.parser.unit._
 import cook.config.runner.value.Scope
+import cook.error.ErrorMessageHandler
 import cook.util.FileUtil
 
-object CookRunner {
+object CookRunner extends ErrorMessageHandler {
 
   import ConfigType._
 
@@ -23,19 +24,13 @@ object CookRunner {
     }
 
     if (!configFile.exists) {
-      throw new EvalException("Cook Config file \"%s\" not found", configFile.getPath)
+      reportError("Cook Config file \"%s\" not found", configFile.getPath)
     }
 
     val scope = Scope()
     val config = CookParser.parse(configFile)
-    try {
+    wrapperError("Error when eval Cook config file: \"%s\"", configFile.getPath) {
       CookConfigEvaluator.eval(configType, FileUtil.relativeDirToRoot(configFile), scope, config)
-    } catch {
-      case e: EvalException =>
-        throw new EvalException(
-            "Error when eval Cook config file: \"%s\":\n%s",
-            configFile.getPath,
-            e.getMessage)
     }
 
     configToScopeMap.put(configFile.getPath, scope)

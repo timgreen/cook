@@ -2,8 +2,8 @@ package cook.config.runner.buildin
 
 import scala.collection.mutable.HashMap
 
-import cook.config.runner.EvalException
 import cook.config.runner.value._
+import cook.error.ErrorMessageHandler
 import cook.util._
 
 /**
@@ -13,11 +13,11 @@ import cook.util._
  *
  * error("error message")
  */
-object Error extends BuildinFunction("error", ErrorArgsDef()) {
+object Error extends BuildinFunction("error", ErrorArgsDef()) with ErrorMessageHandler {
 
   override def eval(path: String, argsValue: Scope): Value = {
     val message = argsValue("message").toStr
-    throw new EvalException(message)
+    reportError(message)
   }
 }
 

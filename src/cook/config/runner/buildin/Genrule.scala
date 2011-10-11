@@ -4,8 +4,8 @@ import scala.collection.mutable.HashMap
 
 import java.io.File
 
-import cook.config.runner.EvalException
 import cook.config.runner.value._
+import cook.error.ErrorMessageHandler
 import cook.target.Target
 import cook.target.TargetManager
 import cook.util.FileUtil
@@ -24,7 +24,7 @@ import cook.util.FileUtil
  *     cmds = [ "cat $INPUTS > b" ]
  * )
  */
-object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
+object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) with ErrorMessageHandler {
 
 
   override def eval(path: String, argsValue: Scope): Value = {
@@ -53,20 +53,20 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
     val targetName = "%s:%s".format(path, name)
 
     if ((preBuild != null) && cmds.nonEmpty) {
-      throw new EvalException(
-          "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
-          targetName)
+      reportError(
+        "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
+        targetName)
     }
     if ((preBuild == null) && cmds.isEmpty) {
-      throw new EvalException(
-          "Found error in genrule(%s), \"preBuild\" & \"cmds\" can not both be null",
-          targetName)
+      reportError(
+        "Found error in genrule(%s), \"preBuild\" & \"cmds\" can not both be null",
+        targetName)
     }
 
     if ((preRun != null) && exeCmds.nonEmpty) {
-      throw new EvalException(
-          "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
-          targetName)
+      reportError(
+        "Found error in genrule(%s), \"preBuild\" return value will override \"cmds\"",
+        targetName)
     }
 
     checkFunction(preBuild, "preBuild", targetName)
@@ -96,8 +96,8 @@ object Genrule extends BuildinFunction("genrule", GenruleArgsDef()) {
     }
 
     if (functionValue.argsDef.names.length != 1) {
-      throw new EvalException(
-          "Param \"%s\" for genrule(%s) should only take one arg: t: TargetLabel", name, targetName)
+      reportError(
+        "Param \"%s\" for genrule(%s) should only take one arg: t: TargetLabel", name, targetName)
     }
   }
 }

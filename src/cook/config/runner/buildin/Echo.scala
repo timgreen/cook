@@ -5,7 +5,6 @@ import scala.collection.mutable.HashMap
 import java.io.File
 
 import cook.app.console.CookConsole
-import cook.config.runner.EvalException
 import cook.config.runner.value._
 import cook.target.Target
 import cook.target.TargetManager

@@ -3,6 +3,8 @@ package cook.util
 import java.io.File
 import java.io.FileNotFoundException
 
+import cook.error.CookException
+
 abstract class Label {
   protected var hashObj: String = null
 
@@ -70,7 +72,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
       }
 
   if (targetName.indexOf(':') == -1) {
-    throw new CookBaseException("Target name must contain \":\", invalid name \"%s\"", targetName)
+    throw new CookException("Target name must contain \":\", invalid name \"%s\"", targetName)
   }
 
   val configFilename: String = {

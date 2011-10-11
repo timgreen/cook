@@ -8,6 +8,7 @@ import org.apache.commons.cli.PosixParser
 import cook.app.config.Config
 import cook.app.console.CookConsole
 import cook.app.subcommand._
+import cook.error.CookException
 import cook.util.FileUtil
 
 object Main {
@@ -34,13 +35,20 @@ object Main {
 
     SubCommand(subCommandName) match {
       case Some(subCommand) => {
-        val exitCode = subCommand.run(subCommandArgs)
-        System.exit(exitCode)
+        val exitCode = try {
+          subCommand.run(subCommandArgs)
+        } catch {
+          case e: CookException =>
+            // TODO(timgreen): stop all actor
+            println(e)
+            1
+        }
+        sys.exit(exitCode)
       }
       case None => {
         CookConsole.println("subcommand \"%s\" is not found", subCommandName)
         Help.help
-        System.exit(1)
+        sys.exit(1)
       }
     }
   }

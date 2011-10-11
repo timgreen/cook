@@ -1,0 +1,4 @@
+scala_lib(
+  name = "error",
+  srcs = glob("*.scala"),
+)

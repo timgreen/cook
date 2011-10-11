@@ -6,7 +6,6 @@ import java.io.File
 
 import org.apache.tools.ant.DirectoryScanner
 
-import cook.config.runner.EvalException
 import cook.config.runner.value._
 import cook.util._
 
