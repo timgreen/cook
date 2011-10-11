@@ -28,7 +28,10 @@ object TargetManager extends ErrorMessageHandler {
     targets.get(targetLabel.targetName) match {
       case Some(target) => target
       case None => {
-        reportError("Target \"%s\" is not defined".format(targetLabel.targetName))
+        reportError("Target \"%s\" is not defined\nIt should defined in COOK config: \"%s\"",
+          targetLabel.targetName,
+          targetLabel.config.getPath
+        )
       }
     }
   }

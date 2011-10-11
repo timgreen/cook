@@ -127,25 +127,26 @@ object Analyst extends ErrorMessageHandler {
       targetsProccessingSet: HashSet[String],
       targetsProccessed: HashSet[String],
       analyst: Analyst) {
+    wrapperError("Error when analyst target: \"%s\"", targetLabel.targetName) {
+      val target = TargetManager.getTarget(targetLabel)
+      targetsProccessing.push(target.targetName)
+      targetsProccessingSet += target.targetName
 
-    val target = TargetManager.getTarget(targetLabel)
-    targetsProccessing.push(target.targetName)
-    targetsProccessingSet += target.targetName
+      analyst.nodes += target.targetName
+      for (dep <- target.deps) {
+        analyst.addDeps(dep.targetName, target.targetName)
 
-    analyst.nodes += target.targetName
-    for (dep <- target.deps) {
-      analyst.addDeps(dep.targetName, target.targetName)
-
-      if (targetsProccessingSet.contains(dep.targetName)) {
-        targetsProccessing.push(dep.targetName)
-        reportError("Found dependence circle: %s", targetsProccessing.mkString(" -> "))
+        if (targetsProccessingSet.contains(dep.targetName)) {
+          targetsProccessing.push(dep.targetName)
+          reportError("Found dependence circle: %s", targetsProccessing.mkString(" -> "))
+        }
+        if (!targetsProccessed.contains(dep.targetName)) {
+          analyzeDeps(dep, targetsProccessing, targetsProccessingSet, targetsProccessed, analyst)
+        }
       }
-      if (!targetsProccessed.contains(dep.targetName)) {
-        analyzeDeps(dep, targetsProccessing, targetsProccessingSet, targetsProccessed, analyst)
-      }
+
+      targetsProccessingSet -= targetsProccessing.pop
+      targetsProccessed += target.targetName
     }
-
-    targetsProccessingSet -= targetsProccessing.pop
-    targetsProccessed += target.targetName
   }
 }

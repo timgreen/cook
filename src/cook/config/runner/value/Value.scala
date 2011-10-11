@@ -108,14 +108,14 @@ abstract class Value(var name: String, val typeName: String) extends ErrorMessag
   }
 }
 
-case class VoidValue(n: String) extends Value(n, "Void") {
+case class VoidValue(n: String) extends Value(n, "Void") with ErrorMessageHandler {
 
   override def isTrue: Boolean = {
-    throw new UnsupportedOperationException("<VoidValue>:%s can not be cast to bool".format(name))
+    reportError("<VoidValue>:%s can not be cast to bool", name)
   }
   override def isVoid = true
   override def get(): Any = {
-    throw new UnsupportedOperationException("VoidValue doesn't have wrapped data")
+    reportError("VoidValue doesn't have wrapped data")
   }
   override def attr(id: String): Value = id match {
     case "isVoid" => BooleanValue(attrName(id), true)
@@ -261,14 +261,15 @@ case class TargetLabelValue(n: String, var targetLabel: TargetLabel)
 }
 
 class ArgsDef(val names: Seq[String], val defaultValues: HashMap[String, Value])
-class FunctionValue(n: String,
-                    val path: String,
-                    val scope: Scope,
-                    val argsDef: ArgsDef,
-                    val statements: Seq[Statement]) extends Value(n, "Function") {
+class FunctionValue(
+  n: String,
+  val path: String,
+  val scope: Scope,
+  val argsDef: ArgsDef,
+  val statements: Seq[Statement]) extends Value(n, "Function") with ErrorMessageHandler {
 
   override def get(): Any = {
-    throw new UnsupportedOperationException("FunctionValue doesn't have wrapped data")
+    reportError("FunctionValue doesn't have wrapped data")
   }
   override def attr(id: String): Value = id match {
     case "isFunction" => BooleanValue(attrName(id), true)
