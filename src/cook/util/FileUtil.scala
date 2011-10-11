@@ -1,9 +1,10 @@
 package cook.util
 
 import java.io.File
-import java.io.FileNotFoundException
 
-object FileUtil {
+import cook.error.ErrorMessageHandler
+
+object FileUtil extends ErrorMessageHandler {
 
   val COOK_ROOT_FILENAME = "COOK_ROOT"
 
@@ -25,8 +26,7 @@ object FileUtil {
       dir = dir.getParentFile
     } while (dir != null)
 
-    throw new FileNotFoundException(
-        "Can not find Cook Build Root, from dir %s".format(currentDir.getPath))
+    reportError("Can not find Cook Build Root, from dir %s".format(currentDir.getPath))
   }
 
   def apply(filename: String): File = getFileFromRoot(filename)

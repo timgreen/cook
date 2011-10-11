@@ -1,9 +1,8 @@
 package cook.util
 
 import java.io.File
-import java.io.FileNotFoundException
 
-import cook.error.CookException
+import cook.error.ErrorMessageHandler
 
 abstract class Label {
   protected var hashObj: String = null
@@ -28,7 +27,7 @@ object Label {
   }
 }
 
-class FileLabel(pathFromRoot: String, name: String) extends Label {
+class FileLabel(pathFromRoot: String, name: String) extends Label with ErrorMessageHandler {
 
   /**
    * "//package_a/package_b/package_c/filename"
@@ -49,7 +48,7 @@ class FileLabel(pathFromRoot: String, name: String) extends Label {
   hashObj = "F" + file.getAbsolutePath
 }
 
-class TargetLabel(pathFromRoot: String, name: String) extends Label {
+class TargetLabel(pathFromRoot: String, name: String) extends Label with ErrorMessageHandler {
 
   /**
    * "//package_a/package_b/package_c:target_name"
@@ -72,7 +71,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
       }
 
   if (targetName.indexOf(':') == -1) {
-    throw new CookException("Target name must contain \":\", invalid name \"%s\"", targetName)
+    reportError("Target name must contain \":\", invalid name \"%s\"", targetName)
   }
 
   val configFilename: String = {
@@ -86,7 +85,7 @@ class TargetLabel(pathFromRoot: String, name: String) extends Label {
   val config = FileUtil(configFilename)
 
   if (!config.exists) {
-    throw new FileNotFoundException(config.getPath)
+    reportError("COOK config not found: %s", config.getPath)
   }
 
   def outputDir: File = {
