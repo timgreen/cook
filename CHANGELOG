@@ -1,3 +1,9 @@
+Cook v0.8
+  * Fix default value scope
+  * Support exclude in "glob"
+  * Support errorWhenNoOutput (it's a workaround for jvm exit code issue)
+  * Improve error report for runtime error.
+
 Cook v0.7
   * Add "run" command
   * Improve console output

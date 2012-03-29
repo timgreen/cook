@@ -401,7 +401,9 @@ object ArgsValueEvaluator extends ErrorMessageHandler {
     checkArgs(argsDef, args, funcName)
 
     val argsValue = Scope(scope)
-    argsValue.values ++= argsDef.defaultValues
+    argsDef.defaultValues.foreach { kv =>
+      argsValue.values(kv._1) = kv._2.clone
+    }
 
     val names = new HashSet[String]
 

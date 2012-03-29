@@ -29,6 +29,7 @@ abstract class Value(var name: String, val typeName: String) extends ErrorMessag
   def isVoid = false
   def isNull = false
   def get(): Any
+  override def clone: this.type = this
 
   // Type convert
   def toChar: Char = toChar("<%s>:%s should be CharValue", typeName, name)
@@ -196,6 +197,7 @@ case class ListValue(n: String, var list: Seq[Value]) extends Value(n, "List") {
   }
 
   override def get(): Any = list
+  override def clone: this.type = ListValue(n, list.map(_.clone)).asInstanceOf[this.type]
 }
 
 object ListValue {
@@ -218,6 +220,7 @@ case class MapValue(n: String, var map: HashMap[String, Value]) extends Value(n,
       }
     }
   }
+  override def clone: this.type = MapValue(n, map.map(kv => kv._1 -> kv._2.clone)).asInstanceOf[this.type]
 }
 
 abstract class LabelValue(n: String, typeName: String) extends Value(n, typeName)
