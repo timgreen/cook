@@ -1,17 +1,18 @@
-def java_lib(name, srcs, deps = []) {
+def java_lib(name, srcs = [], deps = []) {
   srcs = labels(srcs)
   srcTargets = [s for s in srcs if s.isTargetLabel]
   srcs = [s for s in srcs if s.isFileLabel]
 
   deps = labels(deps)
-  lib   = [d.file for d in deps if d.isFileLabel]
+  libs = [d for d in deps if d.isFileLabel]
+  lib  = [d.file for d in libs]
   depTargets = [d for d in deps if d.isTargetLabel]
   cp = []
 
   genrule(
     name = name,
     outputType = "java_class",
-    inputs = srcs,
+    inputs = srcs ++ libs,
     deps = depTargets ++ srcTargets,
     preBuild = lambda(t) {
       javafiles = srcs
@@ -34,18 +35,26 @@ def java_lib(name, srcs, deps = []) {
         }
       }
 
-      [
-        "SOURCES=(%s)" % [ javafiles.join(" ") ],
-        "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
-        "javac -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}"
-      ]
+      cp = cp.toSet()
+      lib = lib.toSet()
+
+      if (javafiles.nonEmpty) {
+        [
+          "SOURCES=(%s)" % [ javafiles.join(" ") ],
+          "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
+          "javac -encoding UTF-8 -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}"
+        ]
+      } else {
+        []
+      }
     },
     postBuild = lambda(t) {
       t.setValues({
-        cp: cp,
-        lib: lib
+        cp: cp.toSet(),
+        lib: lib.toSet()
       })
-    }
+    },
+    errorWhenNoOutput = srcs.nonEmpty,
   )
 }
 
