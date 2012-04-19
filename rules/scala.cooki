@@ -47,3 +47,34 @@ def scala_lib(name, srcs, deps = []) {
     }
   )
 }
+
+def scala_test(name, testClasses, deps, res) {
+
+  deps = labels(deps)
+  lib   = [d.file for d in deps if d.isFileLabel]
+  depTargets = [d for d in deps if d.isTargetLabel]
+  cp = [ label("//lib/scalatest-1.7.2.jar").file ]
+  mkdirForRes = ["mkdir -p " + r.get(1) for r in res]
+  cpRes = ["cp -r " + label(r.get(0)).file + " " + r.get(1) for r in res]
+
+  genrule(
+    name = name,
+    outputType = "",
+    deps = depTargets,
+    cmds = [ "" ],
+    preRun = lambda(t) {
+      for (d <- depTargets) {
+        cp += d.outputDir
+        cp ++= d.value("cp")
+        lib ++= d.value("lib")
+      }
+
+      [
+        "CP=%s" % [ (cp ++ lib).join(":") ],
+      ] ++ mkdirForRes ++ cpRes ++ [
+        "scala -Dfile.encoding=UTF8 -cp .:$CP org.scalatest.tools.Runner -p . -o -s %s" % [testClasses.join(" ")],
+      ]
+    },
+    errorWhenNoOutput = false,
+  )
+}
