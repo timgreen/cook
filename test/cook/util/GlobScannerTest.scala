@@ -23,6 +23,36 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     p.values should be (Array("a*", "**", "*b"))
   }
 
+  it should "normalize '**/??' as '**/*/??'" in {
+    val p = new Pattern("**/??")
+    p.values should be (Array("**", "*", "??"))
+  }
+
+  it should "? should not be simple" in {
+    val p = new Pattern("?")
+    p.isSimplyPattern should be (false)
+  }
+
+  it should "* should not be simple" in {
+    val p = new Pattern("*")
+    p.isSimplyPattern should be (false)
+  }
+
+  it should "'ab' should be simple" in {
+    val p = new Pattern("ab")
+    p.isSimplyPattern should be (true)
+  }
+
+  it should "? should match a" in {
+    val p = new Pattern("?")
+    p.matches("a") should be (true)
+  }
+
+  it should "? should not match ab" in {
+    val p = new Pattern("?")
+    p.matches("ab") should be (false)
+  }
+
   it should "?? should match ab" in {
     val p = new Pattern("??")
     p.matches("ab") should be (true)
@@ -34,12 +64,12 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
   }
 
   it should "a*a*a?? should match asdfasdfasd" in {
-    val p = new Pattern("a*a*a*??")
+    val p = new Pattern("a*a*a??")
     p.matches("asdfasdfasd") should be (true)
   }
 
   it should "a*a*a?? should not match asdfasdfasdf" in {
-    val p = new Pattern("a*a*a*??")
+    val p = new Pattern("a*a*a??")
     p.matches("asdfasdfasdf") should be (false)
   }
 
@@ -91,6 +121,15 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     comparePathSet(result, except)
   }
 
+  it should "'d/e/f' should match 'd/e/f'" in {
+    val root = (testRoot / "test_scan_all").toDirectory
+    val result = GlobScanner(root, Seq("d/e/f"))
+    val except = List(
+      root / "d" / "e" / "f"
+    )
+    comparePathSet(result, except)
+  }
+
   it should "'d/?/f' should match 'd/e/f'" in {
     val root = (testRoot / "test_scan_all").toDirectory
     val result = GlobScanner(root, Seq("d/?/f"))
@@ -111,11 +150,10 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     comparePathSet(result, except)
   }
 
-  it should "'d/?/f/**' should match 7 items" in {
+  it should "'d/?/f/**' should match 6 items" in {
     val root = (testRoot / "test_scan_all").toDirectory
     val result = GlobScanner(root, Seq("d/?/f/**"))
     val except = List(
-      root / "d" / "e" / "f",
       root / "d" / "e" / "f" / "g",
       root / "d" / "e" / "f" / "h",
       root / "d" / "e" / "f" / "j",
@@ -169,11 +207,10 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     comparePathSet(result, except)
   }
 
-  it should "'**/?' should match 'a'" in {
+  it should "'**/?' should match all items under 'a'" in {
     val root = (testRoot / "test_b").toDirectory
     val result = GlobScanner(root, Seq("**/?"))
     val except = List(
-      root / "a",
       root / "a" / "b",
       root / "a" / "b" / "c",
       root / "a" / "b" / "c" / "d"
@@ -192,7 +229,7 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
   it should "'**/??' should not match 'a/b/c/d'" in {
     val root = (testRoot / "test_b").toDirectory
-    val result = GlobScanner(root, Seq("**/?"))
+    val result = GlobScanner(root, Seq("**/??"))
     val except = List()
     comparePathSet(result, except)
   }
@@ -234,6 +271,41 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
       root / "dir02" / "asdfasdf3",
       root / "dir02" / "asdfasdfasdfasdfasdf4"
     )
+    comparePathSet(result, except)
+  }
+
+  it should "'**/as*' x 2 should match 8 items" in {
+    val root = (testRoot / "test_c").toDirectory
+    val result = GlobScanner(root, Seq("**/as*", "**/as*"))
+    val except = List(
+      root / "dir1" / "asdf1",
+      root / "dir1" / "asdf2",
+      root / "dir1" / "asdfasdf3",
+      root / "dir1" / "asdfasdfasdfasdfasdf4",
+      root / "dir02" / "asdf1",
+      root / "dir02" / "asdf2",
+      root / "dir02" / "asdfasdf3",
+      root / "dir02" / "asdfasdfasdfasdfasdf4"
+    )
+    comparePathSet(result, except)
+  }
+
+  it should "work with excludes" in {
+    val root = (testRoot / "test_c").toDirectory
+    val result = GlobScanner(root, Seq("**/as*", "**/as*"), Seq("?????/**"))
+    val except = List(
+      root / "dir1" / "asdf1",
+      root / "dir1" / "asdf2",
+      root / "dir1" / "asdfasdf3",
+      root / "dir1" / "asdfasdfasdfasdfasdf4"
+    )
+    comparePathSet(result, except)
+  }
+
+  it should "work with excludes all" in {
+    val root = (testRoot / "test_c").toDirectory
+    val result = GlobScanner(root, Seq("**/as*", "**/as*"), Seq("**"))
+    val except = List()
     comparePathSet(result, except)
   }
 }
