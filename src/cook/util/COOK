@@ -1,7 +1,21 @@
 scala_lib(
   name = "util",
-  srcs = glob("*.scala"),
+  srcs = [
+    "DeleteUtil.scala",
+    "FileUtil.scala",
+    "Label.scala",
+  ],
   deps = [
     "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
+  name = "glob_scanner",
+  srcs = [
+    "GlobScanner.scala",
+  ],
+  deps = [
+    "//lib:scala_compiler",
   ],
 )

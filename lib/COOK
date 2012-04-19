@@ -1,0 +1,6 @@
+java_lib(
+  name = "scala_compiler",
+  deps = [
+    "scala-compiler-2.9.2.jar",
+  ],
+)
