@@ -1,0 +1,19 @@
+scala_lib(
+  name = "glob_scanner_test",
+  srcs = "GlobScannerTest.scala",
+  deps = [
+    "//src/cook/util:glob_scanner",
+    "//lib:scalatest",
+  ],
+)
+
+scala_test(
+  name = "run_glob_scanner_test",
+  deps = [ ":glob_scanner_test" ],
+  testClasses = [
+    "cook.util.GlobScannerTest",
+  ],
+  res = [
+    ["testdata", "."],
+  ],
+)

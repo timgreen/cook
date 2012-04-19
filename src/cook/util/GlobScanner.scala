@@ -13,21 +13,21 @@ import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path
 
 
-class Pattern(pattern: String) {
+class Pattern(val values: Array[String]) {
 
-  val values = toValues(pattern)
   var value = values.head
   var index = 0
 
-  private def toValues(pattern: String): Array[String] = {
-    pattern.replace('\\', '/')
-      .replaceAll("\\*\\*[^/]", "**/*")
-      .replaceAll("[^/]\\*\\*", "*/**")
-      .split("/");
+  def this(pattern: String) {
+    this(pattern.replace('\\', '/')
+      .replaceAll("\\*\\*([^/])", "**/*$1")
+      .replaceAll("([^/])\\*\\*", "$1*/**")
+      .split("/"))
   }
 
   def matches(filename: String): Boolean = {
     if (value == "**") return true
+    if (value == null) return false
 
     // Shortcut if no wildcards.
     if ((value.indexOf('*') == -1) && (value.indexOf('?') == -1)) {
@@ -158,6 +158,8 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
 
   private def process(dir: Directory, path: Path, matchingIncludes: Seq[Pattern],
     matches: mutable.ListBuffer[Path]) {
+    if (!path.exists) return
+
     // Increment patterns that need to move to the next token.
     var isFinalMatch = false
     val incrementedPatterns = mutable.ListBuffer[Pattern]()
