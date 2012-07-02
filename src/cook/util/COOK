@@ -1,4 +1,15 @@
 scala_lib(
+  name = "path_util",
+  srcs = [
+    "PathUtil.scala",
+  ],
+  deps = [
+    "//lib:scala_compiler",
+    "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
   name = "util",
   srcs = [
     "DeleteUtil.scala",
