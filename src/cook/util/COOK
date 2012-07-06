@@ -10,13 +10,12 @@ scala_lib(
 )
 
 scala_lib(
-  name = "util",
+  name = "hash_manager",
   srcs = [
-    "DeleteUtil.scala",
-    "FileUtil.scala",
-    "Label.scala",
+    "HashManager.scala",
   ],
   deps = [
+    "//lib:scala_compiler",
     "//src/cook/error:error",
   ],
 )
@@ -30,3 +29,18 @@ scala_lib(
     "//lib:scala_compiler",
   ],
 )
+
+# legacy
+
+scala_lib(
+  name = "util",
+  srcs = [
+    "DeleteUtil.scala",
+    "FileUtil.scala",
+    "Label.scala",
+  ],
+  deps = [
+    "//src/cook/error:error",
+  ],
+)
+

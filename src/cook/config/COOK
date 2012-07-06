@@ -1,0 +1,21 @@
+scala_lib(
+  name = "config",
+  srcs = [
+    "Config.scala",
+  ],
+  deps = [
+    "//lib:scala_compiler",
+  ],
+)
+
+scala_lib(
+  name = "engine",
+  srcs = [
+    "ConfigEngine.scala",
+  ],
+  deps = [
+    ":config",
+    "//src/cook/util:hash_manager",
+    "//src/cook/util:path_util",
+  ],
+)
