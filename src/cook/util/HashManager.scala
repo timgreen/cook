@@ -14,7 +14,7 @@ object HashManager extends ErrorMessageHandler {
 
   def hash(p: Path): String = cache.getOrElseUpdate(p.path, calcHash(p))
 
-  // TODO(timgreen): use content
+  // TODO(timgreen): use content hash
   private def calcHash(p: Path): String = {
     "%d|%d" format (p.lastModified, p.length)
   }

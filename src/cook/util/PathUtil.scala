@@ -36,4 +36,8 @@ object PathUtil extends ErrorMessageHandler {
   lazy val cookConfigScalaSourceDir = (cookBuildDir / "config_srcs").toDirectory
   lazy val cookConfigClassDir = (cookBuildDir / "config_classes").toDirectory
   lazy val cookTargetBuildDir = (cookBuildDir / "targets").toDirectory
+
+  def relativeToRoot(path: Path): String = {
+    path.absPath.drop(cookRoot.absPath.length + 1)
+  }
 }
