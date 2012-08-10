@@ -4,6 +4,7 @@ import cook.path.PathRef
 import cook.path.PathUtil
 
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.io.Source
@@ -16,6 +17,15 @@ object ConfigType extends Enumeration {
 }
 
 private[config] class ConfigRef(segments: List[String]) extends PathRef(segments) {
+
+  private def init {
+    if (!p.canRead) {
+      // TODO(timgreen): report error
+    }
+
+    ConfigRef.checkCycleImport(this);
+  }
+  init
 
   lazy val configType = segments.last match {
     case "COOK_ROOT" => ConfigType.CookRootConfig
@@ -36,14 +46,14 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   lazy val configClassFilePath = PathUtil.cookRoot / (configClassName + ".scala")
 
   lazy val imports = loadImports
-  val ImportPatternStr = """\s*//\s*#import("\(.*\)")\s*$"""
+  val ImportPatternStr = """\s*//\s*@import("\(.*\)")\s*$"""
   val ImportP = ImportPatternStr.r
   private def loadImports: List[ConfigRef] = {
     Source.fromFile(p.path) getLines() takeWhile {
       _ matches ImportPatternStr
     } map { line =>
       val ImportP(importName) = line
-      relativeConfigRef(importName)
+      relativeConfigRef(importName + ".cooki")
     } toList
   }
 
@@ -61,4 +71,29 @@ object ConfigRef {
 
   private val cache: mutable.ConcurrentMap[String, ConfigRef] =
     new JConcurrentHashMap[String, ConfigRef]
+
+  val cycleCheckPassed = mutable.Set[String]()
+  private def checkCycleImport(ref: ConfigRef) = ref.configType match {
+    case ConfigType.CookiConfig =>
+      val trace = mutable.Set[String]()
+      doCycleCheck(trace, List(ref))
+      cycleCheckPassed += ref.p.path
+    case _ => // pass
+  }
+
+  @tailrec
+  private def doCycleCheck(trace: mutable.Set[String], refs: List[ConfigRef]): Unit = refs match {
+    case Nil =>
+    case head :: tail =>
+      if (cycleCheckPassed.contains(head.p.path)) {
+        return
+      }
+      if (trace.contains(head.p.path)) {
+        // TODO(timgreen): report error
+        return
+      }
+
+      trace += head.p.path
+      doCycleCheck(trace, head.imports ::: tail)
+  }
 }
