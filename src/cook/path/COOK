@@ -1,10 +1,21 @@
 scala_lib(
+  name = "path_util",
+  srcs = [
+    "PathUtil.scala",
+  ],
+  deps = [
+    "//lib:scala_compiler",
+    "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
   name = "path_ref",
   srcs = [
     "PathRef.scala",
   ],
   deps = [
+    ":path_util",
     "//src/cook/util:hash_manager",
-    "//src/cook/util:path_util",
   ],
 )

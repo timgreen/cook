@@ -1,4 +1,4 @@
-package cook.util
+package cook.path
 
 import cook.error.ErrorMessageHandler
 

@@ -1,7 +1,6 @@
 package cook.path
 
 import cook.util.HashManager
-import cook.util.PathUtil
 
 import scala.tools.nsc.io.Path
 
