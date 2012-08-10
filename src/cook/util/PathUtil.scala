@@ -22,7 +22,7 @@ object PathUtil extends ErrorMessageHandler {
 
   @tailrec
   private def findRootDirInternal(dir: Directory): Option[Directory] = if (isCookRoot(dir)) {
-    Some(dir)
+    Some(dir.toAbsolute)
   } else if (dir.isRootPath) {
     None
   } else {
@@ -37,7 +37,7 @@ object PathUtil extends ErrorMessageHandler {
   lazy val cookConfigClassDir = (cookBuildDir / "config_classes").toDirectory
   lazy val cookTargetBuildDir = (cookBuildDir / "targets").toDirectory
 
-  def relativeToRoot(path: Path): String = {
-    path.absPath.drop(cookRoot.absPath.length + 1)
+  def relativeToRoot(path: Path): List[String] = {
+    cookRoot.relativize(path).segments
   }
 }

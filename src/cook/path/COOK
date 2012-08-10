@@ -1,0 +1,10 @@
+scala_lib(
+  name = "path_ref",
+  srcs = [
+    "PathRef.scala",
+  ],
+  deps = [
+    "//src/cook/util:hash_manager",
+    "//src/cook/util:path_util",
+  ],
+)
