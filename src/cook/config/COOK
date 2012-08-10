@@ -19,3 +19,13 @@ scala_lib(
     "//src/cook/util:path_util",
   ],
 )
+
+scala_lib(
+  name = "config_ref",
+  srcs = [
+    "ConfigRef.scala",
+  ],
+  deps = [
+    "//src/cook/path:path_ref",
+  ],
+)

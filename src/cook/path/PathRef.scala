@@ -12,7 +12,7 @@ import scala.tools.nsc.io.Path
  */
 class PathRef(val segments: List[String]) {
 
-  def relativePathRefParts(ref: String): List[String] = {
+  def relativePathRefSegments(ref: String): List[String] = {
     if (ref.startsWith("//")) {
       ref.drop(2).split("/").toList
     } else {
@@ -20,6 +20,6 @@ class PathRef(val segments: List[String]) {
     }
   }
 
-  lazy val p: Path = segments.foldLeft(PathUtil.cookRoot: Path)(_ / _)
+  lazy val p: Path = PathUtil.relativeToRoot(segments: _*)
   def hash = HashManager.hash(p)
 }

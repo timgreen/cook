@@ -40,4 +40,7 @@ object PathUtil extends ErrorMessageHandler {
   def relativeToRoot(path: Path): List[String] = {
     cookRoot.relativize(path).segments
   }
+  def relativeToRoot(segments: String*): Path = {
+    segments.foldLeft(cookRoot: Path)(_ / _)
+  }
 }
