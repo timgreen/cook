@@ -43,16 +43,11 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
     case _ => (packagePrefix :: segments) mkString "."
   }
 
-  lazy val configClassFilePath = PathUtil.cookRoot / (configClassName + ".scala")
-
   lazy val imports = loadImports
-  val ImportPatternStr = """\s*//\s*@import("\(.*\)")\s*$"""
-  val ImportP = ImportPatternStr.r
+  val ImportP = """\s*//\s*@import("\(.*\)")\s*$""".r
   private def loadImports: List[ConfigRef] = {
-    Source.fromFile(p.path) getLines() takeWhile {
-      _ matches ImportPatternStr
-    } map { line =>
-      val ImportP(importName) = line
+    Source.fromFile(p.path) getLines() collect {
+      case ImportP(importName) =>
       relativeConfigRef(importName + ".cooki")
     } toList
   }

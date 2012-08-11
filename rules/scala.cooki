@@ -36,7 +36,7 @@ def scala_lib(name, srcs, deps = []) {
       [
         "SOURCES=(%s)" % [ scalafiles.join(" ") ],
         "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
-        "fsc -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}",
+        "scalac -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}",
       ]
     },
     postBuild = lambda(t) {
