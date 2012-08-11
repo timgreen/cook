@@ -23,6 +23,7 @@ scala_lib(
 scala_lib(
   name = "config_ref",
   srcs = [
+    "ConfigMeta.scala",
     "ConfigRef.scala",
   ],
   deps = [

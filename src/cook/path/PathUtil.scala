@@ -7,9 +7,14 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path
 
 
-class PathUtil(rootOption: Option[Directory] = None) extends ErrorMessageHandler {
+class PathUtil(
+  private var cookRootOption: Option[Directory] = None,
+  cookBuildDirOption: Option[Directory] = None,
+  cookConfigScalaSourceDirOption: Option[Directory] = None,
+  cookConfigClassDirOption: Option[Directory] = None,
+  cookTargetBuildDirOption: Option[Directory] = None
+) extends ErrorMessageHandler {
 
-  private var cookRootOption: Option[Directory] = rootOption map { _.toAbsolute }
   def findRootDir(currentDir: Directory): Directory = cookRootOption match {
     case Some(r) => r
     case None =>
@@ -31,11 +36,19 @@ class PathUtil(rootOption: Option[Directory] = None) extends ErrorMessageHandler
 
   private def isCookRoot(dir: Directory) = (dir / "COOK_ROOT").canRead
 
-  lazy val cookRoot = cookRootOption.get
-  lazy val cookBuildDir = (cookRoot / ".cook_build").toDirectory
-  lazy val cookConfigScalaSourceDir = (cookBuildDir / "config_srcs").toDirectory
-  lazy val cookConfigClassDir = (cookBuildDir / "config_classes").toDirectory
-  lazy val cookTargetBuildDir = (cookBuildDir / "targets").toDirectory
+  private def getDir(opt: Option[Directory], d: => Directory) = {
+    (opt getOrElse d) toAbsolute
+  }
+
+  lazy val cookRoot = cookRootOption.get toAbsolute
+  lazy val cookBuildDir =
+    getDir(cookBuildDirOption, (cookRoot / ".cook_build").toDirectory)
+  lazy val cookConfigScalaSourceDir =
+    getDir(cookConfigScalaSourceDirOption, (cookBuildDir / "config_srcs").toDirectory)
+  lazy val cookConfigClassDir =
+    getDir(cookConfigClassDirOption, (cookBuildDir / "config_classes").toDirectory)
+  lazy val cookTargetBuildDir =
+    getDir(cookTargetBuildDirOption, (cookBuildDir / "targets").toDirectory)
 
   def relativeToRoot(path: Path): List[String] = {
     cookRoot.relativize(path).segments
@@ -45,8 +58,7 @@ class PathUtil(rootOption: Option[Directory] = None) extends ErrorMessageHandler
   }
 }
 
-object PathUtil extends PathUtil(None) {
-
-  private [path] var instance: PathUtil = this
-  implicit def lowPriorityProvider: PathUtil = instance
+object PathUtil {
+  private [path] var instance: PathUtil = new PathUtil()
+  def apply() = instance
 }

@@ -18,10 +18,13 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
   }
 
   def generator(dirname: String) = {
-    PathUtilHelper.changeCookRoot((Path("testdata") / dirname) toDirectory)
-    val dir = Directory("testoutput")
+    val dir = Directory("testoutput/" + dirname)
     dir.deleteRecursively
-    new ConfigScalaSourceGenerator(dir)
+    PathUtilHelper.rakePath(
+      cookRootOption = Some((Path("testdata") / dirname) toDirectory),
+      cookConfigScalaSourceDirOption = Some(dir)
+    )
+    ConfigScalaSourceGenerator
   }
 
   "Generator" should "include imports in COOK_ROOT" in {

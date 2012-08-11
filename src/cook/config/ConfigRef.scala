@@ -15,7 +15,7 @@ object ConfigType extends Enumeration {
   val CookRootConfig, CookConfig, CookiConfig = Value
 }
 
-private[config] class ConfigRef(segments: List[String]) extends PathRef(segments) {
+private[config] class ConfigRef(segments: List[String]) extends PathRef(segments) with ConfigMeta {
 
   private def verify {
     if (!p.canRead) {
@@ -65,7 +65,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
     } toSet
   }
 
-  private def relativeConfigRef(importName: String)(implicit pathUtil: PathUtil) = {
+  private def relativeConfigRef(importName: String) = {
     ConfigRef(relativePathRefSegments(importName))
   }
 }
@@ -80,14 +80,14 @@ object ConfigRef {
       c.verify
       c
   }
-  def apply(segments: List[String])(implicit pathUtil: PathUtil): ConfigRef =
-    apply(pathUtil.relativeToRoot(segments: _*))
+  def apply(segments: List[String]): ConfigRef =
+    apply(PathUtil().relativeToRoot(segments: _*))
 
   val ImportP = """\s*//\s*@import\("(.*)"\)\s*$""".r
   def rootConfigRef = apply(List("COOK_ROOT"))
 
-  private def createConfigRef(path: Path)(implicit pathUtil: PathUtil) = {
-    new ConfigRef(pathUtil.relativeToRoot(path))
+  private def createConfigRef(path: Path) = {
+    new ConfigRef(PathUtil().relativeToRoot(path))
   }
 
   private [config] val cache: mutable.ConcurrentMap[String, ConfigRef] =

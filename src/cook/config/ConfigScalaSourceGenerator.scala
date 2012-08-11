@@ -13,7 +13,9 @@ import scala.tools.nsc.io.Path
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-class ConfigScalaSourceGenerator(sourceOutputDir: Directory) {
+object ConfigScalaSourceGenerator {
+
+  def sourceOutputDir = PathUtil().cookConfigScalaSourceDir
 
   def generate(configRef: ConfigRef): Path = {
     val source = sourceOutputDir / (configRef.configClassFullName + ".scala")
@@ -70,6 +72,3 @@ class ConfigScalaSourceGenerator(sourceOutputDir: Directory) {
     writer.println("}  // PACKAGE END")
   }
 }
-
-object ConfigScalaSourceGenerator
-  extends ConfigScalaSourceGenerator(PathUtil.cookConfigScalaSourceDir)
