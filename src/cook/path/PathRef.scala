@@ -20,6 +20,7 @@ class PathRef(val segments: List[String]) {
     }
   }
 
-  lazy val p: Path = PathUtil.relativeToRoot(segments: _*)
+  lazy val p: Path = getPath
+  private def getPath(implicit pathUtil: PathUtil) = pathUtil.relativeToRoot(segments: _*)
   def hash = HashManager.hash(p)
 }

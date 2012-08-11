@@ -28,6 +28,8 @@ class ConfigScalaSourceGenerator(sourceOutputDir: Directory) {
   }
 
   private def withWriter(source: Path)(op: PrintWriter => Unit) {
+    source.parent.createDirectory()
+    source.createFile(true)
     val writer = new PrintWriter(source.jfile)
     op(writer)
     writer.close
@@ -39,8 +41,8 @@ class ConfigScalaSourceGenerator(sourceOutputDir: Directory) {
     writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
 
     writer.println("// IMPORTS START")
-    (ConfigRef.RootConfigRef.imports ::: configRef.imports) foreach { importRef =>
-      writer.println("import %._" format (importRef.configClassFullName))
+    (ConfigRef.rootConfigRef.imports ::: configRef.imports) foreach { importRef =>
+      writer.println("import %s._" format (importRef.configClassFullName))
     }
     writer.println("// IMPORTS END")
   }

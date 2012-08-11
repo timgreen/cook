@@ -7,9 +7,9 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path
 
 
-object PathUtil extends ErrorMessageHandler {
+class PathUtil(rootOption: Option[Directory] = None) extends ErrorMessageHandler {
 
-  private var cookRootOption: Option[Directory] = None
+  private var cookRootOption: Option[Directory] = rootOption map { _.toAbsolute }
   def findRootDir(currentDir: Directory): Directory = cookRootOption match {
     case Some(r) => r
     case None =>
@@ -43,4 +43,10 @@ object PathUtil extends ErrorMessageHandler {
   def relativeToRoot(segments: String*): Path = {
     segments.foldLeft(cookRoot: Path)(_ / _)
   }
+}
+
+object PathUtil extends PathUtil(None) {
+
+  private [path] var instance: PathUtil = this
+  implicit def lowPriorityProvider: PathUtil = instance
 }

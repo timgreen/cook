@@ -1,0 +1,20 @@
+scala_lib(
+  name = "config_scala_source_generator_test",
+  srcs = "ConfigScalaSourceGeneratorTest.scala",
+  deps = [
+    "//lib:scalatest",
+    "//src/cook/config:generator",
+    "//src/cook/path/testing:path_util_helper",
+  ],
+)
+
+scala_test(
+  name = "run_config_scala_source_generator_test",
+  deps = [ ":config_scala_source_generator_test" ],
+  testClasses = [
+    "cook.config.ConfigScalaSourceGeneratorTest",
+  ],
+  res = [
+    ["testdata", "."],
+  ],
+)

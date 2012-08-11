@@ -4,7 +4,6 @@ import cook.path.PathRef
 import cook.path.PathUtil
 
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
-import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.io.Source
@@ -18,19 +17,16 @@ object ConfigType extends Enumeration {
 
 private[config] class ConfigRef(segments: List[String]) extends PathRef(segments) {
 
-  private def init {
+  private def verify {
     if (!p.canRead) {
       // TODO(timgreen): report error
     }
 
     ConfigRef.checkCycleImport(this);
-    checkRootConfig
-  }
 
-  private def checkRootConfig {
     if (configType == ConfigType.CookRootConfig) {
       Source.fromFile(p.path) getLines() forall {
-        _ matches ImportP.toString
+        _ matches ConfigRef.ImportP.toString
       } match {
         case true =>
         case false =>
@@ -38,7 +34,6 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
       }
     }
   }
-  init
 
   lazy val configType = segments.last match {
     case "COOK_ROOT" => ConfigType.CookRootConfig
@@ -61,53 +56,61 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   lazy val configClassTraitName = configClassName + "Trait"
 
   lazy val imports = loadImports
-  val ImportP = """\s*//\s*@import("\(.*\)")\s*$""".r
   private def loadImports: List[ConfigRef] = {
     Source.fromFile(p.path) getLines() collect {
-      case ImportP(importName) =>
-      relativeConfigRef(importName + ".cooki")
+      case ConfigRef.ImportP(importName) =>
+        relativeConfigRef(importName + ".cooki")
     } toList
   }
 
-  private def relativeConfigRef(importName: String) =
+  private def relativeConfigRef(importName: String)(implicit pathUtil: PathUtil) = {
     ConfigRef(relativePathRefSegments(importName))
+  }
 }
 
 object ConfigRef {
 
   def apply(path: Path): ConfigRef = cache getOrElseUpdate (path.path, createConfigRef(path))
-  def apply(segments: List[String]): ConfigRef = apply(PathUtil.relativeToRoot(segments: _*))
+  def apply(segments: List[String])(implicit pathUtil: PathUtil): ConfigRef =
+    apply(pathUtil.relativeToRoot(segments: _*))
 
-  lazy val RootConfigRef = apply(List("COOK_ROOT"))
+  val ImportP = """\s*//\s*@import\("(.*)"\)\s*$""".r
+  def rootConfigRef = apply(List("COOK_ROOT"))
 
-  private def createConfigRef(path: Path) =
-    new ConfigRef(PathUtil.relativeToRoot(path))
+  private def createConfigRef(path: Path)(implicit pathUtil: PathUtil) = {
+    val c = new ConfigRef(pathUtil.relativeToRoot(path))
+    c.verify
+    c
+  }
 
   private val cache: mutable.ConcurrentMap[String, ConfigRef] =
     new JConcurrentHashMap[String, ConfigRef]
 
   val cycleCheckPassed = mutable.Set[String]()
-  private def checkCycleImport(ref: ConfigRef) = ref.configType match {
-    case ConfigType.CookiConfig =>
-      val trace = mutable.Set[String]()
-      doCycleCheck(trace, List(ref))
-      cycleCheckPassed += ref.p.path
-    case _ => // pass
+  private def checkCycleImport(ref: ConfigRef) {
+    ref.configType match {
+      case ConfigType.CookiConfig =>
+        val trace = mutable.Set[String]()
+        doCycleCheck(trace, ref)
+        cycleCheckPassed += ref.p.path
+      case _ => // pass
+    }
   }
 
-  @tailrec
-  private def doCycleCheck(trace: mutable.Set[String], refs: List[ConfigRef]): Unit = refs match {
-    case Nil =>
-    case head :: tail =>
-      if (cycleCheckPassed.contains(head.p.path)) {
-        return
-      }
-      if (trace.contains(head.p.path)) {
-        // TODO(timgreen): report error
-        return
-      }
+  private def doCycleCheck(trace: mutable.Set[String], ref: ConfigRef): Unit = {
+    if (cycleCheckPassed.contains(ref.p.path)) {
+      return
+    }
 
-      trace += head.p.path
-      doCycleCheck(trace, head.imports ::: tail)
+    if (trace.contains(ref.p.path)) {
+        // TODO(timgreen): report error
+      return
+    }
+
+    trace += ref.p.path
+    for (d <- ref.imports) {
+      doCycleCheck(trace, d)
+    }
+    trace -= ref.p.path
   }
 }
