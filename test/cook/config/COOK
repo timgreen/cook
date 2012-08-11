@@ -3,6 +3,7 @@ scala_lib(
   srcs = "ConfigScalaSourceGeneratorTest.scala",
   deps = [
     "//lib:scalatest",
+    "//src/cook/config/testing:config_ref_test_helper",
     "//src/cook/config:generator",
     "//src/cook/path/testing:path_util_helper",
   ],

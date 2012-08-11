@@ -20,6 +20,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   private def verify {
     if (!p.canRead) {
       // TODO(timgreen): report error
+      throw new Exception("a")
     }
 
     ConfigRef.checkCycleImport(this);
@@ -31,6 +32,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
         case true =>
         case false =>
           // TODO(timgreen): only always imports in cook root config for now.
+          throw new Exception("b")
       }
     }
   }
@@ -55,8 +57,8 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   }
   lazy val configClassTraitName = configClassName + "Trait"
 
-  lazy val imports = loadImports
-  private def loadImports: List[ConfigRef] = {
+  lazy val imports: List[ConfigRef] = loadImports
+  private def loadImports = {
     Source.fromFile(p.path) getLines() collect {
       case ConfigRef.ImportP(importName) =>
         relativeConfigRef(importName + ".cooki")
@@ -70,7 +72,14 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
 
 object ConfigRef {
 
-  def apply(path: Path): ConfigRef = cache getOrElseUpdate (path.path, createConfigRef(path))
+  def apply(path: Path): ConfigRef = cache.get(path.path) match {
+    case Some(c) => c
+    case None =>
+      val c = createConfigRef(path)
+      cache(path.path) = c
+      c.verify
+      c
+  }
   def apply(segments: List[String])(implicit pathUtil: PathUtil): ConfigRef =
     apply(pathUtil.relativeToRoot(segments: _*))
 
@@ -78,12 +87,10 @@ object ConfigRef {
   def rootConfigRef = apply(List("COOK_ROOT"))
 
   private def createConfigRef(path: Path)(implicit pathUtil: PathUtil) = {
-    val c = new ConfigRef(pathUtil.relativeToRoot(path))
-    c.verify
-    c
+    new ConfigRef(pathUtil.relativeToRoot(path))
   }
 
-  private val cache: mutable.ConcurrentMap[String, ConfigRef] =
+  private [config] val cache: mutable.ConcurrentMap[String, ConfigRef] =
     new JConcurrentHashMap[String, ConfigRef]
 
   val cycleCheckPassed = mutable.Set[String]()
@@ -103,6 +110,7 @@ object ConfigRef {
     }
 
     if (trace.contains(ref.p.path)) {
+      throw new Exception("c")
         // TODO(timgreen): report error
       return
     }

@@ -1,7 +1,9 @@
 package cook.config
 
+import cook.config.testing.ConfigRefTestHelper
 import cook.path.testing.PathUtilHelper
 
+import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import scala.io.Source
@@ -9,7 +11,11 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path
 
 
-class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers {
+class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
+
+  def before {
+    ConfigRefTestHelper.clearCache
+  }
 
   def generator(dirname: String) = {
     PathUtilHelper.changeCookRoot((Path("testdata") / dirname) toDirectory)
@@ -18,10 +24,28 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers {
     new ConfigScalaSourceGenerator(dir)
   }
 
-  "Generator" should "output to right dir" in {
+  "Generator" should "include imports in COOK_ROOT" in {
     val g = generator("test1")
     val f = g.generate(ConfigRef(List("COOK")))
     val content = Source.fromFile(f.jfile).getLines().toSeq
     content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
+  }
+
+  it should "report error when COOK_ROOT include lines other than import" in {
+    val g = generator("test2")
+    // TODO(timgreen):
+    val f = g.generate(ConfigRef(List("COOK")))
+  }
+
+  it should "report error when include cooki doesn't exists" in {
+    val g = generator("test3")
+    // TODO(timgreen):
+    val f = g.generate(ConfigRef(List("COOK")))
+  }
+
+  it should "report error when detect cycle include" in {
+    val g = generator("test4")
+    // TODO(timgreen):
+    val f = g.generate(ConfigRef(List("COOK")))
   }
 }
