@@ -13,7 +13,7 @@ import scala.tools.nsc.io.Path
 
 class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
-  def before {
+  before {
     ConfigRefTestHelper.clearCache
   }
 
