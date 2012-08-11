@@ -29,3 +29,13 @@ scala_lib(
     "//src/cook/path:path_ref",
   ],
 )
+
+scala_lib(
+  name = "generator",
+  srcs = [
+    "ConfigScalaSourceGenerator.scala",
+  ],
+  deps = [
+    ":config_ref",
+  ],
+)

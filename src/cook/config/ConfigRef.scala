@@ -24,6 +24,19 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
     }
 
     ConfigRef.checkCycleImport(this);
+    checkRootConfig
+  }
+
+  private def checkRootConfig {
+    if (configType == ConfigType.CookRootConfig) {
+      Source.fromFile(p.path) getLines() forall {
+        _ matches ImportP.toString
+      } match {
+        case true =>
+        case false =>
+          // TODO(timgreen): only always imports in cook root config for now.
+      }
+    }
   }
   init
 
@@ -37,11 +50,15 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   }
 
   val packagePrefix = "COOK_CONFIG_PACKAGE"
+  lazy val configClassPackageName = (packagePrefix :: segments.dropRight(1)) mkString "."
+  lazy val configClassFullName = configClassPackageName + "." + configClassName
   lazy val configClassName = configType match {
     case ConfigType.CookiConfig =>
-      (packagePrefix :: segments.dropRight(1) :: segments.last.replace(".", "_") :: Nil) mkString "."
-    case _ => (packagePrefix :: segments) mkString "."
+      segments.last.replace(".", "_")
+    case _ =>
+      segments.last
   }
+  lazy val configClassTraitName = configClassName + "Trait"
 
   lazy val imports = loadImports
   val ImportP = """\s*//\s*@import("\(.*\)")\s*$""".r
@@ -60,6 +77,8 @@ object ConfigRef {
 
   def apply(path: Path): ConfigRef = cache getOrElseUpdate (path.path, createConfigRef(path))
   def apply(segments: List[String]): ConfigRef = apply(PathUtil.relativeToRoot(segments: _*))
+
+  lazy val RootConfigRef = apply(List("COOK_ROOT"))
 
   private def createConfigRef(path: Path) =
     new ConfigRef(PathUtil.relativeToRoot(path))
