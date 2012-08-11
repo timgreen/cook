@@ -1,7 +1,5 @@
 package cook.config
 
-import cook.path.PathUtil
-
 import java.io.PrintWriter
 import scala.io.Source
 import scala.tools.nsc.io.Directory
@@ -15,10 +13,8 @@ import scala.tools.nsc.io.Path
  */
 object ConfigScalaSourceGenerator {
 
-  def sourceOutputDir = PathUtil().cookConfigScalaSourceDir
-
   def generate(configRef: ConfigRef): Path = {
-    val source = sourceOutputDir / (configRef.configClassFullName + ".scala")
+    val source = configRef.configScalaSourceFile
 
     withWriter(source) { writer =>
       generateHeader(configRef, writer)

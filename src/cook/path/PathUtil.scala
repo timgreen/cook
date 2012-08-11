@@ -12,7 +12,8 @@ class PathUtil(
   cookBuildDirOption: Option[Directory] = None,
   cookConfigScalaSourceDirOption: Option[Directory] = None,
   cookConfigClassDirOption: Option[Directory] = None,
-  cookTargetBuildDirOption: Option[Directory] = None
+  cookTargetBuildDirOption: Option[Directory] = None,
+  cookConfigMetaDirOption: Option[Directory] = None
 ) extends ErrorMessageHandler {
 
   def findRootDir(currentDir: Directory): Directory = cookRootOption match {
@@ -49,6 +50,8 @@ class PathUtil(
     getDir(cookConfigClassDirOption, (cookBuildDir / "config_classes").toDirectory)
   lazy val cookTargetBuildDir =
     getDir(cookTargetBuildDirOption, (cookBuildDir / "targets").toDirectory)
+  lazy val cookConfigMetaDir =
+    getDir(cookConfigMetaDirOption, (cookBuildDir / "config_metas").toDirectory)
 
   def relativeToRoot(path: Path): List[String] = {
     cookRoot.relativize(path).segments

@@ -11,14 +11,16 @@ object PathUtilHelper {
     cookBuildDirOption: Option[Directory] = None,
     cookConfigScalaSourceDirOption: Option[Directory] = None,
     cookConfigClassDirOption: Option[Directory] = None,
-    cookTargetBuildDirOption: Option[Directory] = None) = {
+    cookTargetBuildDirOption: Option[Directory] = None,
+    cookConfigMetaDirOption: Option[Directory] = None) = {
 
     val p = new PathUtil(
       cookRootOption,
       cookBuildDirOption,
       cookConfigScalaSourceDirOption,
       cookConfigClassDirOption,
-      cookTargetBuildDirOption
+      cookTargetBuildDirOption,
+      cookConfigMetaDirOption
     )
     PathUtil.instance = p
     p
