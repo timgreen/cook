@@ -41,7 +41,7 @@ class ConfigScalaSourceGenerator(sourceOutputDir: Directory) {
     writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
 
     writer.println("// IMPORTS START")
-    (ConfigRef.rootConfigRef.imports ::: configRef.imports) foreach { importRef =>
+    (ConfigRef.rootConfigRef.imports ++ configRef.imports) foreach { importRef =>
       writer.println("import %s._" format (importRef.configClassFullName))
     }
     writer.println("// IMPORTS END")

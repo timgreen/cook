@@ -57,12 +57,12 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   }
   lazy val configClassTraitName = configClassName + "Trait"
 
-  lazy val imports: List[ConfigRef] = loadImports
+  lazy val imports: Set[ConfigRef] = loadImports
   private def loadImports = {
     Source.fromFile(p.path) getLines() collect {
       case ConfigRef.ImportP(importName) =>
         relativeConfigRef(importName + ".cooki")
-    } toList
+    } toSet
   }
 
   private def relativeConfigRef(importName: String)(implicit pathUtil: PathUtil) = {
