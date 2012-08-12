@@ -12,12 +12,25 @@ import scala.util.control.Exception._
 trait ConfigMeta { self: ConfigRef =>
 
   lazy val metaFilePath = PathUtil().cookConfigMetaDir / (configClassFullName + ".meta")
-  lazy val meta = {
+  def meta = {
+    if (meta_ == null) {
+      meta_ = loadMeta
+    }
+    meta_
+  }
+  private var meta_ : Option[ConfigMeta.Meta] = null
+  private def loadMeta = {
     val p = metaFilePath
     allCatch.opt {
       val Seq(cookFileMeta, scalaConfigFileMeta) = Source.fromFile(p.jfile).getLines().take(2).toSeq
       ConfigMeta.Meta(cookFileMeta, scalaConfigFileMeta)
     }
+  }
+
+  def saveMeta {
+    val m = ConfigMeta.Meta(hash, HashManager.hash(configScalaSourceFile, force = true))
+    meta_ = Some(m)
+    doSaveMeta(m)
   }
 
   private def doSaveMeta(meta: ConfigMeta.Meta) {
@@ -30,7 +43,7 @@ trait ConfigMeta { self: ConfigRef =>
   }
 
   def shouldGenerateScala = meta match {
-    case None => false
+    case None => true
     case Some(ConfigMeta.Meta(fh, sh)) =>
       (fh != hash) || (sh != HashManager.hash(configScalaSourceFile))
   }

@@ -24,7 +24,7 @@ object ConfigEngine {
       compileAndLoadFromSource(configRef)
   }
 
-  private val cache: mutable.ConcurrentMap[String, ConfigWithHash] =
+  private [config] val cache: mutable.ConcurrentMap[String, ConfigWithHash] =
     new JConcurrentHashMap[String, ConfigWithHash]
 
   private def loadFromCache(configRef: ConfigRef): Option[Config] = {
@@ -46,13 +46,25 @@ object ConfigEngine {
     if (classFilePath.lastModified > configRef.p.lastModified) {
       allCatch.opt {
         // TODO(timgreen): load class
+        null
       }
     } else {
       None
     }
   }
 
-  private def compileAndLoadFromSource(configFile: Path, hash: String): Config = {
+  private def compileAndLoadFromSource(configRef: ConfigRef): Config = {
+    doGenerate(configRef)
     // TODO(timgreen):
+    null
   }
+
+  private def doGenerate(configRef: ConfigRef) {
+    if (configRef.shouldGenerateScala) {
+      ConfigScalaSourceGenerator.generate(configRef)
+      configRef.saveMeta
+      configRef.imports foreach doGenerate
+    }
+  }
+
 }
