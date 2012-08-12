@@ -1,6 +1,6 @@
 package cook.path
 
-import cook.error.ErrorMessageHandler
+import cook.error.ErrorTracking
 
 import scala.annotation.tailrec
 import scala.tools.nsc.io.Directory
@@ -14,14 +14,14 @@ class PathUtil(
   cookConfigClassDirOption: Option[Directory] = None,
   cookTargetBuildDirOption: Option[Directory] = None,
   cookConfigMetaDirOption: Option[Directory] = None
-) extends ErrorMessageHandler {
+) extends ErrorTracking {
 
   def findRootDir(currentDir: Directory): Directory = cookRootOption match {
     case Some(r) => r
     case None =>
       cookRootOption = findRootDirInternal(currentDir)
       if (!cookRootOption.isDefined) {
-        reportError("Can not find Cook Build Root, from dir %s".format(currentDir.toString))
+        reportError("Can not find Cook Build Root, from dir %s", currentDir.toString)
       }
       cookRootOption.get
   }

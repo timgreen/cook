@@ -1,5 +1,6 @@
 package cook.config
 
+import cook.error.ErrorTracking
 import cook.path.PathRef
 import cook.path.PathUtil
 
@@ -15,12 +16,12 @@ object ConfigType extends Enumeration {
   val CookRootConfig, CookConfig, CookiConfig = Value
 }
 
-private[config] class ConfigRef(segments: List[String]) extends PathRef(segments) with ConfigMeta {
+private[config] class ConfigRef(segments: List[String])
+  extends PathRef(segments) with ConfigMeta with ErrorTracking {
 
   private def verify {
     if (!p.canRead) {
-      // TODO(timgreen): report error
-      throw new Exception("a")
+      reportError("Can not read config: %s", p.path)
     }
 
     ConfigRef.checkCycleImport(this);
@@ -31,8 +32,8 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
       } match {
         case true =>
         case false =>
-          // TODO(timgreen): only always imports in cook root config for now.
-          throw new Exception("b")
+          // NOTE(timgreen): only always imports in cook root config for now.
+          reportError("Only always imports in COOK_ROOT config for now.")
       }
     }
   }
@@ -42,8 +43,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
     case "COOK" => ConfigType.CookConfig
     case f if f.endsWith(".cooki") => ConfigType.CookiConfig
     case _ =>
-      // TODO(timgreen): error
-      throw new Exception("error")
+      reportError("This should never happen, unknown config: %s", p.path)
   }
 
   val packagePrefix = "COOK_CONFIG_PACKAGE"
@@ -73,7 +73,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   }
 }
 
-object ConfigRef {
+object ConfigRef extends ErrorTracking {
 
   def apply(path: Path): ConfigRef = cache.get(path.path) match {
     case Some(c) => c
@@ -113,9 +113,7 @@ object ConfigRef {
     }
 
     if (trace.contains(ref.p.path)) {
-      throw new Exception("c")
-        // TODO(timgreen): report error
-      return
+      reportError("Found cycle imports in %s", trace.mkString(", "))
     }
 
     trace += ref.p.path

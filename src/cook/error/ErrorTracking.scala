@@ -1,6 +1,6 @@
 package cook.error
 
-trait ErrorMessageHandler {
+trait ErrorTracking {
 
   def wrapperError[T](error: String, args: Any*)(op: => T): T = {
     try {

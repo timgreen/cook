@@ -1,6 +1,7 @@
 package cook.config
 
 import cook.config.testing.ConfigRefTestHelper
+import cook.error.CookException
 import cook.path.testing.PathUtilHelper
 
 import org.scalatest.BeforeAndAfter
@@ -36,19 +37,22 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
 
   it should "report error when COOK_ROOT include lines other than import" in {
     val g = generator("test2")
-    // TODO(timgreen):
-    val f = g.generate(ConfigRef(List("COOK")))
+    evaluating {
+      g.generate(ConfigRef(List("COOK")))
+    } should produce [CookException]
   }
 
   it should "report error when include cooki doesn't exists" in {
     val g = generator("test3")
-    // TODO(timgreen):
-    val f = g.generate(ConfigRef(List("COOK")))
+    evaluating {
+      val f = g.generate(ConfigRef(List("COOK")))
+    } should produce [CookException]
   }
 
   it should "report error when detect cycle include" in {
     val g = generator("test4")
-    // TODO(timgreen):
-    val f = g.generate(ConfigRef(List("COOK")))
+    evaluating {
+      val f = g.generate(ConfigRef(List("COOK")))
+    } should produce [CookException]
   }
 }

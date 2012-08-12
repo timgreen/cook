@@ -1,6 +1,6 @@
 package cook.util
 
-import cook.error.ErrorMessageHandler
+import cook.error.ErrorTracking
 
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
@@ -8,9 +8,9 @@ import scala.collection.mutable
 import scala.tools.nsc.io.Path
 
 
-object HashManager extends ErrorMessageHandler {
+object HashManager extends ErrorTracking {
 
-  private val cache: mutable.ConcurrentMap[String, String] = new JConcurrentHashMap[String, String]
+  private [util] val cache: mutable.ConcurrentMap[String, String] = new JConcurrentHashMap[String, String]
 
   def hash(p: Path, force: Boolean = false): String = if (force) {
     val h = calcHash(p)
@@ -22,6 +22,10 @@ object HashManager extends ErrorMessageHandler {
 
   // TODO(timgreen): use content hash
   private def calcHash(p: Path): String = {
-    "%d|%d" format (p.lastModified, p.length)
+    if (p.canRead) {
+      "%d|%d" format (p.lastModified, p.length)
+    } else {
+      reportError("Can not read file for hash: %s", p.path)
+    }
   }
 }
