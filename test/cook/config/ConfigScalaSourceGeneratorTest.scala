@@ -32,7 +32,8 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
     val g = generator("test1")
     val f = g.generate(ConfigRef(List("COOK")))
     val content = Source.fromFile(f.jfile).getLines().toSeq
-    content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
+    content should contain ("val a = COOK_CONFIG_PACKAGE.rules.a_cooki")
+    content should contain ("import a._")
   }
 
   it should "report error when COOK_ROOT include lines other than import" in {
@@ -51,6 +52,13 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
 
   it should "report error when detect cycle include" in {
     val g = generator("test4")
+    evaluating {
+      val f = g.generate(ConfigRef(List("COOK")))
+    } should produce [CookException]
+  }
+
+  it should "report error when detect self include" in {
+    val g = generator("test5")
     evaluating {
       val f = g.generate(ConfigRef(List("COOK")))
     } should produce [CookException]

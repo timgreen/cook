@@ -1,1 +1,1 @@
-// @import("not_exists.cooki")
+// @import x = "not_exists.cooki"

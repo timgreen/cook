@@ -39,8 +39,11 @@ object ConfigScalaSourceGenerator {
     writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
 
     writer.println("// IMPORTS START")
-    (ConfigRef.rootConfigRef.imports ++ configRef.imports) foreach { importRef =>
-      writer.println("import %s._" format (importRef.configClassFullName))
+    (ConfigRef.rootConfigRef.imports ++ configRef.imports) foreach { importDefine =>
+      writer.println("val %s = %s" format (importDefine.name, importDefine.ref.configClassFullName))
+      if (importDefine.importMembers) {
+        writer.println("import %s._" format (importDefine.name))
+      }
     }
     writer.println("// IMPORTS END")
   }

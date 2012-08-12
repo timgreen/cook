@@ -16,6 +16,8 @@ object ConfigType extends Enumeration {
   val CookRootConfig, CookConfig, CookiConfig = Value
 }
 
+case class ImportDefine(ref: ConfigRef, name: String, importMembers: Boolean)
+
 private[config] class ConfigRef(segments: List[String])
   extends PathRef(segments) with ConfigMeta with ErrorTracking {
 
@@ -27,8 +29,10 @@ private[config] class ConfigRef(segments: List[String])
     ConfigRef.checkCycleImport(this);
 
     if (configType == ConfigType.CookRootConfig) {
-      Source.fromFile(p.path) getLines() forall {
-        _ matches ConfigRef.ImportP.toString
+      Source.fromFile(p.path) getLines() forall { line =>
+        (line matches ConfigRef.ImportP.toString) ||
+          (line matches ConfigRef.ValP.toString) ||
+          (line matches """^\s*//.*$""")
       } match {
         case true =>
         case false =>
@@ -60,16 +64,18 @@ private[config] class ConfigRef(segments: List[String])
     PathUtil().cookConfigScalaSourceDir / (configClassFullName + ".scala")
   lazy val configClassFilesDir = PathUtil().cookConfigClassDir / configClassFullName
 
-  lazy val imports: Set[ConfigRef] = loadImports
+  lazy val imports: Set[ImportDefine] = loadImports
   private def loadImports = {
     Source.fromFile(p.path) getLines() collect {
-      case ConfigRef.ImportP(importName) =>
-        relativeConfigRef(importName + ".cooki")
+      case ConfigRef.ImportP(name, ref) =>
+        ImportDefine(relativeConfigRef(ref + ".cooki"), name, true)
+      case ConfigRef.ValP(name, ref) =>
+        ImportDefine(relativeConfigRef(ref + ".cooki"), name, false)
     } toSet
   }
 
-  private def relativeConfigRef(importName: String) = {
-    ConfigRef(relativePathRefSegments(importName))
+  private def relativeConfigRef(ref: String) = {
+    ConfigRef(relativePathRefSegments(ref))
   }
 }
 
@@ -86,10 +92,11 @@ object ConfigRef extends ErrorTracking {
   def apply(segments: List[String]): ConfigRef =
     apply(PathUtil().relativeToRoot(segments: _*))
 
-  val ImportP = """\s*//\s*@import\("(.*)"\)\s*$""".r
+  val ImportP = """\s*//\s*@import\s+(\w+)\s*=\s*"(.+)"\s*$""".r
+  val ValP = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
   def rootConfigRef = apply(List("COOK_ROOT"))
 
-  private def createConfigRef(path: Path) = {
+  private def createConfigRef(path: Path) = wrapperError("Creating ConfigRef: %s", path.path) {
     new ConfigRef(PathUtil().relativeToRoot(path))
   }
 
@@ -118,7 +125,7 @@ object ConfigRef extends ErrorTracking {
 
     trace += ref.p.path
     for (d <- ref.imports) {
-      doCycleCheck(trace, d)
+      doCycleCheck(trace, d.ref)
     }
     trace -= ref.p.path
   }
