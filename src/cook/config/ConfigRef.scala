@@ -58,6 +58,7 @@ private[config] class ConfigRef(segments: List[String]) extends PathRef(segments
   lazy val configClassTraitName = configClassName + "Trait"
   lazy val configScalaSourceFile =
     PathUtil().cookConfigScalaSourceDir / (configClassFullName + ".scala")
+  lazy val configClassFilesDir = PathUtil().cookConfigClassDir / configClassFullName
 
   lazy val imports: Set[ConfigRef] = loadImports
   private def loadImports = {

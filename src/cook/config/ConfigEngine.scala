@@ -1,12 +1,9 @@
 package cook.config
 
-import cook.util.PathUtil
-
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.controlls.Exception._
-import scala.tools.nsc.io.Path
 
 
 /**
@@ -55,6 +52,7 @@ object ConfigEngine {
 
   private def compileAndLoadFromSource(configRef: ConfigRef): Config = {
     doGenerate(configRef)
+    doCompile(configRef)
     // TODO(timgreen):
     null
   }
@@ -64,6 +62,15 @@ object ConfigEngine {
       ConfigScalaSourceGenerator.generate(configRef)
       configRef.saveMeta
       configRef.imports foreach doGenerate
+      configRef.configClassFilesDir.deleteRecursively
+    }
+  }
+
+  private def doCompile(configRef: ConfigRef) {
+    // NOTE(timgreen): we assmue if classes dir exist, it will always up-to-date.
+    if (!configRef.configClassFilesDir.canRead) {
+      configRef.imports foreach doCompile
+      ConfigCompiler.compile(configRef)
     }
   }
 
