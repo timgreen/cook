@@ -36,10 +36,27 @@ object ConfigScalaSourceGenerator {
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
     writer.println("package %s {  // PACKAGE START" format (configRef.configClassPackageName))
-    writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
+    if (configRef.configType == ConfigType.CookConfig) {
+      writer.println("trait %s extends %s {  // TRAIT START".format(
+        configRef.configClassTraitName,
+        ConfigRef.rootConfigRef.configClassTraitFullName
+      ))
+    } else {
+      writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
+    }
 
+    generateImports(configRef, writer)
+  }
+
+  private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// IMPORTS START")
-    (ConfigRef.rootConfigRef.imports ++ configRef.imports) foreach { importDefine =>
+
+    val imports = if (configRef.configType != ConfigType.CookRootConfig) {
+      configRef.imports -- ConfigRef.rootConfigRef.imports
+    } else {
+      Seq()
+    }
+    for (importDefine <- imports) {
       writer.println("val %s = %s" format (importDefine.name, importDefine.ref.configClassFullName))
       if (importDefine.importMembers) {
         writer.println("import %s._" format (importDefine.name))

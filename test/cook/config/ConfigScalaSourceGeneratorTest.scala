@@ -28,7 +28,7 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
     ConfigScalaSourceGenerator
   }
 
-  "Generator" should "include imports in COOK_ROOT" in {
+  "Generator" should "include imports" in {
     val g = generator("test1")
     val f = g.generate(ConfigRef(List("COOK")))
     val content = Source.fromFile(f.jfile).getLines().toSeq

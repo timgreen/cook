@@ -60,6 +60,8 @@ private[config] class ConfigRef(segments: List[String])
       segments.last
   }
   lazy val configClassTraitName = configClassName + "Trait"
+  lazy val configClassTraitFullName = configClassPackageName + "." + configClassTraitName
+
   lazy val configScalaSourceFile =
     PathUtil().cookConfigScalaSourceDir / (configClassFullName + ".scala")
   lazy val configClassFilesDir = PathUtil().cookConfigClassDir / configClassFullName
