@@ -1,5 +1,7 @@
 package cook.config
 
+import cook.path.PathUtil
+
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -14,6 +16,13 @@ import scala.controlls.Exception._
 object ConfigEngine {
 
   case ConfigWithHash(configRef: ConfigRef)
+
+  def init {
+    // NOTE(timgreen): if COOK_ROOT changed, all bytecode need re-generated.
+    if (ConfigRef.rootConfigRef.shouldGenerateScala) {
+      PathUtil().cookConfigByteCodeDir.deleteRecursively
+    }
+  }
 
   def load(configRef: ConfigRef): Config = {
     loadFromCache(configRef) orElse

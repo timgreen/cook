@@ -11,7 +11,7 @@ class PathUtil(
   private var cookRootOption: Option[Directory] = None,
   cookBuildDirOption: Option[Directory] = None,
   cookConfigScalaSourceDirOption: Option[Directory] = None,
-  cookConfigClassDirOption: Option[Directory] = None,
+  cookConfigByteCodeDirOption: Option[Directory] = None,
   cookTargetBuildDirOption: Option[Directory] = None,
   cookConfigMetaDirOption: Option[Directory] = None
 ) extends ErrorTracking {
@@ -46,8 +46,8 @@ class PathUtil(
     getDir(cookBuildDirOption, (cookRoot / ".cook_build").toDirectory)
   lazy val cookConfigScalaSourceDir =
     getDir(cookConfigScalaSourceDirOption, (cookBuildDir / "config_srcs").toDirectory)
-  lazy val cookConfigClassDir =
-    getDir(cookConfigClassDirOption, (cookBuildDir / "config_classes").toDirectory)
+  lazy val cookConfigByteCodeDir =
+    getDir(cookConfigByteCodeDirOption, (cookBuildDir / "config_bytecodes").toDirectory)
   lazy val cookTargetBuildDir =
     getDir(cookTargetBuildDirOption, (cookBuildDir / "targets").toDirectory)
   lazy val cookConfigMetaDir =

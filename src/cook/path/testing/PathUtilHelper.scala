@@ -10,7 +10,7 @@ object PathUtilHelper {
     cookRootOption: Option[Directory] = None,
     cookBuildDirOption: Option[Directory] = None,
     cookConfigScalaSourceDirOption: Option[Directory] = None,
-    cookConfigClassDirOption: Option[Directory] = None,
+    cookConfigByteCodeDirOption: Option[Directory] = None,
     cookTargetBuildDirOption: Option[Directory] = None,
     cookConfigMetaDirOption: Option[Directory] = None) = {
 
@@ -18,7 +18,7 @@ object PathUtilHelper {
       cookRootOption,
       cookBuildDirOption,
       cookConfigScalaSourceDirOption,
-      cookConfigClassDirOption,
+      cookConfigByteCodeDirOption,
       cookTargetBuildDirOption,
       cookConfigMetaDirOption
     )
