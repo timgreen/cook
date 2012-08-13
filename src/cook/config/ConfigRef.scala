@@ -30,14 +30,14 @@ private[config] class ConfigRef(segments: List[String])
 
     if (configType == ConfigType.CookRootConfig) {
       Source.fromFile(p.path) getLines() forall { line =>
-        (line matches ConfigRef.ImportP.toString) ||
-          (line matches ConfigRef.ValP.toString) ||
-          (line matches """^\s*//.*$""")
+        (line matches ConfigRef.MixinP.toString) ||
+          (line matches """^\s*//.*$""") ||
+          (line matches """^\s*$""")
       } match {
         case true =>
         case false =>
-          // NOTE(timgreen): only always imports in cook root config for now.
-          reportError("Only always imports in COOK_ROOT config for now.")
+          // NOTE(timgreen): only always mixins in cook root config for now.
+          reportError("Only always mixins in COOK_ROOT config for now.")
       }
     }
   }
@@ -66,13 +66,19 @@ private[config] class ConfigRef(segments: List[String])
     PathUtil().cookConfigScalaSourceDir / (configClassFullName + ".scala")
   lazy val configByteCodeDir = PathUtil().cookConfigByteCodeDir / configClassFullName
 
-  lazy val imports: Set[ImportDefine] = loadImports
-  private def loadImports = {
+  lazy val imports: Set[ImportDefine] = {
     Source.fromFile(p.path) getLines() collect {
       case ConfigRef.ImportP(name, ref) =>
         ImportDefine(relativeConfigRef(ref + ".cooki"), name, true)
       case ConfigRef.ValP(name, ref) =>
         ImportDefine(relativeConfigRef(ref + ".cooki"), name, false)
+    } toSet
+  }
+
+  lazy val mixins: Set[ConfigRef] = {
+    Source.fromFile(p.path) getLines() collect {
+      case ConfigRef.MixinP(ref) =>
+        relativeConfigRef(ref + ".cooki")
     } toSet
   }
 
@@ -96,6 +102,7 @@ object ConfigRef extends ErrorTracking {
 
   val ImportP = """\s*//\s*@import\s+(\w+)\s*=\s*"(.+)"\s*$""".r
   val ValP = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
+  val MixinP = """^\s*//\s*@mixin\s+"(.+)"\s*$""".r
   def rootConfigRef = apply(List("COOK_ROOT"))
 
   private def createConfigRef(path: Path) = wrapperError("Creating ConfigRef: %s", path.path) {

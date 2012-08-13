@@ -18,6 +18,7 @@ object ConfigScalaSourceGenerator {
 
     withWriter(source) { writer =>
       generateHeader(configRef, writer)
+      generateImports(configRef, writer)
       generateBody(configRef, writer)
       generateFooter(configRef, writer)
     }
@@ -36,16 +37,24 @@ object ConfigScalaSourceGenerator {
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
     writer.println("package %s {  // PACKAGE START" format (configRef.configClassPackageName))
-    if (configRef.configType == ConfigType.CookConfig) {
-      writer.println("trait %s extends %s {  // TRAIT START".format(
-        configRef.configClassTraitName,
-        ConfigRef.rootConfigRef.configClassTraitFullName
-      ))
-    } else {
-      writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
+
+    configRef.configType match {
+      case ConfigType.CookConfig =>
+        writer.println("trait %s extends %s {  // TRAIT START".format(
+          configRef.configClassTraitName,
+          ConfigRef.rootConfigRef.configClassTraitFullName
+        ))
+      case ConfigType.CookiConfig =>
+        writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
+      case ConfigType.CookRootConfig =>
+        writer.println("// TRAIT START")
+        writer.println("trait %s extends xxx".format(configRef.configClassTraitName))
+        for (ref <- configRef.mixins) {
+          writer.println("  with %s" format ref.configClassTraitFullName)
+        }
+        writer.println("{")
     }
 
-    generateImports(configRef, writer)
   }
 
   private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
