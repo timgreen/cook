@@ -63,4 +63,19 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
       val f = g.generate(ConfigRef(List("COOK")))
     } should produce [CookException]
   }
+
+  it should "mixin imports for COOK_ROOT" in {
+    val g = generator("test6")
+    val f = g.generate(ConfigRef.rootConfigRef)
+    val content = Source.fromFile(f.jfile).getLines().toSeq
+    content should contain ("  with COOK_CONFIG_PACKAGE.rules.a_cookiTrait")
+    content should contain ("  with COOK_CONFIG_PACKAGE.rules.b_cookiTrait")
+  }
+
+  it should "report error when @import @mixined files" in {
+    val g = generator("test7")
+    evaluating {
+      val f = g.generate(ConfigRef(List("COOK")))
+    } should produce [CookException]
+  }
 }

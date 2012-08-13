@@ -1,5 +1,7 @@
 package cook.config
 
+import cook.error.ErrorTracking
+
 import java.io.PrintWriter
 import scala.io.Source
 import scala.tools.nsc.io.Directory
@@ -11,14 +13,16 @@ import scala.tools.nsc.io.Path
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-object ConfigScalaSourceGenerator {
+object ConfigScalaSourceGenerator extends ErrorTracking {
 
   def generate(configRef: ConfigRef): Path = {
     val source = configRef.configScalaSourceFile
 
     withWriter(source) { writer =>
       generateHeader(configRef, writer)
-      generateImports(configRef, writer)
+      if (configRef.configType != ConfigType.CookRootConfig) {
+        generateImports(configRef, writer)
+      }
       generateBody(configRef, writer)
       generateFooter(configRef, writer)
     }
@@ -60,14 +64,13 @@ object ConfigScalaSourceGenerator {
   private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// IMPORTS START")
 
-    val imports = if (configRef.configType != ConfigType.CookRootConfig) {
-      configRef.imports -- ConfigRef.rootConfigRef.imports
-    } else {
-      Seq()
-    }
-    for (importDefine <- imports) {
+    for (importDefine <- configRef.imports) {
       writer.println("val %s = %s" format (importDefine.name, importDefine.ref.configClassFullName))
       if (importDefine.importMembers) {
+        if (ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)) {
+          reportError("Already mixin %s in COOK_ROOT, remove @import or use @val instead",
+            importDefine.ref.p.path)
+        }
         writer.println("import %s._" format (importDefine.name))
       }
     }
