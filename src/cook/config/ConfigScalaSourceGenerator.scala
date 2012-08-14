@@ -46,10 +46,9 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
 
     configRef.configType match {
       case ConfigType.CookConfig =>
-        writer.println("trait %s extends %s with %s {  // TRAIT START".format(
+        writer.println("trait %s extends %s {  // TRAIT START".format(
           configRef.configClassTraitName,
-          baseClassName,
-          ConfigRef.rootConfigRef.configClassTraitFullName
+          baseClassName
         ))
       case ConfigType.CookiConfig =>
         writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
@@ -66,11 +65,19 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
 
   private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// IMPORTS START")
+    writer.println("val root = %s".format(ConfigRef.rootConfigRef.configClassFullName))
+    writer.println("import root._")
 
     for (importDefine <- configRef.imports) {
-      writer.println("val %s = %s" format (importDefine.name, importDefine.ref.configClassFullName))
+      val isPartOfRootMixin = ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)
+
+      writer.println("val %s: %s = %s".format(
+        importDefine.name,
+        importDefine.ref.configClassTraitFullName,
+        (if (isPartOfRootMixin) ConfigRef.rootConfigRef else importDefine.ref).configClassFullName
+      ))
       if (importDefine.importMembers) {
-        if (ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)) {
+        if (isPartOfRootMixin) {
           reportError("Already mixin %s in COOK_ROOT, remove @import or use @val instead",
             importDefine.ref.p.path)
         }
@@ -90,12 +97,10 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
     writer.println("}  // TRAIT END")
 
     configRef.configType match {
-      case ConfigType.CookRootConfig =>
-        // nothing to do
       case ConfigType.CookConfig =>
         writer.println("class %s extends %s".format(
           configRef.configClassName, configRef.configClassTraitName))
-      case ConfigType.CookiConfig =>
+      case _ =>
         writer.println("object %s extends %s".format(
           configRef.configClassName, configRef.configClassTraitName))
     }
