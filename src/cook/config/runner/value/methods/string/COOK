@@ -1,9 +1,0 @@
-scala_lib(
-  name = "string_methods",
-  srcs = glob([
-    "*.scala",
-  ]),
-  deps = [
-    "//src/cook/config/runner/value:value",
-  ]
-)

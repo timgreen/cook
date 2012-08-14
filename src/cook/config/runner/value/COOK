@@ -1,8 +1,0 @@
-scala_lib(
-  name = "value",
-  srcs = glob("*.scala"),
-  deps = [
-      "//src/cook/config/parser:cookParser",
-      "//src/cook/util:util",
-  ]
-)

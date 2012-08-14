@@ -1,4 +1,0 @@
-java_lib(
-  name = "runtime",
-  srcs = glob("*.java"),
-)
