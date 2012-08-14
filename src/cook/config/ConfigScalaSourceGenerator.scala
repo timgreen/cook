@@ -38,21 +38,24 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
     writer.close
   }
 
+  val baseClassName = "cook.config.dsl.ConfigBase"
+
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
     writer.println("package %s {  // PACKAGE START" format (configRef.configClassPackageName))
 
     configRef.configType match {
       case ConfigType.CookConfig =>
-        writer.println("trait %s extends %s {  // TRAIT START".format(
+        writer.println("trait %s extends %s with %s {  // TRAIT START".format(
           configRef.configClassTraitName,
+          baseClassName,
           ConfigRef.rootConfigRef.configClassTraitFullName
         ))
       case ConfigType.CookiConfig =>
         writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
       case ConfigType.CookRootConfig =>
         writer.println("// TRAIT START")
-        writer.println("trait %s extends xxx".format(configRef.configClassTraitName))
+        writer.println("trait %s extends %s".format(configRef.configClassTraitName, baseClassName))
         for (ref <- configRef.mixins) {
           writer.println("  with %s" format ref.configClassTraitFullName)
         }
