@@ -30,6 +30,13 @@ scala_lib(
   ],
 )
 
+scala_lib(
+  name = "class_path_builder",
+  srcs = [
+    "ClassPathBuilder.scala",
+  ],
+)
+
 # legacy
 
 scala_lib(

@@ -1,0 +1,9 @@
+scala_lib(
+  name = "class_path_builder_helper",
+  srcs = [
+    "ClassPathBuilderHelper.scala",
+  ],
+  deps = [
+    "//src/cook/util:class_path_builder",
+  ],
+)
