@@ -40,3 +40,15 @@ scala_lib(
     ":config_ref",
   ],
 )
+
+scala_lib(
+  name = "compiler",
+  srcs = [
+    "ConfigCompiler.scala",
+  ],
+  deps = [
+    ":config_ref",
+    "dsl:config_base",
+    "//src/cook/util:class_path_builder",
+  ],
+)
