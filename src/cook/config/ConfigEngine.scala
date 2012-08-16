@@ -52,8 +52,7 @@ object ConfigEngine {
     val classFilePath = configRef.classFilePath
     if (classFilePath.lastModified > configRef.p.lastModified) {
       allCatch.opt {
-        // TODO(timgreen): load class
-        null
+        ConfigLoader.load(configRef)
       }
     } else {
       None
@@ -64,7 +63,7 @@ object ConfigEngine {
     doGenerate(configRef)
     doCompile(configRef)
     // TODO(timgreen):
-    null
+    ConfigLoader.load(configRef)
   }
 
   private def doGenerate(configRef: ConfigRef) {

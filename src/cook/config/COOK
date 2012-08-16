@@ -40,6 +40,18 @@ scala_lib(
 )
 
 scala_lib(
+  name = "loader",
+  srcs = [
+    "ConfigLoader.scala",
+  ],
+  deps = [
+    ":config",
+    ":config_ref",
+    "dsl:config_base",
+  ],
+)
+
+scala_lib(
   name = "engine",
   srcs = [
     "ConfigEngine.scala",
@@ -47,6 +59,7 @@ scala_lib(
   deps = [
     ":compiler",
     ":generator",
+    ":loader",
   ],
 )
 
