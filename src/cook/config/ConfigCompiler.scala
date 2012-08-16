@@ -38,13 +38,11 @@ object ConfigCompiler {
     dir.createDirectory()
   }
 
-
   def initDefaultCp = {
     cpBuilder
       .addJavaPath
+      .addPathFor(classOf[cook.config.Config])
       .addPathFor(classOf[cook.config.dsl.ConfigBase])
-      //.addPathFrom(ClassLoader.getSystemClassLoader)
-      //.addPathFrom(Thread.currentThread.getContextClassLoader)
   }
 }
 

@@ -27,7 +27,7 @@ class ConfigCompilerTest extends FlatSpec with ShouldMatchers with BeforeAndAfte
       cookRootOption = Some((Path("testdata") / dirname) toDirectory),
       cookConfigScalaSourceDirOption = Some(dir)
     )
-    ConfigScalaSourceGenerator
+    ConfigGenerator
   }
 
   def compiler(dirname: String) = {

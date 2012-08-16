@@ -1,9 +1,0 @@
-scala_test(
-  name = "ParserTest",
-  srcs = "CookParserTest.scala",
-  deps = [ "//src/cook/parser" ],
-  data = glob([
-    "COOK",
-    "*.cook"
-  ])
-)

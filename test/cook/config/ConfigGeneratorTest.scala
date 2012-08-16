@@ -12,7 +12,7 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path
 
 
-class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
+class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
   before {
     ConfigRefTestHelper.clearCache
@@ -25,7 +25,7 @@ class ConfigScalaSourceGeneratorTest extends FlatSpec with ShouldMatchers with B
       cookRootOption = Some((Path("testdata") / dirname) toDirectory),
       cookConfigScalaSourceDirOption = Some(dir)
     )
-    ConfigScalaSourceGenerator
+    ConfigGenerator
   }
 
   "Generator" should "include imports" in {

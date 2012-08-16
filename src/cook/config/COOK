@@ -3,21 +3,6 @@ scala_lib(
   srcs = [
     "Config.scala",
   ],
-  deps = [
-    "//lib:scala_compiler",
-  ],
-)
-
-scala_lib(
-  name = "engine",
-  srcs = [
-    "ConfigEngine.scala",
-  ],
-  deps = [
-    ":config",
-    "//src/cook/util:hash_manager",
-    "//src/cook/util:path_util",
-  ],
 )
 
 scala_lib(
@@ -34,7 +19,7 @@ scala_lib(
 scala_lib(
   name = "generator",
   srcs = [
-    "ConfigScalaSourceGenerator.scala",
+    "ConfigGenerator.scala",
   ],
   deps = [
     ":config_ref",
@@ -47,8 +32,21 @@ scala_lib(
     "ConfigCompiler.scala",
   ],
   deps = [
+    ":config",
     ":config_ref",
     "dsl:config_base",
     "//src/cook/util:class_path_builder",
   ],
 )
+
+scala_lib(
+  name = "engine",
+  srcs = [
+    "ConfigEngine.scala",
+  ],
+  deps = [
+    ":compiler",
+    ":generator",
+  ],
+)
+

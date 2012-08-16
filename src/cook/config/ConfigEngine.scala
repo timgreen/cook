@@ -5,7 +5,7 @@ import cook.path.PathUtil
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.controlls.Exception._
+import scala.util.control.Exception._
 
 
 /**
@@ -15,10 +15,11 @@ import scala.controlls.Exception._
  */
 object ConfigEngine {
 
-  case ConfigWithHash(configRef: ConfigRef)
+  case class ConfigWithHash(configRef: ConfigRef)
 
   def init {
     // NOTE(timgreen): if COOK_ROOT changed, all bytecode need re-generated.
+    // TODO(timgreen): better recompile detect
     if (ConfigRef.rootConfigRef.shouldGenerateScala) {
       PathUtil().cookConfigByteCodeDir.deleteRecursively
     }
@@ -68,16 +69,16 @@ object ConfigEngine {
 
   private def doGenerate(configRef: ConfigRef) {
     if (configRef.shouldGenerateScala) {
-      ConfigScalaSourceGenerator.generate(configRef)
+      ConfigGenerator.generate(configRef)
       configRef.saveMeta
       configRef.imports foreach doGenerate
-      configRef.configClassFilesDir.deleteRecursively
+      configRef.configByteCodeDir.deleteRecursively
     }
   }
 
   private def doCompile(configRef: ConfigRef) {
-    // NOTE(timgreen): we assmue if classes dir exist, it will always up-to-date.
-    if (!configRef.configClassFilesDir.canRead) {
+    // NOTE(timgreen): we assmue if bytecode dir exist, it will always up-to-date.
+    if (!configRef.configByteCodeDir.canRead) {
       configRef.imports foreach doCompile
       ConfigCompiler.compile(configRef)
     }

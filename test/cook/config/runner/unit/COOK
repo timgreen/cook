@@ -1,5 +1,0 @@
-scala_test(
-  name = "UnitTest",
-  srcs = "UnitTest.scala",
-  deps = [ "//src/cook/config/runner:evaluators" ],
-)

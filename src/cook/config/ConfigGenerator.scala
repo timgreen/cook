@@ -13,7 +13,7 @@ import scala.tools.nsc.io.Path
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-object ConfigScalaSourceGenerator extends ErrorTracking {
+object ConfigGenerator extends ErrorTracking {
 
   def generate(configRef: ConfigRef): Path = {
     val source = configRef.configScalaSourceFile
@@ -38,6 +38,7 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
     writer.close
   }
 
+  val configClassName = "cook.config.Config"
   val baseClassName = "cook.config.dsl.ConfigBase"
 
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
@@ -46,8 +47,9 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
 
     configRef.configType match {
       case ConfigType.CookConfig =>
-        writer.println("trait %s extends %s {  // TRAIT START".format(
+        writer.println("trait %s extends %s with %s {  // TRAIT START".format(
           configRef.configClassTraitName,
+          configClassName,
           baseClassName
         ))
       case ConfigType.CookiConfig =>
@@ -65,16 +67,24 @@ object ConfigScalaSourceGenerator extends ErrorTracking {
 
   private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// IMPORTS START")
-    writer.println("val root = %s".format(ConfigRef.rootConfigRef.configClassFullName))
-    writer.println("import root._")
+    if (configRef.configType == ConfigType.CookConfig) {
+      writer.println("val root = %s".format(ConfigRef.rootConfigRef.configClassFullName))
+      writer.println("import root._")
+    }
 
     for (importDefine <- configRef.imports) {
       val isPartOfRootMixin = ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)
+      val importObject =
+        (if (isPartOfRootMixin && (configRef.configType == ConfigType.CookConfig)) {
+          ConfigRef.rootConfigRef
+        } else {
+          importDefine.ref
+        }).configClassFullName
 
       writer.println("val %s: %s = %s".format(
         importDefine.name,
         importDefine.ref.configClassTraitFullName,
-        (if (isPartOfRootMixin) ConfigRef.rootConfigRef else importDefine.ref).configClassFullName
+        importObject
       ))
       if (importDefine.importMembers) {
         if (isPartOfRootMixin) {
