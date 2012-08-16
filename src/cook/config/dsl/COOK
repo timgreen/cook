@@ -1,8 +1,20 @@
 scala_lib(
+  name = "config_context",
+  srcs = [
+    "ConfigContext.scala",
+  ],
+  deps = [
+    "//src/cook/config:config_ref",
+  ],
+)
+
+scala_lib(
   name = "config_base",
   srcs = [
     "ConfigBase.scala",
   ],
   deps = [
+    ":config_context",
+    "//src/cook/path:path_ref",
   ],
 )

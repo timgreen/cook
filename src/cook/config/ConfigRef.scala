@@ -85,6 +85,8 @@ private[config] class ConfigRef(segments: List[String])
   private def relativeConfigRef(ref: String) = {
     ConfigRef(relativePathRefSegments(ref))
   }
+
+  def parentPath: Path = p.parent
 }
 
 object ConfigRef extends ErrorTracking {

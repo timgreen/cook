@@ -46,6 +46,5 @@ class ConfigLoaderTest extends FlatSpec with ShouldMatchers with BeforeAndAfter 
     ConfigCompiler.compile(r)
 
     val c = ConfigLoader.load(r)
-    println(c)
   }
 }

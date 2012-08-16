@@ -40,6 +40,7 @@ object ConfigGenerator extends ErrorTracking {
 
   val configClassName = "cook.config.Config"
   val baseClassName = "cook.config.dsl.ConfigBase"
+  val configContextClassName = "cook.config.dsl.ConfigContext"
 
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
@@ -52,13 +53,36 @@ object ConfigGenerator extends ErrorTracking {
           configClassName,
           baseClassName
         ))
+        val currentConfigRef = "cook.config.ConfigRef(List(%s))" format {
+          configRef.segments map {
+            // TODO(timgreen): use apache StringUtil?
+            _.replace("\\","\\\\")
+              .replace("\n","\\n")
+              .replace("\b","\\b")
+              .replace("\r","\\r")
+              .replace("\t","\\t")
+              .replace("\'","\\'")
+              .replace("\f","\\f")
+              .replace("\"","\\\"")
+          } mkString ("\"", "\" ,\"", "\"")
+        }
+        writer.println("override implicit def provideContext: %s = new %s(%s)".format(
+          configContextClassName,
+          configContextClassName,
+          currentConfigRef
+        ))
       case ConfigType.CookiConfig =>
         writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
       case ConfigType.CookRootConfig =>
         writer.println("// TRAIT START")
-        writer.println("trait %s extends %s".format(configRef.configClassTraitName, baseClassName))
-        for (ref <- configRef.mixins) {
-          writer.println("  with %s" format ref.configClassTraitFullName)
+        writer.println("trait %s".format(configRef.configClassTraitName))
+        configRef.mixins map { _.configClassTraitFullName } toList match {
+          case h :: t =>
+            writer.println("  extends %s" format h)
+            t foreach { c =>
+              writer.println("  with %s" format c)
+            }
+          case _ =>
         }
         writer.println("{")
     }

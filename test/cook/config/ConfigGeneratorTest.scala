@@ -68,7 +68,7 @@ class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAft
     val g = generator("test6")
     val f = g.generate(ConfigRef.rootConfigRef)
     val content = Source.fromFile(f.jfile).getLines().toSeq
-    content should contain ("  with COOK_CONFIG_PACKAGE.rules.a_cookiTrait")
+    content should contain ("  extends COOK_CONFIG_PACKAGE.rules.a_cookiTrait")
     content should contain ("  with COOK_CONFIG_PACKAGE.rules.b_cookiTrait")
   }
 

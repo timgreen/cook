@@ -43,6 +43,7 @@ object ConfigCompiler {
       .addJavaPath
       .addPathFor(classOf[cook.config.Config])
       .addPathFor(classOf[cook.config.dsl.ConfigBase])
+      .addPathFor(classOf[cook.config.dsl.ConfigContext])
   }
 }
 
