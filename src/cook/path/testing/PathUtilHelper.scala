@@ -6,7 +6,7 @@ import scala.tools.nsc.io.Directory
 
 object PathUtilHelper {
 
-  def rakePath(
+  def fakePath(
     cookRootOption: Option[Directory] = None,
     cookBuildDirOption: Option[Directory] = None,
     cookConfigScalaSourceDirOption: Option[Directory] = None,

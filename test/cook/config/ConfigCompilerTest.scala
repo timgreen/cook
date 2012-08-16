@@ -8,7 +8,6 @@ import cook.util.testing.ClassPathBuilderHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import scala.io.Source
 import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path
 
@@ -20,39 +19,29 @@ class ConfigCompilerTest extends FlatSpec with ShouldMatchers with BeforeAndAfte
     ConfigCompiler.initDefaultCp
   }
 
-  def generator(dirname: String) = {
+  def fakePath(dirname: String) {
     val dir = Directory("testoutput/" + dirname)
     dir.deleteRecursively
-    PathUtilHelper.rakePath(
-      cookRootOption = Some((Path("testdata") / dirname) toDirectory),
-      cookConfigScalaSourceDirOption = Some(dir)
-    )
-    ConfigGenerator
-  }
 
-  def compiler(dirname: String) = {
-    val sourceDir = Directory("testoutput/scala/" + dirname)
-    val bytecodeDir = Directory("testoutput/bytecode/" + dirname)
-    PathUtilHelper.rakePath(
+    val sourceDir = dir / "scala"
+    val bytecodeDir = dir / "bytecode"
+    PathUtilHelper.fakePath(
       cookRootOption = Some((Path("testdata") / dirname) toDirectory),
-      cookConfigScalaSourceDirOption = Some(sourceDir),
-      cookConfigByteCodeDirOption = Some(bytecodeDir)
+      cookConfigScalaSourceDirOption = Some(sourceDir toDirectory),
+      cookConfigByteCodeDirOption = Some(bytecodeDir toDirectory)
     )
-
-    ConfigCompiler
   }
 
   "Compiler" should "generate bytecodes" in {
-    val g = generator("test1")
-    val c = compiler("test1")
-    g.generate(ConfigRef.rootConfigRef)
-    c.compile(ConfigRef.rootConfigRef)
+    fakePath("test1")
+    ConfigGenerator.generate(ConfigRef.rootConfigRef)
+    ConfigCompiler.compile(ConfigRef.rootConfigRef)
 
     val r = ConfigRef(List("COOK"))
     val a = ConfigRef(List("rules", "a.cooki"))
-    g.generate(r)
-    g.generate(a)
-    c.compile(a)
-    c.compile(r)
+    ConfigGenerator.generate(r)
+    ConfigGenerator.generate(a)
+    ConfigCompiler.compile(a)
+    ConfigCompiler.compile(r)
   }
 }

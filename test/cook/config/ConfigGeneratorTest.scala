@@ -21,7 +21,7 @@ class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAft
   def generator(dirname: String) = {
     val dir = Directory("testoutput/" + dirname)
     dir.deleteRecursively
-    PathUtilHelper.rakePath(
+    PathUtilHelper.fakePath(
       cookRootOption = Some((Path("testdata") / dirname) toDirectory),
       cookConfigScalaSourceDirOption = Some(dir)
     )
