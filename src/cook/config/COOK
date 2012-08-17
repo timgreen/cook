@@ -3,6 +3,10 @@ scala_lib(
   srcs = [
     "Config.scala",
   ],
+  deps = [
+    "dsl:config_context",
+    "//src/cook/path:path_ref",
+  ],
 )
 
 scala_lib(
@@ -24,7 +28,6 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
-    "dsl:config_base",
   ],
 )
 
@@ -36,7 +39,6 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
-    "dsl:config_base",
     "//src/cook/util:class_path_builder",
   ],
 )
@@ -49,7 +51,6 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
-    "dsl:config_base",
   ],
 )
 

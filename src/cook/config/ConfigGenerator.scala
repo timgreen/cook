@@ -39,7 +39,6 @@ object ConfigGenerator extends ErrorTracking {
   }
 
   val configClassName = classOf[cook.config.Config].getName
-  val baseClassName = classOf[cook.config.dsl.ConfigBase].getName
   val configContextClassName = classOf[cook.config.dsl.ConfigContext].getName
 
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
@@ -48,10 +47,9 @@ object ConfigGenerator extends ErrorTracking {
 
     configRef.configType match {
       case ConfigType.CookConfig =>
-        writer.println("trait %s extends %s with %s {  // TRAIT START".format(
+        writer.println("trait %s extends %s {  // TRAIT START".format(
           configRef.configClassTraitName,
-          configClassName,
-          baseClassName
+          configClassName
         ))
         val currentConfigRef = "cook.config.ConfigRef(List(%s))" format {
           configRef.segments map {

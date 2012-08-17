@@ -1,6 +1,7 @@
 package cook.config.dsl
 
 import cook.target.Target
+import cook.target.TargetRef
 
 trait GenTarget {
 
@@ -29,7 +30,7 @@ trait GenTarget {
     t
   }
 
-  private checkTargetName(name: String) {
+  private def checkTargetName(name: String) {
     // TODO(timgreen):
   }
 }

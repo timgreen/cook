@@ -10,22 +10,12 @@ scala_lib(
 )
 
 scala_lib(
-  name = "config_base",
-  srcs = [
-    "ConfigBase.scala",
-  ],
-  deps = [
-    ":config_context",
-    "//src/cook/path:path_ref",
-  ],
-)
-
-scala_lib(
   name = "gen_target",
   srcs = [
     "GenTarget.scala",
   ],
   deps = [
+    ":config_context",
     "//src/cook/target:target",
   ],
 )
