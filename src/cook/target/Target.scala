@@ -49,15 +49,4 @@ object Target {
   type ResultFn[T] = Target[T] => T
   type InputMetaFn[T] = Target[T] => TargetInputMeta
   type RunCmd[T] = Target[T] => Int
-
-  def apply[T](
-    ref: TargetRef,
-    buildCmd: BuildCmd[T],
-    resultFn: ResultFn[T],
-    inputMetaFn: InputMetaFn[T],
-    runCmd: Option[RunCmd[T]] = None,
-    deps: List[TargetRef] = List()
-  ) = {
-    new Target(ref, buildCmd, resultFn, inputMetaFn, runCmd, deps)
-  }
 }

@@ -19,3 +19,13 @@ scala_lib(
     "//src/cook/path:path_ref",
   ],
 )
+
+scala_lib(
+  name = "gen_target",
+  srcs = [
+    "GenTarget.scala",
+  ],
+  deps = [
+    "//src/cook/target:target",
+  ],
+)
