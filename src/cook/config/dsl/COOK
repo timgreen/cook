@@ -5,6 +5,7 @@ scala_lib(
   ],
   deps = [
     "//src/cook/config:config_ref",
+    "//src/cook/target:target",
   ],
 )
 

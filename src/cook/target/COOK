@@ -1,12 +1,16 @@
 scala_lib(
   name = "target",
-  srcs = glob("*.scala"),
+  srcs = [
+    "Target.scala",
+  ],
   deps = [
-    "//src/cook/app/console:console",
-    "//src/cook/config/parser:parser",
-    "//src/cook/config/runner:runner",
-    "//src/cook/util:util",
-    # cp
-    "//lib/ant.jar"
+    ":target_ref",
+  ],
+)
+
+scala_lib(
+  name = "target_ref",
+  srcs = [
+    "TargetRef.scala",
   ],
 )

@@ -1,6 +1,6 @@
 package cook.target
 
 
-class Target {
+class TargetRef {
 
 }
