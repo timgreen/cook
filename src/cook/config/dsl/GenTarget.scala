@@ -5,7 +5,7 @@ import cook.target.TargetRef
 
 trait GenTarget {
 
-  def genTarget[T](
+  def genTarget[T >: Target.Result](
     name: String,
     buildCmd: Target.BuildCmd[T],
     resultFn: Target.ResultFn[T],
