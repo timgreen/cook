@@ -19,3 +19,13 @@ scala_lib(
     "//src/cook/target:target",
   ],
 )
+
+scala_lib(
+  name = "dsl_imports",
+  srcs = [
+    "DslImports.scala",
+  ],
+  deps = [
+    ":gen_target",
+  ],
+)
