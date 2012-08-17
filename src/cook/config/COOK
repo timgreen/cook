@@ -22,7 +22,9 @@ scala_lib(
     "ConfigGenerator.scala",
   ],
   deps = [
+    ":config",
     ":config_ref",
+    "dsl:config_base",
   ],
 )
 

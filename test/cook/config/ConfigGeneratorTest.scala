@@ -32,11 +32,11 @@ class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAft
     val g = generator("test1")
     val f = g.generate(ConfigRef(List("COOK")))
     val content = Source.fromFile(f.jfile).getLines().toSeq
-    content should contain ("val a: COOK_CONFIG_PACKAGE.rules.a_cookiTrait = COOK_CONFIG_PACKAGE.rules.a_cooki")
-    content should contain ("import a._")
+    content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
+    content should contain ("val b: COOK_CONFIG_PACKAGE.rules.b_cookiTrait = COOK_CONFIG_PACKAGE.rules.b_cooki")
   }
 
-  it should "report error when COOK_ROOT include lines other than import" in {
+  it should "report error when COOK_ROOT include lines other than mixin" in {
     val g = generator("test2")
     evaluating {
       g.generate(ConfigRef(List("COOK")))
@@ -64,25 +64,17 @@ class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAft
     } should produce [CookException]
   }
 
-  it should "mixin imports for COOK_ROOT" in {
+  it should "report error when cooki try to import others" in {
     val g = generator("test6")
-    val f = g.generate(ConfigRef.rootConfigRef)
-    val content = Source.fromFile(f.jfile).getLines().toSeq
-    content should contain ("  extends COOK_CONFIG_PACKAGE.rules.a_cookiTrait")
-    content should contain ("  with COOK_CONFIG_PACKAGE.rules.b_cookiTrait")
-  }
-
-  it should "report error when @import @mixined files" in {
-    val g = generator("test7")
     evaluating {
       val f = g.generate(ConfigRef(List("COOK")))
     } should produce [CookException]
   }
 
-  it should "change import object when include in COOK_ROOT mixin" in {
-    val g = generator("test8")
+  it should "import @mixined imports" in {
+    val g = generator("test7")
     val f = g.generate(ConfigRef(List("COOK")))
     val content = Source.fromFile(f.jfile).getLines().toSeq
-    content should contain ("val a: COOK_CONFIG_PACKAGE.rules.a_cookiTrait = COOK_CONFIG_PACKAGE.COOK_ROOT")
+    content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
   }
 }

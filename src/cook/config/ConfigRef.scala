@@ -16,7 +16,11 @@ object ConfigType extends Enumeration {
   val CookRootConfig, CookConfig, CookiConfig = Value
 }
 
-case class ImportDefine(ref: ConfigRef, name: String, importMembers: Boolean)
+sealed trait ConfigRefImport {
+  val ref: ConfigRef
+}
+case class ImportDefine(ref: ConfigRef) extends ConfigRefImport
+case class ValDefine(ref: ConfigRef, name: String) extends ConfigRefImport
 
 private[config] class ConfigRef(segments: List[String])
   extends PathRef(segments) with ConfigMeta with ErrorTracking {
@@ -26,19 +30,24 @@ private[config] class ConfigRef(segments: List[String])
       reportError("Can not read config: %s", p.path)
     }
 
-    ConfigRef.checkCycleImport(this);
-
-    if (configType == ConfigType.CookRootConfig) {
-      Source.fromFile(p.path) getLines() forall { line =>
-        (line matches ConfigRef.MixinP.toString) ||
-          (line matches """^\s*//.*$""") ||
-          (line matches """^\s*$""")
-      } match {
-        case true =>
-        case false =>
-          // NOTE(timgreen): only always mixins in cook root config for now.
-          reportError("Only always mixins in COOK_ROOT config for now.")
-      }
+    configType match {
+      case ConfigType.CookRootConfig =>
+        Source.fromFile(p.path) getLines() forall { line =>
+          (line matches ConfigRef.MixinP.toString) ||
+            (line matches """^\s*//.*$""") ||
+            (line matches """^\s*$""")
+        } match {
+          case true =>
+          case false =>
+            // NOTE(timgreen): only always mixins in cook root config for now.
+            reportError("Only always mixins in COOK_ROOT config for now.")
+        }
+      case ConfigType.CookiConfig =>
+        if (imports.exists(_.isInstanceOf[ImportDefine])) {
+          reportError("Doesn't support @import define in *.cooki")
+        }
+        ConfigRef.checkCycleImport(this);
+      case ConfigType.CookConfig =>  // pass
     }
   }
 
@@ -50,8 +59,7 @@ private[config] class ConfigRef(segments: List[String])
       reportError("This should never happen, unknown config: %s", p.path)
   }
 
-  val packagePrefix = "COOK_CONFIG_PACKAGE"
-  lazy val configClassPackageName = (packagePrefix :: segments.dropRight(1)) mkString "."
+  lazy val configClassPackageName = (ConfigRef.packagePrefix :: segments.dropRight(1)) mkString "."
   lazy val configClassFullName = configClassPackageName + "." + configClassName
   lazy val configClassName = configType match {
     case ConfigType.CookiConfig =>
@@ -66,12 +74,12 @@ private[config] class ConfigRef(segments: List[String])
     PathUtil().cookConfigScalaSourceDir / (configClassFullName + ".scala")
   lazy val configByteCodeDir = PathUtil().cookConfigByteCodeDir / configClassFullName
 
-  lazy val imports: Set[ImportDefine] = {
+  lazy val imports: Set[ConfigRefImport] = {
     Source.fromFile(p.path) getLines() collect {
-      case ConfigRef.ImportP(name, ref) =>
-        ImportDefine(relativeConfigRef(ref + ".cooki"), name, true)
+      case ConfigRef.ImportP(ref) =>
+        ImportDefine(relativeConfigRef(ref + ".cooki"))
       case ConfigRef.ValP(name, ref) =>
-        ImportDefine(relativeConfigRef(ref + ".cooki"), name, false)
+        ValDefine(relativeConfigRef(ref + ".cooki"), name)
     } toSet
   }
 
@@ -102,9 +110,9 @@ object ConfigRef extends ErrorTracking {
   def apply(segments: List[String]): ConfigRef =
     apply(PathUtil().relativeToRoot(segments: _*))
 
-  val ImportP = """\s*//\s*@import\s+(\w+)\s*=\s*"(.+)"\s*$""".r
-  val ValP = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
-  val MixinP = """^\s*//\s*@mixin\s+"(.+)"\s*$""".r
+  val ImportP = """^\s*//\s*@import\s+"(.+)"\s*$""".r
+  val ValP    = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
+  val MixinP  = """^\s*//\s*@mixin\s+"(.+)"\s*$""".r
   def rootConfigRef = apply(List("COOK_ROOT"))
 
   private def createConfigRef(path: Path) = wrapperError("Creating ConfigRef: %s", path.path) {
@@ -140,4 +148,6 @@ object ConfigRef extends ErrorTracking {
     }
     trace -= ref.p.path
   }
+
+  val packagePrefix = "COOK_CONFIG_PACKAGE"
 }

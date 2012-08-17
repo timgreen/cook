@@ -38,9 +38,9 @@ object ConfigGenerator extends ErrorTracking {
     writer.close
   }
 
-  val configClassName = "cook.config.Config"
-  val baseClassName = "cook.config.dsl.ConfigBase"
-  val configContextClassName = "cook.config.dsl.ConfigContext"
+  val configClassName = classOf[cook.config.Config].getName
+  val baseClassName = classOf[cook.config.dsl.ConfigBase].getName
+  val configContextClassName = classOf[cook.config.dsl.ConfigContext].getName
 
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
@@ -92,30 +92,26 @@ object ConfigGenerator extends ErrorTracking {
   private def generateImports(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// IMPORTS START")
     if (configRef.configType == ConfigType.CookConfig) {
-      writer.println("val root = %s".format(ConfigRef.rootConfigRef.configClassFullName))
-      writer.println("import root._")
+      writer.println("//// ROOT IMPORTS START")
+      ConfigRef.rootConfigRef.mixins foreach { ref =>
+        writer.println("import %s._".format(ref.configClassFullName))
+      }
+      writer.println("//// ROOT IMPORTS END")
     }
 
     for (importDefine <- configRef.imports) {
-      val isPartOfRootMixin = ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)
-      val importObject =
-        (if (isPartOfRootMixin && (configRef.configType == ConfigType.CookConfig)) {
-          ConfigRef.rootConfigRef
-        } else {
-          importDefine.ref
-        }).configClassFullName
-
-      writer.println("val %s: %s = %s".format(
-        importDefine.name,
-        importDefine.ref.configClassTraitFullName,
-        importObject
-      ))
-      if (importDefine.importMembers) {
-        if (isPartOfRootMixin) {
-          reportError("Already mixin %s in COOK_ROOT, remove @import or use @val instead",
-            importDefine.ref.p.path)
-        }
-        writer.println("import %s._" format (importDefine.name))
+      importDefine match {
+        case ImportDefine(ref) =>
+          val isPartOfRootMixin = ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)
+          if (!isPartOfRootMixin) {
+            writer.println("import %s._".format(ref.configClassFullName))
+          }
+        case ValDefine(ref, name) =>
+          writer.println("val %s: %s = %s".format(
+            name,
+            ref.configClassTraitFullName,
+            ref.configClassFullName
+          ))
       }
     }
     writer.println("// IMPORTS END")

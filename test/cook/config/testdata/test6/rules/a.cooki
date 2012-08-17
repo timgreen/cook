@@ -1,1 +1,2 @@
+// @import "b"
 def ppp(x: String) = x + "ppp"

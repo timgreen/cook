@@ -39,9 +39,12 @@ class ConfigCompilerTest extends FlatSpec with ShouldMatchers with BeforeAndAfte
 
     val r = ConfigRef(List("COOK"))
     val a = ConfigRef(List("rules", "a.cooki"))
+    val b = ConfigRef(List("rules", "b.cooki"))
     ConfigGenerator.generate(r)
     ConfigGenerator.generate(a)
+    ConfigGenerator.generate(b)
     ConfigCompiler.compile(a)
+    ConfigCompiler.compile(b)
     ConfigCompiler.compile(r)
   }
 }
