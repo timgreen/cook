@@ -1,0 +1,8 @@
+// @import "//rules/string"
+
+stringLength("target_abc", "abc")
+
+stringLength(
+  name = "target_defg",
+  s = "defg"
+)

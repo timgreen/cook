@@ -5,10 +5,10 @@ import cook.target.TargetRef
 
 trait GenTarget {
 
-  def genTarget[T >: Target.Result](
+  def genTarget[T <: Target.Result](
     name: String,
-    buildCmd: Target.BuildCmd[T],
     resultFn: Target.ResultFn[T],
+    buildCmd: Target.BuildCmd[T],
     inputMetaFn: Target.InputMetaFn[T],
     runCmd: Option[Target.RunCmd[T]] = None,
     deps: List[String] = List()

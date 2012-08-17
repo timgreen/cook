@@ -1,0 +1,15 @@
+case class StringLengthResult(length: Int) extends TargetResult
+
+def stringLength(name: String, s: String)(implicit context: Context) {
+  genTarget[StringLengthResult](
+    name = name,
+    resultFn = { t =>
+      StringLengthResult(s.length)
+    },
+    buildCmd = { t => Unit },
+    inputMetaFn = { t =>
+      Map("s" -> s)
+    }
+  )(context)
+
+}

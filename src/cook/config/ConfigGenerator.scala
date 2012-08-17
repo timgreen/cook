@@ -66,13 +66,16 @@ object ConfigGenerator extends ErrorTracking {
               .replace("\"","\\\"")
           } mkString ("\"", "\" ,\"", "\"")
         }
-        writer.println("override implicit def provideContext: %s = new %s(%s)".format(
+        writer.println("override implicit val context: %s = new %s(%s)".format(
           configContextClassName,
           configContextClassName,
           currentConfigRef
         ))
       case ConfigType.CookiConfig =>
-        writer.println("trait %s {  // TRAIT START" format (configRef.configClassTraitName))
+        writer.println("trait %s extends %s {  // TRAIT START".format(
+          configRef.configClassTraitName,
+          dslImportsClassName
+        ))
       case ConfigType.CookRootConfig =>
         writer.println("// TRAIT START")
         writer.println("trait %s".format(configRef.configClassTraitName))
