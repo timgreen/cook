@@ -1,16 +1,24 @@
 scala_lib(
+  name = "target_ref",
+  srcs = [
+    "TargetRef.scala",
+  ],
+)
+
+scala_lib(
+  name = "target_input_meta",
+  srcs = [
+    "TargetInputMeta.scala",
+  ],
+)
+
+scala_lib(
   name = "target",
   srcs = [
     "Target.scala",
   ],
   deps = [
+    ":target_input_meta",
     ":target_ref",
-  ],
-)
-
-scala_lib(
-  name = "target_ref",
-  srcs = [
-    "TargetRef.scala",
   ],
 )

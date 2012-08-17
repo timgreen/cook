@@ -8,13 +8,13 @@ import scala.collection.mutable
 
 class ConfigContext(val ref: ConfigRef) {
 
-  private var targetList = mutable.ArrayBuffer[Target]()
+  private var targetList = mutable.ArrayBuffer[Target[_]]()
 
-  def targets: List[Target] = targetList.toList
+  def targets: List[Target[_]] = targetList.toList
 
   def path = ref.parentPath
 
-  private [dsl] def addTarget(t: Target) {
+  private [dsl] def addTarget(t: Target[_]) {
     targetList += t
   }
 }
