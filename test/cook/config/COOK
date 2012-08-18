@@ -69,3 +69,26 @@ scala_test(
     ["testdata", "."],
   ],
 )
+
+scala_lib(
+  name = "config_engine_test",
+  srcs = "ConfigEngineTest.scala",
+  deps = [
+    "//lib:scalatest",
+    "//src/cook/config/testing:config_ref_test_helper",
+    "//src/cook/config:engine",
+    "//src/cook/path/testing:path_util_helper",
+    "//src/cook/util/testing:class_path_builder_helper",
+  ],
+)
+
+scala_test(
+  name = "run_config_engine_test",
+  deps = [ ":config_engine_test" ],
+  testClasses = [
+    "cook.config.ConfigEngineTest",
+  ],
+  res = [
+    ["testdata", "."],
+  ],
+)

@@ -15,7 +15,7 @@ import scala.util.control.Exception._
  */
 object ConfigEngine {
 
-  case class ConfigWithHash(configRef: ConfigRef)
+  case class ConfigWithHash(config: Config, hash: String)
 
   def init {
     // NOTE(timgreen): if COOK_ROOT changed, all bytecode need re-generated.
@@ -49,28 +49,22 @@ object ConfigEngine {
   }
 
   private def loadFromClass(configRef: ConfigRef): Option[Config] = {
-    val classFilePath = configRef.classFilePath
-    if (classFilePath.lastModified > configRef.p.lastModified) {
-      allCatch.opt {
-        ConfigLoader.load(configRef)
-      }
-    } else {
-      None
+    allCatch.opt {
+      doLoad(configRef)
     }
   }
 
   private def compileAndLoadFromSource(configRef: ConfigRef): Config = {
     doGenerate(configRef)
     doCompile(configRef)
-    // TODO(timgreen):
-    ConfigLoader.load(configRef)
+    doLoad(configRef)
   }
 
   private def doGenerate(configRef: ConfigRef) {
     if (configRef.shouldGenerateScala) {
       ConfigGenerator.generate(configRef)
       configRef.saveMeta
-      configRef.imports foreach doGenerate
+      configRef.imports foreach { i => doGenerate(i.ref) }
       configRef.configByteCodeDir.deleteRecursively
     }
   }
@@ -78,9 +72,14 @@ object ConfigEngine {
   private def doCompile(configRef: ConfigRef) {
     // NOTE(timgreen): we assmue if bytecode dir exist, it will always up-to-date.
     if (!configRef.configByteCodeDir.canRead) {
-      configRef.imports foreach doCompile
+      configRef.imports foreach { i => doCompile(i.ref) }
       ConfigCompiler.compile(configRef)
     }
   }
 
+  private def doLoad(configRef: ConfigRef): Config = {
+    val c = ConfigLoader.load(configRef)
+    cache(configRef.p.path) = ConfigWithHash(c, configRef.hash)
+    c
+  }
 }
