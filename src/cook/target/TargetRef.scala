@@ -9,9 +9,4 @@ case class TargetRef(name: String, segments: List[String]) {
     }
   }
   verify
-
-  def relativeTargetRef(path: String): TargetRef = {
-    // TODO(timgreen):
-    null
-  }
 }

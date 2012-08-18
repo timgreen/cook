@@ -29,3 +29,24 @@ scala_lib(
     ":gen_target",
   ],
 )
+
+scala_lib(
+  name = "dsl_implicits",
+  srcs = [
+    "DslImplicits.scala",
+  ],
+  deps = [
+    ":config_context",
+  ],
+)
+
+scala_lib(
+  name = "dsl",
+  srcs = [
+    "Dsl.scala",
+  ],
+  deps = [
+    ":dsl_imports",
+    ":dsl_implicits",
+  ],
+)

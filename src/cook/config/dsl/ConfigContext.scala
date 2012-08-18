@@ -16,7 +16,7 @@ class ConfigContext(val ref: ConfigRef) {
   def path = ref.parentPath
   def segments = PathUtil().relativeToRoot(path)
 
-  private [dsl] def addTarget(t: Target[_]) {
+  private [dsl] def addTarget[T](t: Target[T]) {
     targetList += t
   }
 }

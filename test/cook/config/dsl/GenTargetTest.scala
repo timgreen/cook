@@ -51,10 +51,14 @@ class GenTargetTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     ConfigCompiler.compile(r)
 
     val c = ConfigLoader.load(r)
-    val ts = c.context.targets
+    val ts = c.targets
 
-    ts.length should be (2)
-    ts(0).ref.name should be ("target_abc")
-    ts(1).ref.name should be ("target_defg")
+    ts.size should be (2)
+    val t1 = ts("target_abc")
+    t1.build
+    t1.result.asInstanceOf[{ def length: Int}].length should be (3)
+    val t2 = ts("target_defg")
+    t2.build
+    t2.result.asInstanceOf[{ def length: Int}].length should be (4)
   }
 }

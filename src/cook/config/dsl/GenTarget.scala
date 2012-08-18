@@ -11,18 +11,18 @@ trait GenTarget {
     buildCmd: Target.BuildCmd[T],
     inputMetaFn: Target.InputMetaFn[T],
     runCmd: Option[Target.RunCmd[T]] = None,
-    deps: List[String] = List()
+    deps: List[TargetRef] = List()
   )(implicit context: ConfigContext): Target[T] = {
     checkTargetName(name)
 
     val targetRef = TargetRef(name, context.segments)
-    val t = new Target(
+    val t = new Target[T](
       ref = targetRef,
       buildCmd = buildCmd,
       resultFn = resultFn,
       inputMetaFn = inputMetaFn,
       runCmd = runCmd,
-      deps = deps map targetRef.relativeTargetRef
+      deps = deps
     )
 
     context addTarget t

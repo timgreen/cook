@@ -40,7 +40,7 @@ object ConfigGenerator extends ErrorTracking {
 
   val configClassName = classOf[cook.config.Config].getName
   val configContextClassName = classOf[cook.config.dsl.ConfigContext].getName
-  val dslImportsClassName = classOf[cook.config.dsl.DslImports].getName
+  val dslClassName = classOf[cook.config.dsl.Dsl].getName
 
   private def generateHeader(configRef: ConfigRef, writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
@@ -51,7 +51,7 @@ object ConfigGenerator extends ErrorTracking {
         writer.println("trait %s extends %s with %s {  // TRAIT START".format(
           configRef.configClassTraitName,
           configClassName,
-          dslImportsClassName
+          dslClassName
         ))
         val currentConfigRef = "cook.config.ConfigRef(List(%s))" format {
           configRef.segments map {
@@ -74,7 +74,7 @@ object ConfigGenerator extends ErrorTracking {
       case ConfigType.CookiConfig =>
         writer.println("trait %s extends %s {  // TRAIT START".format(
           configRef.configClassTraitName,
-          dslImportsClassName
+          dslClassName
         ))
       case ConfigType.CookRootConfig =>
         writer.println("// TRAIT START")

@@ -1,7 +1,7 @@
 package cook.target
 
 
-class Target[T <: Target.Result](
+class Target[T](
   val ref: TargetRef,
   buildCmd: Target.BuildCmd[T],
   resultFn: Target.ResultFn[T],
@@ -50,8 +50,8 @@ object Target {
   object UnitResult extends UnitResult()
 
   type TargetInputMeta = Map[String, String]
-  type BuildCmd[T <: Result] = Target[T] => Unit
-  type ResultFn[T <: Result] = Target[T] => T
-  type InputMetaFn[T <: Result] = Target[T] => TargetInputMeta
-  type RunCmd[T <: Result] = Target[T] => Int
+  type BuildCmd[T] = Target[T] => Unit
+  type ResultFn[T] = Target[T] => T
+  type InputMetaFn[T] = Target[T] => TargetInputMeta
+  type RunCmd[T] = Target[T] => Int
 }

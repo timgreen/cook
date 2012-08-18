@@ -28,7 +28,7 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
-    "dsl:dsl_imports",
+    "dsl:dsl",
   ],
 )
 
@@ -40,7 +40,7 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
-    "dsl:dsl_imports",
+    "dsl:dsl",
     "//src/cook/util:class_path_builder",
   ],
 )
