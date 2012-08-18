@@ -1,0 +1,11 @@
+scala_lib(
+  name = "gen_target",
+  srcs = [
+    "GenTarget.scala",
+  ],
+  deps = [
+    "//src/cook/config/dsl:config_context",
+    "//src/cook/target:target",
+  ],
+)
+

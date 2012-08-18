@@ -1,5 +1,6 @@
-package cook.config.dsl
+package cook.config.dsl.buildin
 
+import cook.config.dsl.ConfigContext
 import cook.target.Target
 import cook.target.TargetRef
 
