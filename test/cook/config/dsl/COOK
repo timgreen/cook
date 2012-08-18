@@ -1,22 +1,20 @@
 scala_lib(
-  name = "gen_target_test",
-  srcs = "GenTargetTest.scala",
+  name = "buildin_test",
+  srcs = "BuildinTest.scala",
   deps = [
     "//lib:scalatest",
     "//src/cook/config/testing:config_ref_test_helper",
-    "//src/cook/config:compiler",
-    "//src/cook/config:generator",
-    "//src/cook/config:loader",
+    "//src/cook/config:engine",
     "//src/cook/path/testing:path_util_helper",
     "//src/cook/util/testing:class_path_builder_helper",
   ],
 )
 
 scala_test(
-  name = "run_gen_target_test",
-  deps = [ ":gen_target_test" ],
+  name = "run_buildin_test",
+  deps = [ ":buildin_test" ],
   testClasses = [
-    "cook.config.dsl.GenTargetTest",
+    "cook.config.dsl.BuildinTest",
   ],
   res = [
     ["testdata", "."],

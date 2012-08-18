@@ -6,3 +6,10 @@ stringLength(
   name = "target_defg",
   s = "defg"
 )
+
+val a = glob("*a*")
+val b = glob("*b*")
+val c = glob("abc")
+
+val a2 = glob(includes = Seq("*a*"), excludes = Seq("aaa"))
+val b2 = glob(includes = Seq("*b*"), excludes = Seq("abc"))
