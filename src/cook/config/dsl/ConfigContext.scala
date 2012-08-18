@@ -13,8 +13,8 @@ class ConfigContext(val ref: ConfigRef) {
 
   def targets: List[Target[_]] = targetList.toList
 
-  def path = ref.parentPath
-  def segments = PathUtil().relativeToRoot(path)
+  lazy val path = ref.parentPath.toDirectory
+  lazy val segments = PathUtil().relativeToRoot(path)
 
   private [dsl] def addTarget[T](t: Target[T]) {
     targetList += t

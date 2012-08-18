@@ -16,6 +16,7 @@ scala_lib(
   ],
   deps = [
     "buildin:gen_target",
+    "buildin:glob",
   ],
 )
 

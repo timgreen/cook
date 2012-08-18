@@ -9,3 +9,14 @@ scala_lib(
   ],
 )
 
+scala_lib(
+  name = "glob",
+  srcs = [
+    "Glob.scala",
+  ],
+  deps = [
+    "//src/cook/config/dsl:config_context",
+    "//src/cook/util:glob_scanner",
+  ],
+)
+
