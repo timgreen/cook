@@ -1,0 +1,47 @@
+// @val java = "java"
+
+import java.JavaBytecodeResult
+
+class ScalaSourceResult(val scalaSrcs: List[Path]) extends TargetResult
+
+object ScalaSourceResult {
+
+  def apply(dir: Directory) = {
+    new ScalaSourceResult(glob(includes = "**/*\.scala", baseDir = dir))
+  }
+}
+
+def scala_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: ConfigContext) {
+  val (inputs, inputTargets) = refs(srcs)
+  val (cp, depTargets) = refs(deps)
+
+  genTarget[JavaBytecodeResult](
+    name = name,
+    resultFn = { t =>
+      val jrs = depTargets collect {
+        case jt: Target[JavaBytecodeResult] => jt.result
+      }
+      JavaBytecodeResult(t.buildDir, cp, jrs)
+    },
+    buildCmd = { t =>
+      val r = t.resultFn(t)
+      t.setResult(r)
+      val sources: List[Path] = inputTargets.foldLeft(inputs) { (a, b) =>
+        b match {
+          case sst: Target[ScalaSourceResult] =>
+            a ::: sst.result.scalaSrcs
+          case _ => error("scala_lib.srcs only support scala source or target generate scala source as input")
+        }
+      }
+      println("cp = " + r.cp.mkString(":"))
+      println("source = " + sources)
+      // build scala sources with cp r.cp
+      val cmd = List("scalac", "-encoding UTF-8", "-d", t.buildDir, "-cp", r.cp.mkString(":")) ::: sources
+      cmd!
+    },
+    inputMetaFn = { t =>
+      checkFiles(inputs :: cp)
+    },
+    deps = inputTargets ::: depTargets
+  )(context)
+}

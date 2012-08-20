@@ -1,0 +1,81 @@
+
+class JavaBytecodeResult(val bytecodeDir: Path, val cp: List[String]) extends TargetResult
+
+object JavaBytecodeResult {
+
+  import scala.collection.immutable.ListSet
+
+  def apply(bytecodeDir: Path, cp: List[String], depResults: List[JavaBytecodeResult]) = {
+    val mergedCp = ListSet.ListSetBuilder(ListSet.empty[String])
+    mergedCp ++= cp
+    depResults foreach { r =>
+      mergedCp += r.bytecodeDir
+      mergedCp ++= r.cp
+    }
+    new JavaBytecodeResult(bytecodeDir, mergedCp.result.toList)
+  }
+}
+
+class JavaSourceResult(val javaSrcs: List[Path]) extends TargetResult
+
+object JavaSourceResult {
+
+  def apply(dir: Directory) = {
+    new JavaSourceResult(glob(includes = "**/*\.java", baseDir = dir))
+  }
+}
+
+def java_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: ConfigContext) {
+  val (inputs, inputTargets) = refs(srcs)
+  val (cp, depTargets) = refs(deps)
+
+  genTarget[JavaBytecodeResult](
+    name = name,
+    resultFn = { t =>
+      val jrs = depTargets collect {
+        case jt: Target[JavaBytecodeResult] => jt.result
+      }
+      JavaBytecodeResult(t.buildDir, cp, jrs)
+    },
+    buildCmd = { t =>
+      val r = t.resultFn(t)
+      t.setResult(r)
+      val sources: List[Path] = inputTargets.foldLeft(inputs) { (a, b) =>
+        b match {
+          case sst: Target[JavaSourceResult] =>
+            a ::: sst.result.javaSrcs
+          case _ => error("java_lib.srcs only support java source or target generate java source as input")
+        }
+      }
+      println("cp = " + r.cp.mkString(":"))
+      println("source = " + sources)
+      // build java sources with cp r.cp
+      val cmd = List("javac", "-encoding UTF-8", "-d", t.buildDir, "-cp", r.cp.mkString(":")) ::: sources
+      cmd!
+    },
+    inputMetaFn = { t =>
+      checkFiles(inputs :: cp)
+    },
+    deps = inputTargets ::: depTargets
+  )(context)
+}
+
+def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = List())(implicit context: ConfigContext) {
+
+  val (cp, depTargets) = refs(deps)
+  getTarget[UnitResult](
+    name = name,
+    resultFn = UnitResultFn,
+    buildCmd = EmptyBuildCmd(),
+    runCmd = Option({ (t, args) =>
+      val jrs = depTargets collect {
+        case jt: Target[JavaBytecodeResult] => jt.result
+      }
+      val r = JavaBytecodeResult(t.buildDir, cp, jrs)
+      val cmd = "java" :: jvmOption ::: List("-encoding UTF-8", "-cp", r.cp.mkString(":"), mainClass) ::: args
+      cmd!
+    }),
+    inputMetaFn = EmptyInputMetaFn()
+    deps  = depTargets
+  )
+}
