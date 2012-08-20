@@ -20,3 +20,12 @@ scala_lib(
   ],
 )
 
+scala_lib(
+  name = "error",
+  srcs = [
+    "Error.scala",
+  ],
+  deps = [
+    "//src/cook/error:error",
+  ],
+)

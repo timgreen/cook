@@ -15,6 +15,7 @@ scala_lib(
     "DslImports.scala",
   ],
   deps = [
+    "buildin:error",
     "buildin:gen_target",
     "buildin:glob",
   ],
