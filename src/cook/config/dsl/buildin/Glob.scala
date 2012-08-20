@@ -16,7 +16,7 @@ trait Glob {
     ) toList
   }
 
-  def glob(includes: Seq[String], excludes: Seq[String])
+  def glob(includes: List[String], excludes: List[String])
     (implicit context: ConfigContext): List[Path] = {
     GlobScanner(
       dir = context.path,
@@ -26,8 +26,8 @@ trait Glob {
     ) toList
   }
 
-  def glob(includes: Seq[String], baseDir: Directory,
-    excludes: Seq[String] = Seq(), fileOnly: Boolean = true): List[Path] = {
+  def glob(includes: List[String], baseDir: Directory,
+    excludes: Seq[String] = List(), fileOnly: Boolean = true): List[Path] = {
     GlobScanner(
       dir = baseDir,
       includes = includes,
