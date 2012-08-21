@@ -6,10 +6,10 @@ object JavaBytecodeResult {
   import scala.collection.immutable.ListSet
 
   def apply(bytecodeDir: Path, cp: List[String], depResults: List[JavaBytecodeResult]) = {
-    val mergedCp = ListSet.ListSetBuilder(ListSet.empty[String])
+    val mergedCp = ListSet.newBuilder[String]
     mergedCp ++= cp
     depResults foreach { r =>
-      mergedCp += r.bytecodeDir
+      mergedCp += r.bytecodeDir.path
       mergedCp ++= r.cp
     }
     new JavaBytecodeResult(bytecodeDir, mergedCp.result.toList)
@@ -25,7 +25,7 @@ object JavaSourceResult {
   }
 }
 
-def java_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: ConfigContext) {
+def java_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: Context) {
   val (inputs, inputTargets) = refs(srcs)
   val (cp, depTargets) = refs(deps)
 
@@ -35,11 +35,11 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
       val jrs = depTargets collect {
         case jt: Target[JavaBytecodeResult] => jt.result
       }
-      JavaBytecodeResult(t.buildDir, cp, jrs)
+      JavaBytecodeResult(t.buildDir, cp.map(_.path), jrs)
     },
     buildCmd = { t =>
       val r = t.resultFn(t)
-      t.setResult(r)
+      t.result = r
       val sources: List[Path] = inputTargets.foldLeft(inputs) { (a, b) =>
         b match {
           case sst: Target[JavaSourceResult] =>
@@ -50,7 +50,7 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
       println("cp = " + r.cp.mkString(":"))
       println("source = " + sources)
       // build java sources with cp r.cp
-      val cmd = List("javac", "-encoding UTF-8", "-d", t.buildDir, "-cp", r.cp.mkString(":")) ::: sources
+      val cmd = List("javac", "-encoding UTF-8", "-d", t.buildDir.path, "-cp", r.cp.mkString(":")) ::: sources.map(_.path)
       cmd!
     },
     inputMetaFn = { t =>
@@ -60,7 +60,7 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
   )(context)
 }
 
-def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = List())(implicit context: ConfigContext) {
+def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = List())(implicit context: Context) {
 
   val (cp, depTargets) = refs(deps)
   getTarget[UnitResult](

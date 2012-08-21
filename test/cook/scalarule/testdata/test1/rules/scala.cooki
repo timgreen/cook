@@ -11,7 +11,7 @@ object ScalaSourceResult {
   }
 }
 
-def scala_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: ConfigContext) {
+def scala_lib(name: String, srcs: List[String], deps: List[String] = List())(implicit context: Context) {
   val (inputs, inputTargets) = refs(srcs)
   val (cp, depTargets) = refs(deps)
 
@@ -21,11 +21,11 @@ def scala_lib(name: String, srcs: List[String], deps: List[String] = List())(imp
       val jrs = depTargets collect {
         case jt: Target[JavaBytecodeResult] => jt.result
       }
-      JavaBytecodeResult(t.buildDir, cp, jrs)
+      JavaBytecodeResult(t.buildDir, cp.map(_.path), jrs)
     },
     buildCmd = { t =>
       val r = t.resultFn(t)
-      t.setResult(r)
+      t.result = r
       val sources: List[Path] = inputTargets.foldLeft(inputs) { (a, b) =>
         b match {
           case sst: Target[ScalaSourceResult] =>
@@ -36,7 +36,7 @@ def scala_lib(name: String, srcs: List[String], deps: List[String] = List())(imp
       println("cp = " + r.cp.mkString(":"))
       println("source = " + sources)
       // build scala sources with cp r.cp
-      val cmd = List("scalac", "-encoding UTF-8", "-d", t.buildDir, "-cp", r.cp.mkString(":")) ::: sources
+      val cmd = List("scalac", "-encoding UTF-8", "-d", t.buildDir.path, "-cp", r.cp.mkString(":")) ::: sources.map(_.path)
       cmd!
     },
     inputMetaFn = { t =>

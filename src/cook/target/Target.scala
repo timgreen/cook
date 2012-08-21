@@ -5,11 +5,11 @@ import scala.tools.nsc.io.Path
 
 class Target[T](
   val ref: TargetRef,
-  buildCmd: Target.BuildCmd[T],
-  resultFn: Target.ResultFn[T],
-  inputMetaFn: Target.InputMetaFn[T],
-  runCmd: Option[Target.RunCmd[T]],
-  deps: List[TargetRef]
+  val buildCmd: Target.BuildCmd[T],
+  val resultFn: Target.ResultFn[T],
+  val inputMetaFn: Target.InputMetaFn[T],
+  val runCmd: Option[Target.RunCmd[T]],
+  val deps: List[TargetRef]
 ) {
 
   private var _result: Option[T] = None
@@ -30,7 +30,7 @@ class Target[T](
     }
   }
 
-  def result_(r: T) {
+  def result_=(r: T) {
     _result = Some(r)
   }
 
