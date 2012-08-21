@@ -3,8 +3,9 @@ package cook.config.dsl
 import cook.path.PathRef
 import cook.target.TargetRef
 
+import scala.sys.process.ProcessImplicits
 
-trait DslImplicits {
+trait DslImplicits extends ProcessImplicits {
 
   implicit def string2targetRef(s: String)(implicit context: ConfigContext): TargetRef = {
     val Array(ref, name) = s.split(":", 2)
@@ -16,6 +17,7 @@ trait DslImplicits {
   }
 
 
+  // tuple to list
   private def t2l(t: {def productIterator: Iterator[Any]}): List[String] =
     t.productIterator.toList.asInstanceOf[List[String]]
   implicit def stringToList(s: String): List[String] = List(s)

@@ -3,6 +3,9 @@ scala_lib(
   srcs = [
     "TargetRef.scala",
   ],
+  deps = [
+    "//src/cook/path:path_ref",
+  ],
 )
 
 scala_lib(

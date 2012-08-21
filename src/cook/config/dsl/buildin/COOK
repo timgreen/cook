@@ -29,3 +29,14 @@ scala_lib(
     "//src/cook/error:error",
   ],
 )
+
+scala_lib(
+  name = "refs",
+  srcs = [
+    "Refs.scala",
+  ],
+  deps = [
+    ":error",
+    "//src/cook/config/dsl:config_context",
+  ],
+)

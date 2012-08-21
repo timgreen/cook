@@ -16,7 +16,7 @@ trait GenTarget {
   )(implicit context: ConfigContext): Target[T] = {
     checkTargetName(name)
 
-    val targetRef = TargetRef(name, context.segments)
+    val targetRef = new TargetRef(name, context.segments)
     val t = new Target[T](
       ref = targetRef,
       buildCmd = buildCmd,
