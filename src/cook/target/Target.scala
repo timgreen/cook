@@ -1,5 +1,7 @@
 package cook.target
 
+import scala.tools.nsc.io.Path
+
 
 class Target[T](
   val ref: TargetRef,
@@ -12,8 +14,8 @@ class Target[T](
 
   private var _result: Option[T] = None
   private var built: Boolean = false
-  private lazy val inputMeta = inputMetaFn(this)
-  private lazy val isMetaNotChanged = checkIfMetaChanged(inputMeta)
+  private lazy val userInputMeta = inputMetaFn(this)
+  private lazy val isMetaNotChanged = checkIfMetaChanged
 
   def result: T = {
     // TODO(timgreen):
@@ -28,6 +30,10 @@ class Target[T](
     }
   }
 
+  def result_(r: T) {
+    _result = Some(r)
+  }
+
   def needBuild = !built && isMetaNotChanged
 
   def build {
@@ -37,7 +43,10 @@ class Target[T](
     }
   }
 
-  private def checkIfMetaChanged(inputMeta: Target.TargetInputMeta): Boolean = {
+  def buildDir = ref.buildDir
+  def runDir = ref.runDir
+
+  private def checkIfMetaChanged: Boolean = {
     // TODO(timgreen):
     true
   }
@@ -48,6 +57,7 @@ object Target {
   trait Result
   class UnitResult extends Result
   object UnitResult extends UnitResult()
+  def unitResultFn[T] = { t: Target[T] => UnitResult }
 
   type TargetInputMeta = Map[String, String]
   type BuildCmd[T] = Target[T] => Unit

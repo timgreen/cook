@@ -21,7 +21,7 @@ class JavaSourceResult(val javaSrcs: List[Path]) extends TargetResult
 object JavaSourceResult {
 
   def apply(dir: Directory) = {
-    new JavaSourceResult(glob(includes = "**/*\.java", baseDir = dir))
+    new JavaSourceResult(glob(includes = "**/*\\.java", baseDir = dir))
   }
 }
 

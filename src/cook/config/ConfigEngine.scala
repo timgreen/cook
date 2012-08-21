@@ -23,6 +23,10 @@ object ConfigEngine {
     if (ConfigRef.rootConfigRef.shouldGenerateScala) {
       PathUtil().cookConfigByteCodeDir.deleteRecursively
     }
+    ConfigRef.rootConfigRef.mixins foreach { r =>
+      doGenerate(r)
+      doCompile(r)
+    }
   }
 
   def load(configRef: ConfigRef): Config = {

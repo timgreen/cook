@@ -7,7 +7,7 @@ class ScalaSourceResult(val scalaSrcs: List[Path]) extends TargetResult
 object ScalaSourceResult {
 
   def apply(dir: Directory) = {
-    new ScalaSourceResult(glob(includes = "**/*\.scala", baseDir = dir))
+    new ScalaSourceResult(glob(includes = "**/*\\.scala", baseDir = dir))
   }
 }
 

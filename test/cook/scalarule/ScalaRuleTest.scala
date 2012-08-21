@@ -18,9 +18,10 @@ import scala.tools.nsc.io.Path
 class ScalaRuleTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
   before {
+    fakePath("test1")
     ClassPathBuilderHelper.reset(ConfigCompiler.cpBuilder)
     ConfigCompiler.initDefaultCp
-    fakePath("test1")
+    ConfigEngine.init
   }
 
   def fakePath(dirname: String) {
