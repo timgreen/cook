@@ -1,0 +1,27 @@
+java_lib(
+  name = "java_test1",
+  srcs = (
+    "JavaTest1.java"
+  )
+)
+
+java_lib(
+  name = "java_test2",
+  srcs = "JavaTest2.java"
+)
+
+java_lib(
+  name = "java_test12",
+  srcs = (
+    "JavaTest1.java",
+    "JavaTest2.java"
+  )
+)
+
+java_lib(
+  name = "java_test12_",
+  srcs = List(
+    "JavaTest1.java",
+    "JavaTest2.java"
+  )
+)
