@@ -1,5 +1,6 @@
 package cook.config
 
+import cook.error.ErrorTracking._
 import cook.util.ClassPathBuilder
 
 import scala.tools.nsc.Settings
@@ -18,7 +19,7 @@ object ConfigCompiler {
     prevCompileCpUpdate
 
     val c = new ConfigCompiler(outDir, cpBuilder.classPath)
-    c.compile(configRef.configScalaSourceFile)
+    c.compile(configRef.configScalaSourceFile, configRef)
 
     postCompileCpUpdate(outDir)
   }
@@ -51,7 +52,7 @@ class ConfigCompiler(outDir: Path, cp: String) {
   val settings = generateSettings
   val compiler = new Global(settings, null)
 
-  def compile(file: Path): Unit = {
+  def compile(file: Path, ref: ConfigRef): Unit = {
     synchronized {
       //var messages = List[CompilerError]()
       val reporter = new ConsoleReporter(settings) {
@@ -79,8 +80,8 @@ class ConfigCompiler(outDir: Path, cp: String) {
 
       // Bail out if compilation failed
       if (reporter.hasErrors) {
-        reporter.printSummary
-        //throw new CompilerException("Compilation failed:\n", messages)
+        //reporter.printSummary
+        reportError("Config Compilation Error: %s\n\n%s", ref.refName)
       }
     }
   }

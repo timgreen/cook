@@ -1,6 +1,6 @@
 package cook.error
 
-trait ErrorTracking {
+object ErrorTracking {
 
   def wrapperError[T](error: String, args: Any*)(op: => T): T = {
     try {
@@ -13,9 +13,5 @@ trait ErrorTracking {
 
   def reportError(error: String, args: Any*) = {
     throw new CookException(error, args: _*)
-  }
-
-  def debugError(error: String, args: Any*) = {
-    throw new RuntimeException(error.format(args: _*))
   }
 }

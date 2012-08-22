@@ -16,6 +16,7 @@ scala_lib(
   ],
   deps = [
     ":path_util",
+    "//src/cook/error:error",
     "//src/cook/util:hash_manager",
   ],
 )

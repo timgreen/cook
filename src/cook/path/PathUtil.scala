@@ -1,6 +1,6 @@
 package cook.path
 
-import cook.error.ErrorTracking
+import cook.error.ErrorTracking._
 
 import scala.annotation.tailrec
 import scala.tools.nsc.io.Directory
@@ -14,7 +14,7 @@ class PathUtil(
   cookConfigByteCodeDirOption: Option[Directory] = None,
   cookTargetBuildDirOption: Option[Directory] = None,
   cookConfigMetaDirOption: Option[Directory] = None
-) extends ErrorTracking {
+) {
 
   def findRootDir(currentDir: Directory): Directory = cookRootOption match {
     case Some(r) => r

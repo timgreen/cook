@@ -1,6 +1,6 @@
 package cook.util
 
-import cook.error.ErrorTracking
+import cook.error.ErrorTracking._
 
 import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
@@ -8,7 +8,7 @@ import scala.collection.mutable
 import scala.tools.nsc.io.Path
 
 
-object HashManager extends ErrorTracking {
+object HashManager {
 
   private [util] val cache: mutable.ConcurrentMap[String, String] = new JConcurrentHashMap[String, String]
 

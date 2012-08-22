@@ -1,6 +1,6 @@
 package cook.config
 
-import cook.error.ErrorTracking
+import cook.error.ErrorTracking._
 import cook.path.PathRef
 import cook.path.PathUtil
 
@@ -23,7 +23,7 @@ case class ImportDefine(ref: ConfigRef) extends ConfigRefImport
 case class ValDefine(ref: ConfigRef, name: String) extends ConfigRefImport
 
 private[config] class ConfigRef(segments: List[String])
-  extends PathRef(segments) with ConfigMeta with ErrorTracking {
+  extends PathRef(segments) with ConfigMeta {
 
   private def verify {
     if (!p.canRead) {
@@ -97,7 +97,7 @@ private[config] class ConfigRef(segments: List[String])
   def parentPath: Path = p.parent
 }
 
-object ConfigRef extends ErrorTracking {
+object ConfigRef {
 
   def apply(path: Path): ConfigRef = cache.get(path.path) match {
     case Some(c) => c

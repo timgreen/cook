@@ -1,5 +1,6 @@
 package cook.path
 
+import cook.error.ErrorTracking._
 import cook.util.HashManager
 
 import scala.annotation.tailrec
@@ -20,16 +21,24 @@ class PathRef(val segments: List[String]) {
   lazy val p: Path = getPath
   private def getPath = PathUtil().relativeToRoot(segments: _*)
   def hash = HashManager.hash(p)
+
+  def refName = segments.mkString("/", "/", "")
 }
 
 object PathRef {
 
   def relative(baseSegments: List[String], ref: String): List[String] = {
-      if (ref.startsWith("//")) {
-        ref.drop(2).split("/").toList
-      } else {
-        doRelative(baseSegments, ref.split("/").toList)
+    val segments = if (ref.startsWith("/")) {
+      ref.drop(1).split("/").toList
+    } else {
+      doRelative(baseSegments, ref.split("/").toList)
+    }
+    for (seg <- segments) {
+      if (seg.isEmpty) {
+        reportError("Bad ref: %s", ref)
       }
+    }
+    segments
   }
 
   @tailrec
@@ -38,7 +47,9 @@ object PathRef {
       case Nil =>
         baseSegments
       case ".." :: tail =>
-        assert(baseSegments.nonEmpty)
+        if (baseSegments.isEmpty) {
+          reportError("Bad ref")
+        }
         doRelative(baseSegments.drop(1), tail)
       case "." :: tail =>
         doRelative(baseSegments, tail)

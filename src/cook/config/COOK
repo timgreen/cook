@@ -41,6 +41,7 @@ scala_lib(
     ":config",
     ":config_ref",
     "dsl:dsl",
+    "//src/cook/error:error",
     "//src/cook/util:class_path_builder",
   ],
 )

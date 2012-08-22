@@ -1,6 +1,6 @@
 package cook.config
 
-import cook.error.ErrorTracking
+import cook.error.ErrorTracking._
 
 import java.io.PrintWriter
 import scala.io.Source
@@ -13,7 +13,7 @@ import scala.tools.nsc.io.Path
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-object ConfigGenerator extends ErrorTracking {
+object ConfigGenerator {
 
   def generate(configRef: ConfigRef): Path = {
     val source = configRef.configScalaSourceFile
