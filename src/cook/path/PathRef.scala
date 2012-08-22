@@ -31,7 +31,7 @@ class PathRef(val segments: List[String]) {
   private def getPath = PathUtil().relativeToRoot(segments: _*)
   def hash = HashManager.hash(p)
 
-  def refName = segments.mkString("/", "/", "")
+  lazy val refName = segments.mkString("/", "/", "")
 }
 
 object PathRef {

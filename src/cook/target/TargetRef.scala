@@ -23,7 +23,8 @@ class TargetRef(val name: String, val segments: List[String]) {
   lazy val runDir: Path =
     buildDir.parent / ("COOK_TARGET_run_" + name)
 
-  override def toString = "TargetRef(%s:%s)" format (segments.mkString("/"), name)
+  override def toString = "TargetRef(%s)".format(refName)
+  lazy val refName = segments.mkString("/", "/", ":" + name)
 }
 
 object TargetRef {

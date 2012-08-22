@@ -50,6 +50,8 @@ class Target[T](
     // TODO(timgreen):
     true
   }
+
+  def refName = ref.refName
 }
 
 object Target {
