@@ -14,6 +14,15 @@ import scala.tools.nsc.io.Path
  */
 class PathRef(val segments: List[String]) {
 
+  private def verify {
+    for (seg <- segments) {
+      if (seg.contains(':')) {
+        reportError("bad path ref name: %s", refName)
+      }
+    }
+  }
+  verify
+
   def relativePathRefSegments(ref: String): List[String] = {
     PathRef.relative(segments.dropRight(1), ref)
   }

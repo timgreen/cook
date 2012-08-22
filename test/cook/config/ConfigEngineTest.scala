@@ -1,6 +1,7 @@
 package cook.config
 
 import cook.config.testing.ConfigRefTestHelper
+import cook.error.CookException
 import cook.path.testing.PathUtilHelper
 import cook.util.testing.ClassPathBuilderHelper
 
@@ -37,5 +38,32 @@ class ConfigEngineTest extends FlatSpec with ShouldMatchers with BeforeAndAfter 
     val r = ConfigRef(List("COOK"))
 
     val c = ConfigEngine.load(r)
+  }
+
+  it should "report error on bad ref name, starts with //" in {
+    fakePath("test1")
+
+    val r = ConfigRef(List("badref1", "COOK"))
+    evaluating {
+      val c = ConfigEngine.load(r)
+    } should produce [CookException]
+  }
+
+  it should "report error on bad ref name, contains //" in {
+    fakePath("test1")
+
+    val r = ConfigRef(List("badref2", "COOK"))
+    evaluating {
+      val c = ConfigEngine.load(r)
+    } should produce [CookException]
+  }
+
+  it should "report error on bad ref name, contains :" in {
+    fakePath("test1")
+
+    val r = ConfigRef(List("badref3", "COOK"))
+    evaluating {
+      val c = ConfigEngine.load(r)
+    } should produce [CookException]
   }
 }

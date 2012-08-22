@@ -1,4 +1,4 @@
-// @import "//rules/string"
+// @import "/rules/string"
 
 stringLength("target_abc", "abc")
 
