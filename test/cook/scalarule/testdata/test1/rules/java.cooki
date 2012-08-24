@@ -54,7 +54,7 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
       cmd!
     },
     inputMetaFn = { t =>
-      checkFiles(inputs :: cp)
+      filesToMeta(inputs :: cp)
     },
     deps = inputTargets ::: depTargets
   )(context)
@@ -63,9 +63,9 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
 def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = List())(implicit context: Context) {
 
   val (cp, depTargets) = refs(deps)
-  getTarget[UnitResult](
+  genTarget[UnitResult](
     name = name,
-    resultFn = UnitResultFn,
+    resultFn = unitResultFn,
     buildCmd = EmptyBuildCmd(),
     runCmd = Option({ (t, args) =>
       val jrs = depTargets collect {

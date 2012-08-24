@@ -40,3 +40,14 @@ scala_lib(
     "//src/cook/config/dsl:config_context",
   ],
 )
+
+scala_lib(
+  name = "meta",
+  srcs = [
+    "Meta.scala",
+  ],
+  deps = [
+    "//src/cook/target:target",
+    "//src/cook/util:hash_manager",
+  ],
+)

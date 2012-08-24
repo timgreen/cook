@@ -18,6 +18,7 @@ scala_lib(
     "buildin:error",
     "buildin:gen_target",
     "buildin:glob",
+    "buildin:meta",
     "buildin:refs",
   ],
 )

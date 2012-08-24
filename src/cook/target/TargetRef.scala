@@ -22,6 +22,8 @@ class TargetRef(val name: String, val segments: List[String]) {
     segments.foldLeft(PathUtil().cookTargetBuildDir: Path)(_ / _) / ("COOK_TARGET_build_" + name)
   lazy val runDir: Path =
     buildDir.parent / ("COOK_TARGET_run_" + name)
+  lazy val metaFilePath: Path =
+    buildDir.parent / ("COOK_TARGET_build_" + name + ".meta")
 
   override def toString = "TargetRef(%s)".format(refName)
   lazy val refName = segments.mkString("/", "/", ":" + name)
