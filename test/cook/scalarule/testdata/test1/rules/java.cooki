@@ -65,7 +65,7 @@ def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: Lis
   val (cp, depTargets) = refs(deps)
   genTarget[UnitResult](
     name = name,
-    resultFn = unitResultFn,
+    resultFn = UnitResultFn(),
     buildCmd = EmptyBuildCmd(),
     runCmd = Option({ (t, args) =>
       val jrs = depTargets collect {

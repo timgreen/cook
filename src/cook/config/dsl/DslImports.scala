@@ -13,8 +13,7 @@ trait DslImports extends GenTarget with Glob with Error with Refs with Meta {
   type Target[T] = cook.target.Target[T]
   type TargetResult = cook.target.Target.Result
   type UnitResult = cook.target.Target.UnitResult
-  def unitResultFn[T] = cook.target.Target.unitResultFn[T]
-
+  val UnitResultFn = cook.target.Target.UnitResultFn
   val EmptyBuildCmd = cook.target.Target.EmptyBuildCmd
   val EmptyInputMetaFn = cook.target.Target.EmptyInputMetaFn
 

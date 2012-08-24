@@ -77,8 +77,10 @@ object Target {
 
   class UnitResult extends Result
   object UnitResult extends UnitResult()
-  def unitResultFn[T] = { t: Target[T] => UnitResult }
 
+  object UnitResultFn {
+    def apply(): ResultFn[UnitResult] = { t => UnitResult }
+  }
   object EmptyBuildCmd {
     def apply[T](): BuildCmd[T] = { t => }
   }
