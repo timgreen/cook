@@ -68,13 +68,21 @@ class Target[T](
 object Target {
 
   trait Result
-  class UnitResult extends Result
-  object UnitResult extends UnitResult()
-  def unitResultFn[T] = { t: Target[T] => UnitResult }
 
   type TargetInputMeta = Map[String, String]
   type BuildCmd[T] = Target[T] => Unit
   type ResultFn[T] = Target[T] => T
   type InputMetaFn[T] = Target[T] => TargetInputMeta
   type RunCmd[T] = (Target[T], List[String]) => Int
+
+  class UnitResult extends Result
+  object UnitResult extends UnitResult()
+  def unitResultFn[T] = { t: Target[T] => UnitResult }
+
+  object EmptyBuildCmd {
+    def apply[T](): BuildCmd[T] = { t => }
+  }
+  object EmptyInputMetaFn {
+    def apply[T](): InputMetaFn[T] = { t => Map() }
+  }
 }

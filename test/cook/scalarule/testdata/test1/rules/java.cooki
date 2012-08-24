@@ -54,7 +54,7 @@ def java_lib(name: String, srcs: List[String], deps: List[String] = List())(impl
       cmd!
     },
     inputMetaFn = { t =>
-      filesToMeta(inputs :: cp)
+      filesToMeta(inputs ::: cp)
     },
     deps = inputTargets ::: depTargets
   )(context)
@@ -71,11 +71,11 @@ def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: Lis
       val jrs = depTargets collect {
         case jt: Target[JavaBytecodeResult] => jt.result
       }
-      val r = JavaBytecodeResult(t.buildDir, cp, jrs)
+      val r = JavaBytecodeResult(t.buildDir, cp.map(_.path), jrs)
       val cmd = "java" :: jvmOption ::: List("-encoding UTF-8", "-cp", r.cp.mkString(":"), mainClass) ::: args
       cmd!
     }),
-    inputMetaFn = EmptyInputMetaFn()
-    deps  = depTargets
+    inputMetaFn = EmptyInputMetaFn(),
+    deps = depTargets
   )
 }
