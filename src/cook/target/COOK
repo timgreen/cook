@@ -23,5 +23,7 @@ scala_lib(
   deps = [
     ":target_input_meta",
     ":target_ref",
+    "//src/cook/app:stage",
+    "//src/cook/error:error",
   ],
 )

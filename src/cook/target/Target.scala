@@ -1,5 +1,8 @@
 package cook.target
 
+import cook.app.Stage
+import cook.error.ErrorTracking._
+
 import scala.tools.nsc.io.Path
 
 
@@ -18,8 +21,9 @@ class Target[T](
   private lazy val isMetaNotChanged = checkIfMetaChanged
 
   def result: T = {
-    // TODO(timgreen):
-    // only avaliable in build stage
+    if (!Stage.isTargetResultReady) {
+      reportError("<target>.result not avaliable in stage: '%s'", Stage.stage.toString)
+    }
     assert(!needBuild, "when assign target.result, target must be built")
     _result match {
       case Some(r) => r
