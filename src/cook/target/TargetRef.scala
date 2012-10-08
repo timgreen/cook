@@ -1,5 +1,6 @@
 package cook.target
 
+import cook.config.ConfigRef
 import cook.path.PathRef
 import cook.path.PathUtil
 
@@ -27,6 +28,8 @@ class TargetRef(val name: String, val segments: List[String]) {
 
   override def toString = "TargetRef(%s)".format(refName)
   lazy val refName = segments.mkString("/", "/", ":" + name)
+
+  def containerConfigRef = ConfigRef(segments ::: "COOK" :: Nil)
 }
 
 object TargetRef {

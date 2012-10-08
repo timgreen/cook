@@ -4,6 +4,7 @@ scala_lib(
     "TargetRef.scala",
   ],
   deps = [
+    "//src/cook/config:config_ref",
     "//src/cook/path:path_ref",
   ],
 )
@@ -25,5 +26,16 @@ scala_lib(
     ":target_ref",
     "//src/cook/app:stage",
     "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
+  name = "target_manager",
+  srcs = [
+    "TargetManager.scala",
+  ],
+  deps = [
+    ":target",
+    "//src/cook/config:engine",
   ],
 )
