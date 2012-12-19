@@ -1,128 +1,81 @@
 package cook.app.console
 
-import scala.collection.mutable.HashMap
-
 import cook.app.config.Config
 
-object CookConsole {
+trait ConsoleBase {
 
-  def println(s: String, objs: Any*) {
-    s.format(objs: _*).foreach(p)
-    p('\n')
-  }
-  def print(s: String, objs: Any*) {
-    s.format(objs: _*).foreach(p)
-    Console.flush
-  }
+  def flush = Console.flush
+  // According to http://en.wikipedia.org/wiki/ANSI_escape_code
+  def newLine = Console.printf("\033E")
+  def saveCursor = Console.printf("\033[s")
+  def restoreCursor = Console.printf("\033[u")
+  //def saveCursor = Console.printf("\0337")
+  //def restoreCursor = Console.printf("\0338")
+  def eraseToEnd = Console.printf("\033[J")
+  def hideCursor = Console.printf("\033[?25l")
+  def showCursor = Console.printf("\033[?25h")
+  def reset = Console.printf(Console.RESET)
+}
 
-  def mark(name: Symbol) {
-    marks(name) = (x, y)
-  }
 
-  def clearToMark(name: Symbol) {
-    val (mx, my) = marks(name)
-    val (cx, cy) = (x, y)
-    goto(mx, my)
-    val spaces = (cy - my) * width + (cx - mx)
+object CookConsole extends ConsoleBase {
+  import Console._
+
+  def printRootDir(rootDirStr: String) {
     reset
-    for (i <- 1 to spaces) {
-      p(' ')
-    }
-    goto(mx, my)
+    printf("COOK_ROOT: %s%s%s", YELLOW, rootDirStr, RESET)
+    newLine
+    saveCursor
+    flush
   }
 
-  def reset {
-    control(Console.RESET)
+  def updateProgress(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int) {
+    restoreCursor
+    flush
+    saveCursor
+    hideCursor
+    eraseToEnd
+
+    // show info
+    val total = done + cached + building + pending + unsolved
+    printf("Find %s%d%s targets(s)", CYAN, total, RESET)
+    newLine
+    printf("Done %s%d%s Cached %s%d%s Building %s%d%s Pending %s%d%s Unsolved %s%d%s",
+      CYAN, done, RESET,
+      CYAN, cached, RESET,
+      CYAN, building, RESET,
+      CYAN, pending, RESET,
+      CYAN, unsolved, RESET)
+    newLine
+
+    // draw progress bar
+    val barWidth = width - 4 - 4
+    val doneWidth = barWidth * done / total
+    val cachedWidth = barWidth * cached / total
+    val buildingWidth = barWidth * building / total
+    val pendingWidth = barWidth * pending / total
+    val unsolvedWidth = barWidth - doneWidth - cachedWidth - buildingWidth - pendingWidth
+    printf("[ %s%s%s%s%s%s%s%s%s%s ]",
+      CYAN,   "C" + "o" * doneWidth,
+      YELLOW, "o" * (cachedWidth + 1),
+      GREEN,  "o" * (buildingWidth + 1),
+      BLUE,   "o" * pendingWidth + "k",
+      RESET,  " " * unsolvedWidth)
+    newLine
+    showCursor
   }
 
-  def control(str: String, objs: Any*) {
-    Console.printf(str, objs: _*)
-  }
-
-  def cookPercentage(percentage: Int) {
-    val remain = width - x - 2 - 4 - 2
-    val os = remain * percentage / 100
-    val spaces = remain - os
-
-    print("[ ")
-    control(Console.CYAN)
-    p('C')
-    control(Console.YELLOW)
-    p('o')
-
-    control(Console.GREEN)
-    p('o')
-    for (i <- 1 to os) {
-      p('o')
+  def updateBuildingTargets(targets: List[String]) {
+    hideCursor
+    for (t <- targets.headOption) {
+      printf("%s%s%s", GREEN, t, RESET)
     }
-    control(Console.CYAN)
-    p('k')
-    for (i <- 1 to spaces) {
-      p(' ')
+    for (t <- targets.tail) {
+      printf(", %s%s%s", GREEN, t, RESET)
     }
-    reset
-    print(" ]")
-  }
-
-  private
-  var x = 0
-  var y = 0
-
-  val marks = new HashMap[Symbol, Tuple2[Int, Int]]
-
-  def isLineEnd = (x + 1 == width)
-  def isLineStart = (x == 0)
-
-  def p(c: Char) {
-    Console.print(c)
-    if (isLineEnd) {
-      if (c != '\n') {
-        Console.println
-      }
-      y += 1
-      x = 0
-    } else if (c == '\n') {
-      y += 1
-      x = 0
-    } else {
-      x += 1
-    }
+    newLine
+    showCursor
   }
 
   def width = Config.columns
-
-  def goto(x: Int, y: Int) {
-    if (this.x > x) {
-      moveLeft(this.x - x)
-    } else if (this.x < x) {
-      moveRight(x - this.x)
-    }
-
-    if (this.y > y) {
-      moveUp(this.y - y)
-    } else if (this.y < y) {
-      moveDown(y - this.y)
-    }
-  }
-
-  def moveUp(dy: Int) {
-    control("\033[%dA", dy)
-    y -= dy
-  }
-
-  def moveDown(dy: Int) {
-    control("\033[%dB", dy)
-    y += dy
-  }
-
-  def moveRight(dx: Int) {
-    control("\033[%dC", dx)
-    x += dx
-  }
-
-  def moveLeft(dx: Int) {
-    control("\033[%dD", dx)
-    x -= dx
-  }
-
 }
