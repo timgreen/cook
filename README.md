@@ -4,4 +4,5 @@
 
 Cook is design for company/person with single source code tree.
 
-[![Build Status](https://secure.travis-ci.org/timgreen/cook.png)](http://travis-ci.org/timgreen/cook)
+[![Build Status](https://api.travis-ci.org/timgreen/cook.png)](http://travis-ci.org/timgreen/cook)
+

@@ -6,11 +6,30 @@ scala_lib(
 )
 
 scala_lib(
+  name = "config",
+  srcs = [
+    "Config.scala",
+  ],
+)
+
+scala_lib(
+  name = "parser",
+  srcs = [
+    "CookOptionParser.scala",
+  ],
+  deps = [
+    ":config",
+    "//lib/scallop_2.9.0-1-0.6.3.jar",
+  ],
+)
+
+scala_lib(
   name = "main",
   srcs = [
     "Main.scala",
   ],
   deps = [
+    ":parser",
     "//src/cook/app/console:console",
   ],
 )

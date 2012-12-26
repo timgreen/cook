@@ -4,8 +4,29 @@ import cook.app.console.CookConsole
 
 object Main {
 
+  private var _config: Config = _
+  def config = _config
+
   def main(args: Array[String]) {
-    findAndPrintRootDir
+    val parser = new CookOptionParser(args)
+    _config = Config(
+      cols = parser.cols(),
+      parallel = parser.parallel()
+    )
+    parser.subcommand match {
+      case None =>
+        parser.showUsage
+      case Some(parser.commandBuild) =>
+        println("build " + parser.commandBuild.targets())
+      case Some(parser.commandClean) =>
+        println("clean " + parser.commandClean.targets())
+      case Some(parser.commandRun) =>
+        println("run " + parser.commandRun.target())
+      case Some(parser.commandAnalyze) =>
+        println("analyze " + parser.commandAnalyze.target())
+      case Some(parser.commandHelp) =>
+        parser.printHelp
+    }
   }
 
   def findAndPrintRootDir {
