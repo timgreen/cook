@@ -4,7 +4,7 @@ import org.rogach.scallop.ScallopConf
 import org.rogach.scallop.Subcommand
 import org.rogach.scallop.exceptions._
 
-class CookOptionParser(args: Seq[String]) extends ScallopConf(args) {
+class CookOptionParser(args: Seq[String]) extends ScallopConf(args, "") {
   version("version 1.0")
   banner("Cook [options] <sub command> [target(s) ...]")
 
@@ -43,7 +43,7 @@ class CookOptionParser(args: Seq[String]) extends ScallopConf(args) {
     println("""
     clean -- Clean up cook output
   analyze -- Analyze target dependances
-      help -- Show help message
+     help -- Show help message
       run -- Run target
     build -- Build targets
       """)
