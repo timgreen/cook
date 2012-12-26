@@ -4,3 +4,21 @@ scala_lib(
     "Stage.scala",
   ],
 )
+
+scala_lib(
+  name = "main",
+  srcs = [
+    "Main.scala",
+  ],
+  deps = [
+    "//src/cook/app/console:console",
+  ],
+)
+
+java_bin(
+  name = "run_main",
+  java_libs = [
+    ":main",
+  ],
+  mainClass = "cook.app.Main",
+)

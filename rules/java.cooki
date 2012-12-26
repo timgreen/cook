@@ -122,3 +122,44 @@ def jar(name, java_libs = [], mainClass = null) {
     },
   )
 }
+
+def java_bin(name, java_libs, mainClass, linkRes = [], deps = [], jvmOptions = [], extraClasspath = []) {
+  targets = labels(java_libs)
+  depTargets = [ t for t in targets if t.isTargetLabel ]
+  inputs = glob([ r.get(0) for r in linkRes ])
+
+  genrule(
+    name = name,
+    outputType = "",
+    inputs = inputs,
+    deps = depTargets ++ labels(deps),
+    preBuild = lambda(t) {
+      link_cmds = ["mkdir -p %s; ln -sf %s %s" % [r.get(1), label(r.get(0)).file, r.get(1)] for r in linkRes]
+
+      link_cmds ++ [
+        "echo ''",
+      ]
+    },
+    preRun = lambda(t) {
+      cp = []
+      lib = [ t.file for t in targets if t.isFileLabel ]
+
+      for (d <- depTargets) {
+        cp += d.outputDir
+        cp ++= d.value("cp")
+        lib ++= d.value("lib")
+      }
+
+      cp = cp.toSet()
+      lib = lib.toSet()
+
+      [
+#"JAVA_HOME=%s" % [ jdkDir ],
+        "PATH=$JAVA_HOME/bin:$PATH",
+        "CP=\"%s\"" % [ (cp ++ lib ++ extraClasspath).join(":") ],
+        "java %s -Dfile.encoding=UTF8 -cp .:$CP %s $@" % [ jvmOptions.join(" "), mainClass ]
+      ]
+    },
+    errorWhenNoOutput = false,
+  )
+}
