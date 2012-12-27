@@ -1,0 +1,30 @@
+scala_lib(
+  name = "ref",
+  srcs = [
+    "Ref.scala",
+  ],
+)
+
+scala_lib(
+  name = "ref_manager",
+  srcs = [
+    "RefManager.scala",
+  ],
+  deps = [
+    ":ref",
+    "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
+  name = "basic_refs",
+  srcs = [
+    "basicrefs.scala",
+  ],
+  deps = [
+    ":ref",
+    ":ref_manager",
+    "//src/cook/error:error",
+    "//src/cook/util:hash_manager",
+  ],
+)
