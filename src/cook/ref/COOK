@@ -25,6 +25,17 @@ scala_lib(
     ":ref",
     ":ref_manager",
     "//src/cook/error:error",
+    "//src/cook/path:path",
     "//src/cook/util:hash_manager",
+  ],
+)
+
+scala_lib(
+  name = "ref_factory_register",
+  srcs = [
+    "RefFactoryRegister.scala",
+  ],
+  deps = [
+    ":basic_refs"
   ],
 )

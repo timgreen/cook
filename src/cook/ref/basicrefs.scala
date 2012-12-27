@@ -1,6 +1,7 @@
 package cook.ref
 
 import cook.error.ErrorTracking._
+import cook.path.Path
 
 import scala.annotation.tailrec
 import scala.tools.nsc.io.{ Path => SPath, Directory }
@@ -13,24 +14,21 @@ import scala.tools.nsc.io.{ Path => SPath, Directory }
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-class DirRef(val segments: List[String]) {
+class DirRef(val segments: List[String]) extends Ref {
 
-  def toDir: Directory = segments.foldLeft(Path().rootDir)(_ / _)
+  def toDir: Directory = segments.foldLeft(Path().rootDir: SPath)(_ / _).toDirectory
   override def refName: String = segments.mkString("", "/", "/")
-
-  def / (lastPart: String): PathRef = {
-
-  }
 }
 
 object DirRefFactory extends RefFactory[DirRef] {
 
-  override def apply(refName: String): Option[DirRef] = {
+  override def apply(baseSegments: List[String], refName: String): Option[DirRef] = {
     // TODO(timgreen):
+    None
   }
 }
 
-abstract class PathRef(val dir: DirRef, lastPart: String)
+abstract class PathRef(val dir: DirRef, lastPart: String) extends Ref
 
 class FileRef(dir: DirRef, val filename: String) extends PathRef(dir, filename) {
 
@@ -40,8 +38,9 @@ class FileRef(dir: DirRef, val filename: String) extends PathRef(dir, filename) 
 
 object FileRefFactory extends RefFactory[FileRef] {
 
-  override def apply(refName: String): Option[FileRef] = {
-
+  override def apply(baseSegments: List[String], refName: String): Option[FileRef] = {
+    // TODO(timgreen):
+    None
   }
 }
 
@@ -53,21 +52,22 @@ class TargetRef(dir: DirRef, val targetName: String) extends PathRef(dir, target
 
 object TargetRefFactory extends RefFactory[TargetRef] {
 
-  override def apply(refName: String): Option[TargetRef] = {
-
+  override def apply(baseSegments: List[String], refName: String): Option[TargetRef] = {
+    // TODO(timgreen):
+    None
   }
 }
 
 trait PluginRef extends Ref
 
-trait PluginRefFactory[P >: PluginRef] extends RefFactory[P] {
+trait PluginRefFactory[P <: PluginRef] extends RefFactory[P] {
 
   val pluginName: String
 
-  override def apply(refName: String): Option[P] = {
+  override def apply(baseSegments: List[String], refName: String): Option[P] = {
     val prefix = "//" + pluginName + "/"
     if (refName.startsWith(prefix)) {
-      parseRefName(refName.dropLeft(prefix.size)
+      parseRefName(refName.drop(prefix.size))
     } else {
       None
     }

@@ -9,4 +9,4 @@ tar xf scala-$TRAVIS_SCALA_VERSION.tgz
 export SCALA_HOME=$PWD/scala-$TRAVIS_SCALA_VERSION
 cd ..
 ./bin/cook build src/cook/app:main
-./bin/cook build src/cook/ref:ref_manager
+./bin/cook build src/cook/ref:ref_factory_register

@@ -7,15 +7,15 @@ import scala.collection.mutable
 
 object RefManager {
 
-  val factorys = mutable.ListBuffer[RefFactory[_]]()
+  val factorys = mutable.Set[RefFactory[Ref]]()
 
-  def apply(refName: String): Ref = {
+  def apply(baseSegments: List[String], refName: String): Ref = {
 
     @tailrec
-    def tryFactorys(it: Iterator[RefFactory[_]]): Option[Ref] = {
+    def tryFactorys(it: Iterator[RefFactory[Ref]]): Option[Ref] = {
       if (it.hasNext) {
         val factory = it.next
-        factory(refName) match {
+        factory(baseSegments, refName) match {
           case Some(ref) => Some(ref)
           case None => tryFactorys(it)
         }
