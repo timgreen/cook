@@ -10,6 +10,17 @@ scala_lib(
 )
 
 scala_lib(
+  name = "path",
+  srcs = [
+    "Path.scala",
+  ],
+  deps = [
+    "//lib:scala_compiler",
+    "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
   name = "path_ref",
   srcs = [
     "PathRef.scala",

@@ -1,6 +1,9 @@
 package cook.app
 
 import cook.app.console.CookConsole
+import cook.path.Path
+
+import scala.tools.nsc.io.{ Path => SPath, Directory }
 
 object Main {
 
@@ -13,6 +16,7 @@ object Main {
       cols = parser.cols(),
       parallel = parser.parallel()
     )
+    val path = findAndPrintRootDir
     parser.subcommand match {
       case None =>
         parser.showUsage
@@ -29,12 +33,9 @@ object Main {
     }
   }
 
-  def findAndPrintRootDir {
-
-    CookConsole.printRootDir("asdfaf")
-    CookConsole.updateProgress(1, 2, 3, 4, 5)
-    CookConsole.updateBuildingTargets(List("a", "bbbbb", "ccccc", "ddddd", "eeee", "f" * 10))
-    CookConsole.updateProgress(2, 3, 4, 5, 6)
-
+  def findAndPrintRootDir: Path = {
+    val path = Path(Directory.Current)
+    CookConsole.printRootDir(path.rootDir.toString)
+    path
   }
 }
