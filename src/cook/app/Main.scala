@@ -16,7 +16,7 @@ object Main {
       cols = parser.cols(),
       parallel = parser.parallel()
     )
-    val path = findAndPrintRootDir
+    findAndPrintRootDir
     parser.subcommand match {
       case None =>
         parser.showUsage
@@ -33,9 +33,7 @@ object Main {
     }
   }
 
-  def findAndPrintRootDir: Path = {
-    val path = Path(Directory.Current)
-    CookConsole.printRootDir(path.rootDir.toString)
-    path
+  def findAndPrintRootDir {
+    CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
   }
 }

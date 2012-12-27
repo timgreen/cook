@@ -21,9 +21,15 @@ class Path(val rootDir: Directory, val currentDir: Directory) {
 
 object Path {
 
+  private var instance: Path = _
+  implicit def defaultImplicitProvider: Path = instance
+
+  def apply(): Path = instance
   def apply(currentDir: Option[Directory]): Path = {
     currentDir.flatMap(d => findRootDir(d, d)) match {
-      case Some((currentDir, rootDir)) => new Path(rootDir, currentDir)
+      case Some((currentDir, rootDir)) =>
+        instance = new Path(rootDir, currentDir)
+        instance
       case None =>
         reportError("Can not find Cook Root Dir, from dir %s", currentDir.toString)
     }
