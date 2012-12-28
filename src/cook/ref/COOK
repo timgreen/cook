@@ -26,7 +26,6 @@ scala_lib(
     ":ref_manager",
     "//src/cook/error:error",
     "//src/cook/path:path",
-    "//src/cook/util:hash_manager",
   ],
 )
 

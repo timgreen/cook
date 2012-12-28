@@ -12,6 +12,7 @@ class TargetRef(val name: String, val segments: List[String]) {
   def verify {
     name :: segments foreach { p =>
       assume(!p.contains(":"), "target name should not contains ':', %s".format(this))
+      assume(!p.contains("/"), "target name should not contains '/', %s".format(this))
       assume(p.nonEmpty, "target name & segments should not to empty, %s".format(this))
     }
     segments foreach { p =>
