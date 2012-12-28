@@ -1,6 +1,6 @@
 package cook.app.console
 
-import cook.app.config.Config
+import cook.app.Config
 
 trait ConsoleBase {
 
@@ -77,5 +77,5 @@ object CookConsole extends ConsoleBase {
     showCursor
   }
 
-  def width = Config.columns
+  def width = Config.cols
 }

@@ -1,3 +1,6 @@
 package cook.app
 
-case class Config(cols: Int, parallel: Int)
+object Config {
+  var cols: Int = _
+  var parallel: Int = _
+}

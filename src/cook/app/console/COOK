@@ -2,6 +2,6 @@ scala_lib(
   name = "console",
   srcs = glob("*.scala"),
   deps = [
-    "//src/cook/app/config:config",
+    "//src/cook/app:config",
   ],
 )

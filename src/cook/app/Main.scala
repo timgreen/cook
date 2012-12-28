@@ -8,15 +8,12 @@ import scala.tools.nsc.io.{ Path => SPath, Directory }
 
 object Main {
 
-  private var _config: Config = _
-  def config = _config
-
   def main(args: Array[String]) {
     val parser = new CookOptionParser(args)
-    _config = Config(
-      cols = parser.cols(),
-      parallel = parser.parallel()
-    )
+
+    Config.cols = parser.cols()
+    Config.parallel = parser.parallel()
+
     findAndPrintRootDir
     RefFactoryRegister.init
     parser.subcommand match {
