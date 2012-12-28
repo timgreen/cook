@@ -8,6 +8,6 @@ java_lib(
 java_lib(
   name = "scalatest",
   deps = [
-    "scalatest-1.7.2.jar",
+    "scalatest_2.9.0-2.0.M5.jar",
   ],
 )
