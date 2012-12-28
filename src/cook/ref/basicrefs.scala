@@ -17,7 +17,7 @@ import scala.tools.nsc.io.{ Path => SPath, Directory }
 class DirRef(val segments: List[String]) extends Ref {
 
   def toDir: Directory = segments.foldLeft(Path().rootDir: SPath)(_ / _).toDirectory
-  override def refName: String = segments.mkString("", "/", "/")
+  override def refName: String = if (segments.isEmpty) "/" else segments.mkString("/", "/", "/")
 }
 
 object DirRefFactory extends RefFactory[DirRef] {
@@ -38,21 +38,30 @@ object DirRefFactory extends RefFactory[DirRef] {
    *   "/../../a/" is invalid
    */
   override def apply(baseSegments: List[String], refName: String): Option[DirRef] = {
-    if (refName.lastOption != Some('/') || refName.indexOf("//") > 0 || refName.indexOf(":") > 0) {
+    if (refName.nonEmpty &&
+      (refName.lastOption != Some('/') || refName.indexOf("//") > 0 || refName.indexOf(":") > 0)) {
       None
     } else {
       val segments =
         if (refName.headOption == Some('/')) {
-          relativeDir(Nil, refName.drop(1).split('/').toList)
+          relativeDir(Nil, refName.drop(1))
         } else {
-          relativeDir(baseSegments, refName.split('/').toList)
+          relativeDir(baseSegments, refName)
         }
       Some(new DirRef(segments))
     }
   }
 
+  def relativeDir(baseSegments: List[String], refName: String): List[String] = {
+    if (refName.isEmpty) {
+      baseSegments
+    } else {
+      doRelativeDir(baseSegments, refName.split('/').toList)
+    }
+  }
+
   @tailrec
-  private def relativeDir(baseSegments: List[String], segments: List[String]): List[String] = {
+  private def doRelativeDir(baseSegments: List[String], segments: List[String]): List[String] = {
     segments match {
       case Nil =>
         baseSegments
@@ -60,11 +69,11 @@ object DirRefFactory extends RefFactory[DirRef] {
         if (baseSegments.isEmpty) {
           reportError("Bad ref, dirref can not jump out of cook root")
         }
-        relativeDir(baseSegments.dropRight(1), tail)
+        doRelativeDir(baseSegments.dropRight(1), tail)
       case "." :: tail =>
-        relativeDir(baseSegments, tail)
+        doRelativeDir(baseSegments, tail)
       case head :: tail =>
-        relativeDir(baseSegments :+ head, tail)
+        doRelativeDir(baseSegments :+ head, tail)
     }
   }
 }
@@ -74,26 +83,34 @@ abstract class PathRef(val dir: DirRef, lastPart: String) extends Ref
 class FileRef(dir: DirRef, val filename: String) extends PathRef(dir, filename) {
 
   def toPath: SPath = dir.toDir / filename
-  override def refName: String =  dir.refName + "/" + filename
+  override def refName: String = dir.refName + filename
 }
 
 object FileRefFactory extends RefFactory[FileRef] {
 
-  val P = "(.*/)?([^/]+)".r
+  val P = "((.*/)?)([^:/]+)".r
   override def apply(baseSegments: List[String], refName: String): Option[FileRef] = {
     refName match {
-      case P(refDir, filename) =>
-        DirRefFactory(baseSegments, Option(refDir).getOrElse("")) map { dir =>
+      case P(refDir, _, filename) =>
+        DirRefFactory(baseSegments, refDir) map { dir =>
           new FileRef(dir, filename)
         }
-      case _ => None
+      case _ =>
+        None
     }
   }
 }
 
 class TargetRef(dir: DirRef, val targetName: String) extends PathRef(dir, targetName) {
 
-  override def refName: String =  dir.refName + ":" + targetName
+  override def refName: String = {
+    val dirRefName = dir.refName.dropRight(1)
+    if (dirRefName.nonEmpty) {
+      dirRefName + ":" + targetName
+    } else {
+      "/:" + targetName
+    }
+  }
   def cookFileRef: FileRef = new FileRef(dir, "COOK")
 }
 
@@ -103,7 +120,8 @@ object TargetRefFactory extends RefFactory[TargetRef] {
   override def apply(baseSegments: List[String], refName: String): Option[TargetRef] = {
     refName match {
       case P(refDir, targetName) =>
-        DirRefFactory(baseSegments, refDir) map { dir =>
+        val refDirFix = if (refDir.nonEmpty) refDir + "/" else ""
+        DirRefFactory(baseSegments, refDirFix) map { dir =>
           new TargetRef(dir, targetName)
         }
       case _ => None
@@ -122,7 +140,7 @@ trait PluginTargetRefFactory[P <: PluginTargetRef] extends RefFactory[P] {
 
   val pluginName: String
 
-  override def apply(baseSegments: List[String], refName: String): Option[P] = {
+  final override def apply(baseSegments: List[String], refName: String): Option[P] = {
     val prefix = "//" + pluginName + "/"
     if (refName.startsWith(prefix)) {
       parseRefName(refName.drop(prefix.size))
