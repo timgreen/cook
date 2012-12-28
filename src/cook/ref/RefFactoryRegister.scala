@@ -1,6 +1,6 @@
 package cook.ref
 
-object RefManagerRegsiter {
+object RefFactoryRegister {
 
   def init {
     RefManager.factorys ++= List(

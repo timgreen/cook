@@ -2,6 +2,7 @@ package cook.app
 
 import cook.app.console.CookConsole
 import cook.path.Path
+import cook.ref.RefFactoryRegister
 
 import scala.tools.nsc.io.{ Path => SPath, Directory }
 
@@ -17,6 +18,7 @@ object Main {
       parallel = parser.parallel()
     )
     findAndPrintRootDir
+    RefFactoryRegister.init
     parser.subcommand match {
       case None =>
         parser.showUsage

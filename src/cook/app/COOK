@@ -32,6 +32,7 @@ scala_lib(
     ":parser",
     "//src/cook/app/console:console",
     "//src/cook/path:path",
+    "//src/cook/ref:ref_factory_register",
   ],
 )
 
