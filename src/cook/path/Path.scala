@@ -17,16 +17,17 @@ class Path(val rootDir: Directory, val currentDir: Directory) {
     (rootDir / WORKSPACE / "targets").toDirectory
   val configMetaDir =
     (rootDir / WORKSPACE / "config_metas").toDirectory
+
+  val currentSegments = currentDir.segments.drop(rootDir.segments.size)
 }
 
 object Path {
 
   private var instance: Path = _
-  implicit def defaultImplicitProvider: Path = instance
 
   def apply(): Path = instance
   def apply(currentDir: Option[Directory]): Path = {
-    currentDir.flatMap(d => findRootDir(d, d)) match {
+    currentDir.map(_.normalize.toDirectory).flatMap(d => findRootDir(d, d)) match {
       case Some((currentDir, rootDir)) =>
         instance = new Path(rootDir, currentDir)
         instance
