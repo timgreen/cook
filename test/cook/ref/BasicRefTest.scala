@@ -83,4 +83,34 @@ class BasicRefTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     targetRef.targetName should be ("z")
     targetRef.refName should be ("/a/x/y:z")
   }
+
+  it should "report error on bad refName: \"/a//c/\"" in {
+    evaluating {
+      RefManager(List("a", "b"), "/a//c/")
+    } should produce [CookException]
+  }
+
+  it should "report error on bad refName: \"/a//c\"" in {
+    evaluating {
+      RefManager(List("a", "b"), "/a//c")
+    } should produce [CookException]
+  }
+
+  it should "report error on bad refName: \"/a/b/:\"" in {
+    evaluating {
+      RefManager(List("a", "b"), "/a/b/:")
+    } should produce [CookException]
+  }
+
+  it should "report error on bad refName: \"/a/:b/:c\"" in {
+    evaluating {
+      RefManager(List("a", "b"), "/a/:b/:c")
+    } should produce [CookException]
+  }
+
+  it should "report error on bad refName: \"/a/b/c:d:f\"" in {
+    evaluating {
+      RefManager(List("a", "b"), "/a/b/c:d:f")
+    } should produce [CookException]
+  }
 }

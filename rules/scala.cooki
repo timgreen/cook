@@ -75,7 +75,7 @@ def scala_test(name, testClasses, deps, res) {
         "CP=%s" % [ (cp ++ lib).join(":") ],
       ] ++ mkdirForRes ++ cpRes ++ [
 	"SCALA=$SCALA_HOME/bin/scala",
-        "$SCALA -Dfile.encoding=UTF8 -cp .:$CP org.scalatest.tools.Runner -p . -o -s %s" % [testClasses.join(" ")],
+        "$SCALA -Dfile.encoding=UTF8 -cp .:$CP org.scalatest.tools.Runner -R . -o -s %s" % [testClasses.join(" ")],
       ]
     },
     errorWhenNoOutput = false,
