@@ -16,6 +16,8 @@ object Main {
 
     findAndPrintRootDir
     RefFactoryRegister.init
+    parseAndLoadCookRoot
+
     parser.subcommand match {
       case None =>
         parser.showUsage
@@ -34,5 +36,11 @@ object Main {
 
   def findAndPrintRootDir {
     CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
+  }
+
+  def parseAndLoadCookRoot {
+    CookConsole.updateCookRootLoadingStatus()
+    // TODO(timgreen):
+    CookConsole.clearCookRootLoadingStatus
   }
 }

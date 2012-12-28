@@ -29,6 +29,26 @@ object CookConsole extends ConsoleBase {
     flush
   }
 
+  def updateCookRootLoadingStatus(loadingCooki: String = "") {
+    restoreCursor
+    flush
+    saveCursor
+    hideCursor
+    eraseToEnd
+
+    printf("Loading COOK_ROOT ... %s", loadingCooki)
+
+    newLine
+    showCursor
+  }
+
+  def clearCookRootLoadingStatus {
+    restoreCursor
+    flush
+    saveCursor
+    eraseToEnd
+  }
+
   def updateProgress(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int) {
     restoreCursor
     flush
