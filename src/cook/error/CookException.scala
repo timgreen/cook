@@ -4,7 +4,7 @@ class CookException(val e: CookException, error: String, args: Any*)
   extends RuntimeException(error.format(args: _*)) {
 
   def this(error: String, args: Any*) {
-    this(null.asInstanceOf[CookException], error, args: _*)
+    this(null: CookException, error, args: _*)
   }
 
   override def toString(): String = toString("")
