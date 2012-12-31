@@ -6,7 +6,7 @@ object RefFactoryRegister {
     RefManager.factorys ++= List(
       DirRefFactory,
       FileRefFactory,
-      TargetRefFactory
+      NativeTargetRefFactory
     )
   }
 }
