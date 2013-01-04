@@ -1,5 +1,5 @@
 scala_lib(
-  name = "ref",
+  name = "trait_ref",
   srcs = [
     "Ref.scala",
   ],
@@ -11,7 +11,7 @@ scala_lib(
     "RefManager.scala",
   ],
   deps = [
-    ":ref",
+    ":trait_ref",
     "//src/cook/error:error",
   ],
 )
@@ -22,7 +22,6 @@ scala_lib(
     "basicrefs.scala",
   ],
   deps = [
-    ":ref",
     ":ref_manager",
     "//src/cook/error:error",
     "//src/cook/path:path",
@@ -36,5 +35,12 @@ scala_lib(
   ],
   deps = [
     ":basic_refs"
+  ],
+)
+
+java_lib(
+  name = "ref",
+  deps = [
+    ":basic_refs",
   ],
 )

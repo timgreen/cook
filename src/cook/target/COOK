@@ -1,0 +1,11 @@
+scala_lib(
+  name = "target",
+  srcs = [
+    "Target.scala",
+    "package.scala",
+  ],
+  deps = [
+    "//src/cook/meta:meta",
+    "//src/cook/ref:ref",
+  ],
+)
