@@ -10,3 +10,13 @@ scala_lib(
     "//src/cook/ref:ref",
   ],
 )
+
+scala_lib(
+  name = "native_target",
+  srcs = [
+    "NativeTarget.scala",
+  ],
+  deps = [
+    ":target",
+  ],
+)
