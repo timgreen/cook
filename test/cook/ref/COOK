@@ -3,7 +3,7 @@ scala_lib(
   srcs = "BasicRefTest.scala",
   deps = [
     "//src/cook/ref:ref_factory_register",
-    "//lib:scalatest",
+    "//lib/scalatest.jar",
   ],
 )
 

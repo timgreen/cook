@@ -4,7 +4,7 @@ def scala_lib(name, srcs, deps = []) {
   srcs = [s for s in srcs if s.isFileLabel]
 
   deps = labels(deps)
-  deps += label("//lib/scala-library.jar")
+  deps += label("//lib/scala_library.jar")
   lib   = [d.file for d in deps if d.isFileLabel]
   depTargets = [d for d in deps if d.isTargetLabel]
   cp = []
@@ -55,7 +55,7 @@ def scala_test(name, testClasses, deps, res) {
   deps = labels(deps)
   lib   = [d.file for d in deps if d.isFileLabel]
   depTargets = [d for d in deps if d.isTargetLabel]
-  cp = [ label("//lib/scalatest-1.7.2.jar").file ]
+  cp = [ label("//lib/scalatest.jar").file ]
   mkdirForRes = ["mkdir -p " + r.get(1) for r in res]
   cpRes = ["cp -r " + label(r.get(0)).file + " " + r.get(1) for r in res]
 

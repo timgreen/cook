@@ -5,6 +5,7 @@ scala_lib(
     "package.scala",
   ],
   deps = [
+    "//src/cook/error:error",
     "//src/cook/meta:meta",
     "//src/cook/ref:ref",
   ],
