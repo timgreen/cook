@@ -1,10 +1,11 @@
 package cook.target
 
 import cook.error.ErrorTracking._
+import cook.ref.NativeTargetRef
 import cook.ref.TargetRef
 
 class NativeTarget[R <: TargetResult](
-  ref: TargetRef,
+  ref: NativeTargetRef,
   buildCmd: TargetBuildCmd[R],
   resultFn: TargetResultFn[R],
   metaFn: TargetMetaFn[R],

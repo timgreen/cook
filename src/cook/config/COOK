@@ -7,3 +7,14 @@ scala_lib(
     "dsl:context",
   ],
 )
+
+scala_lib(
+  name = "manager",
+  srcs = [
+    "ConfigManager.scala",
+  ],
+  deps = [
+    ":config",
+    "//src/cook/ref:ref",
+  ],
+)
