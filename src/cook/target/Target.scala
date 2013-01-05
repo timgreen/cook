@@ -32,6 +32,7 @@ abstract class Target[R <: TargetResult](
 
   private [cook] def build {
     if (needBuild) {
+      ref.targetBuildDir.createDirectory(force = true)
       buildCmd(this)
       built = true
     }

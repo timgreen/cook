@@ -1,0 +1,10 @@
+scala_lib(
+  name = "context",
+  srcs = [
+    "ConfigContext.scala",
+  ],
+  deps = [
+    "//src/cook/ref:ref",
+    "//src/cook/target:target",
+  ],
+)

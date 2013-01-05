@@ -1,0 +1,9 @@
+scala_lib(
+  name = "config",
+  srcs = [
+    "Config.scala",
+  ],
+  deps = [
+    "dsl:context",
+  ],
+)

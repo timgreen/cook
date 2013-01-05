@@ -107,6 +107,12 @@ trait TargetRef extends Ref {
 
   def targetName: String
   def targetPath: List[String]
+
+  def targetBuildParentDir: Directory = {
+    targetPath.foldLeft(Path().targetBuildDir: SPath)(_ / _) toDirectory
+  }
+
+  def targetBuildDir: Directory = targetBuildParentDir / (targetName + ".cook_target") toDirectory
 }
 
 class NativeTargetRef(dir: DirRef, val targetName: String)
