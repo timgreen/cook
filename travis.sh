@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#set -e
-
 mkdir -p lib
 mkdir -p tmp
 cd tmp
@@ -23,14 +21,17 @@ cd ..
 ## prepare lib
 mkdir -p lib
 cd lib
-if [[ "$TRAVIS_SCALA_VERSION" == "2.10.0-RC5" ]]; then
+if [ x"$TRAVIS_SCALA_VERSION" == x"2.10.0-RC5" ]; then
   wget -c https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.10.0-RC5/2.0.M5-B1/scalatest_2.10.0-RC5-2.0.M5-B1.jar
   ln -sf $PWD/scalatest_2.10.0-RC5-2.0.M5-B1.jar ../../lib/scalatest.jar
+  wget -c http://repo.typesafe.com/typesafe/repo/org/rogach/scallop_2.10/0.6.4/scallop_2.10-0.6.4.jar
+  ln -sf $PWD/scallop_2.10-0.6.4.jar ../../lib/scallop.jar
 fi
 cd ..
 
 ## build & test
 cd ..
+set -e
 ./bin/cook clean
 ./bin/cook build src/cook/app:main
 ./bin/cook build src/cook/target:target
