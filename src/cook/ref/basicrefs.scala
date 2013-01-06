@@ -4,7 +4,7 @@ import cook.error.ErrorTracking._
 import cook.path.Path
 
 import scala.annotation.tailrec
-import scala.tools.nsc.io.{ Path => SPath, Directory }
+import scala.reflect.io.{ Path => SPath, Directory }
 
 
 /**

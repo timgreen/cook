@@ -3,7 +3,7 @@ package cook.path
 import cook.error.ErrorTracking._
 
 import scala.annotation.tailrec
-import scala.tools.nsc.io.{ Path => SPath, Directory }
+import scala.reflect.io.{ Path => SPath, Directory }
 
 class Path(val rootDir: Directory, val currentDir: Directory) {
 

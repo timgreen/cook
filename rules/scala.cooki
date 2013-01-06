@@ -4,7 +4,7 @@ def scala_lib(name, srcs, deps = []) {
   srcs = [s for s in srcs if s.isFileLabel]
 
   deps = labels(deps)
-  deps += label("//lib/scala_library.jar")
+  # deps += label("//lib/scala-library.jar")
   lib   = [d.file for d in deps if d.isFileLabel]
   depTargets = [d for d in deps if d.isTargetLabel]
   cp = []

@@ -8,9 +8,10 @@ import cook.ref.TargetRef
 // to ConfigManager
 case class GetConfig(cookFileRef: FileRef)
 case class ConfigLoaded(refName: String, config: Config)
+case class FindConfigRef(configRef: ConfigRef)
 
 // to ConfigLoader
-case class LoadConfig(cookFileRef: FileRef)
+case class LoadConfig(configRef: ConfigRef)
 
 // to TargetManager
 case class GetTarget(targetRef: TargetRef)

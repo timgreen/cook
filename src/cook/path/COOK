@@ -4,7 +4,7 @@ scala_lib(
     "Path.scala",
   ],
   deps = [
-    "//lib/scala_compiler.jar",
+    "//lib/scala-reflect.jar",
     "//src/cook/error:error",
   ],
 )

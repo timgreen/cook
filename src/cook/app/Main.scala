@@ -4,7 +4,7 @@ import cook.app.console.CookConsole
 import cook.path.Path
 import cook.ref.RefFactoryRegister
 
-import scala.tools.nsc.io.{ Path => SPath, Directory }
+import scala.reflect.io.{ Path => SPath, Directory }
 
 object Main {
 

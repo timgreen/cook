@@ -32,7 +32,7 @@ class ConfigRefManagerActor extends Actor {
         case None =>
         case Some(list) =>
           for (s <- list) {
-            s ! configRef
+            s ! FindConfigRef(configRef)
           }
       }
     case LoadConfigRef(refName, cookFileRef) =>
