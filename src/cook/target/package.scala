@@ -10,8 +10,6 @@ package object target {
   type TargetMetaFn[R <: TargetResult] = Target[R] => Meta
   type TargetRunCmd[R <: TargetResult] = (Target[R], List[String]) => Int
 
-
-
   class UnitResult extends TargetResult
   object UnitResult extends UnitResult()
   object UnitResultFn {

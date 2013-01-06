@@ -13,4 +13,6 @@ trait Config {
   def getTargetOption(targetName: String): Option[Target[TargetResult]] =
     context.targets.get(targetName)
   def getTarget(targetName: String): Target[TargetResult] = context.targets(targetName)
+
+  def refName = context.cookFileRef.refName
 }

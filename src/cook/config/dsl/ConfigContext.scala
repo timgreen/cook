@@ -7,10 +7,10 @@ import cook.target.TargetResult
 
 import scala.collection.mutable
 
-class ConfigContext(val configRef: FileRef) {
+class ConfigContext(val cookFileRef: FileRef) {
 
   private [config] val targets = mutable.Map[String, Target[TargetResult]]()
-  def dir = configRef.dir
+  def dir = cookFileRef.dir
 
   private [dsl] def addTarget(t: Target[TargetResult]) {
     targets += (t.ref.targetName -> t)

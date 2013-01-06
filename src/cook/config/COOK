@@ -9,12 +9,11 @@ scala_lib(
 )
 
 scala_lib(
-  name = "manager",
+  name = "config_ref",
   srcs = [
-    "ConfigManager.scala",
+    "ConfigRef.scala",
   ],
   deps = [
-    ":config",
     "//src/cook/ref:ref",
   ],
 )
