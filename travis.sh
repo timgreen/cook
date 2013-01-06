@@ -21,12 +21,10 @@ cd ..
 ## prepare lib
 mkdir -p lib
 cd lib
-if [ x"$TRAVIS_SCALA_VERSION" == x"2.10.0-RC5" ]; then
-  wget -c https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.10.0-RC5/2.0.M5-B1/scalatest_2.10.0-RC5-2.0.M5-B1.jar
-  ln -sf $PWD/scalatest_2.10.0-RC5-2.0.M5-B1.jar ../../lib/scalatest.jar
-  wget -c http://repo.typesafe.com/typesafe/repo/org/rogach/scallop_2.10/0.6.4/scallop_2.10-0.6.4.jar
-  ln -sf $PWD/scallop_2.10-0.6.4.jar ../../lib/scallop.jar
-fi
+wget -c https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.10.0-RC5/2.0.M5-B1/scalatest_2.10.0-RC5-2.0.M5-B1.jar
+ln -sf $PWD/scalatest_2.10.0-RC5-2.0.M5-B1.jar ../../lib/scalatest.jar
+wget -c http://repo.typesafe.com/typesafe/repo/org/rogach/scallop_2.10/0.6.4/scallop_2.10-0.6.4.jar
+ln -sf $PWD/scallop_2.10-0.6.4.jar ../../lib/scallop.jar
 cd ..
 
 ## build & test
