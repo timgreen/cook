@@ -4,11 +4,10 @@ import cook.config.Config
 import cook.ref.TargetRef
 import cook.ref.NativeTargetRef
 
-import akka.actor.Actor
 import akka.actor.ActorRef
 import scala.collection.mutable
 
-class TargetManagerActor extends Actor {
+class TargetManagerActor extends ActorBase {
 
   val configManagerActor = context.actorFor("./ConfigManager")
   private val nativeTargetWaiters = mutable.Map[String, mutable.ListBuffer[(ActorRef, NativeTargetRef)]]()

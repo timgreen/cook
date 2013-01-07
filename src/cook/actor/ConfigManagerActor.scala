@@ -4,17 +4,14 @@ import cook.config.Config
 import cook.config.ConfigRef
 import cook.ref.FileRef
 
-import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.pattern.pipe
-import akka.util.Timeout
 import scala.collection.mutable
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 
-class ConfigManagerActor extends Actor {
+class ConfigManagerActor extends ActorBase {
 
   private val cache = mutable.Map[String, Config]()
   private val configWaiters = mutable.Map[String, mutable.ListBuffer[ActorRef]]()
@@ -50,9 +47,6 @@ class ConfigManagerActor extends Actor {
   }
 
 
-  // NOTE(timgreen): should not timeout here
-  implicit val timeout = Timeout(100 days)
-  implicit def executionContext = context.dispatcher
   private def startLoadConfig(refName: String, cookFileRef: FileRef) {
     ask(configRefManagerActor, LoadConfigRef(refName, cookFileRef)) pipeTo configManagerActor
   }

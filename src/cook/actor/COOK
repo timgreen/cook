@@ -11,15 +11,25 @@ scala_lib(
 )
 
 scala_lib(
+  name = "actor_base",
+  srcs = [
+    "ActorBase.scala",
+  ],
+  deps = [
+    "//lib/akka-actors.jar",
+    "//lib/typesafe-config.jar",
+  ],
+)
+
+scala_lib(
   name = "config_manager_actor",
   srcs = [
     "ConfigManagerActor.scala",
   ],
   deps = [
+    ":actor_base",
     ":messages",
     "//src/cook/config:config",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
   ],
 )
 
@@ -29,10 +39,9 @@ scala_lib(
     "ConfigRefManagerActor.scala",
   ],
   deps = [
+    ":actor_base",
     ":messages",
     "//src/cook/config:config_ref",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
   ],
 )
 
@@ -42,11 +51,10 @@ scala_lib(
     "TargetManagerActor.scala",
   ],
   deps = [
+    ":actor_base",
     ":messages",
     "//src/cook/config:config",
     "//src/cook/target:target",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
   ],
 
 )
