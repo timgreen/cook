@@ -107,6 +107,8 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
 
 object ConfigRef {
 
+  val rootConfigFileRef = RefManager(Nil, "/COOK_ROOT").as[FileRef]
+
   val ImportP = """^\s*//\s*@import\s+"(.+)"\s*$""".r
   val ValP    = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
   val MixinP  = """^\s*//\s*@mixin\s+"(.+)"\s*$""".r

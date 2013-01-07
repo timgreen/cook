@@ -34,6 +34,19 @@ scala_lib(
 )
 
 scala_lib(
+  name = "config_loader_actor",
+  srcs = [
+    "ConfigLoaderActor.scala",
+  ],
+  deps = [
+    ":actor_base",
+    ":messages",
+    "util:token_based_worker",
+    "//src/cook/config:config",
+  ],
+)
+
+scala_lib(
   name = "config_ref_manager_actor",
   srcs = [
     "ConfigRefManagerActor.scala",
@@ -65,6 +78,7 @@ scala_lib(
     "Actors.scala",
   ],
   deps = [
+    ":config_loader_actor",
     ":config_manager_actor",
     ":config_ref_manager_actor",
     ":target_manager_actor",
