@@ -1,0 +1,64 @@
+scala_lib(
+  name = "messages",
+  srcs = [
+    "messages.scala",
+  ],
+  deps = [
+    "//src/cook/config:config",
+    "//src/cook/config:config_ref",
+    "//src/cook/ref:ref",
+  ],
+)
+
+scala_lib(
+  name = "config_manager_actor",
+  srcs = [
+    "ConfigManagerActor.scala",
+  ],
+  deps = [
+    ":messages",
+    "//src/cook/config:config",
+    "//lib/akka-actors.jar",
+    "//lib/typesafe-config.jar",
+  ],
+)
+
+scala_lib(
+  name = "config_ref_manager_actor",
+  srcs = [
+    "ConfigRefManagerActor.scala",
+  ],
+  deps = [
+    ":messages",
+    "//src/cook/config:config_ref",
+    "//lib/akka-actors.jar",
+    "//lib/typesafe-config.jar",
+  ],
+)
+
+scala_lib(
+  name = "target_manager_actor",
+  srcs = [
+    "TargetManagerActor.scala",
+  ],
+  deps = [
+    ":messages",
+    "//src/cook/config:config",
+    "//src/cook/target:target",
+    "//lib/akka-actors.jar",
+    "//lib/typesafe-config.jar",
+  ],
+
+)
+
+scala_lib(
+  name = "actor",
+  srcs = [
+    "Actors.scala",
+  ],
+  deps = [
+    ":config_manager_actor",
+    ":config_ref_manager_actor",
+    ":target_manager_actor",
+  ],
+)

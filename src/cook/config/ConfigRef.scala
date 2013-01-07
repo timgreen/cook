@@ -76,15 +76,20 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
   val configByteCodeDir = Path().configByteCodeDir / configClassFullName
 
   val (imports, mixins): (Set[ConfigRefImport], Set[FileRef]) = {
-    val (importsList, mixinsList) = Source.fromFile(fileRef.toPath.path) getLines() collect {
+    val list = Source.fromFile(fileRef.toPath.path) getLines() collect {
       case ConfigRef.ImportP(ref) =>
         ImportDefine(relativeConfigRef(ref + ".cooki"))
       case ConfigRef.ValP(name, ref) =>
         ValDefine(relativeConfigRef(ref + ".cooki"), name)
       case ConfigRef.MixinP(ref) =>
         relativeConfigRef(ref + ".cooki")
-    } partition {
-      _.isInstanceOf[ConfigRefImport]
+    }
+
+    val importsList = list collect {
+      case x: ConfigRefImport => x
+    }
+    val mixinsList = list collect {
+      case x: FileRef => x
     }
 
     (importsList.toSet, mixinsList.toSet)
