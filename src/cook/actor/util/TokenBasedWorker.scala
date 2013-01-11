@@ -12,7 +12,7 @@ trait TokenBasedWorker[Task <: WorkerTask] { this: Actor =>
   protected val workerTokenManagerActor: ActorRef
   private val pendingTasks = mutable.Queue[Task]()
 
-  def workerReceive: PartialFunction[Any, Unit] = {
+  def workerReceive: Receive = {
     case AssignWorkerToken(token) =>
       if (pendingTasks.isEmpty) {
         workerTokenManagerActor ! ReturnWorkerToken(token)

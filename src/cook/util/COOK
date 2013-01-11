@@ -1,0 +1,6 @@
+scala_lib(
+  name = "dag_solver",
+  srcs = [
+    "DagSolver.scala",
+  ],
+)
