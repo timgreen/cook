@@ -1,9 +1,28 @@
 scala_lib(
+  name = "dag_solver_test",
+  srcs = "DagSolverTest.scala",
+  deps = [
+    "//src/cook/util:dag_solver",
+    "//lib/scalatest.jar",
+  ],
+)
+
+scala_test(
+  name = "run_dag_solver_test",
+  deps = [ ":dag_solver_test" ],
+  testClasses = [
+    "cook.util.DagSolverTest",
+  ],
+  res = [
+  ],
+)
+
+scala_lib(
   name = "glob_scanner_test",
   srcs = "GlobScannerTest.scala",
   deps = [
     "//src/cook/util:glob_scanner",
-    "//lib:scalatest",
+    "//lib/scalatest.jar",
   ],
 )
 

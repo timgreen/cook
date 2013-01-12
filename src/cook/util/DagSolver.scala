@@ -5,7 +5,7 @@ import scala.collection.mutable
 
 
 /**
- * Help to find Topological sorting in dag.
+ * Help to find topological sorting in dag.
  */
 class DagSolver {
 
@@ -27,7 +27,7 @@ class DagSolver {
       set foreach { dep =>
         nodesDepOnMe.getOrElseUpdate(dep, mutable.ListBuffer()) += node
       }
-      checkCycle(node, List(node))
+      checkCycle(node, nodesDepOnMe.getOrElse(node, List()).toList)
     }
   }
 
@@ -42,7 +42,7 @@ class DagSolver {
         Ok
       case node :: tail =>
         if (node == startNode) {
-          FoundDepCycle(buildCycleSeq(startNode, startNode, fromPath))
+          FoundDepCycle(buildCycleSeq(startNode, fromPath))
         } else {
           val extendPending = nodesDepOnMe.getOrElse(node, List()) filterNot checkedNodes.contains
           checkedNodes += node
@@ -55,17 +55,17 @@ class DagSolver {
   }
 
   @tailrec
-  private def buildCycleSeq(startNode: String, currentNode: String,
-    fromPath: mutable.Map[String, String],
+  private def buildCycleSeq(currentNode: String, fromPath: mutable.Map[String, String],
     seq: List[String] = Nil): List[String] = {
-    if (currentNode == startNode) {
-      seq
-    } else {
-      buildCycleSeq(startNode, fromPath(currentNode), fromPath, currentNode :: seq)
+    fromPath.get(currentNode) match {
+      case None => currentNode :: seq
+      case Some(prevNode) =>
+        buildCycleSeq(prevNode, fromPath, currentNode :: seq)
     }
   }
 
   def hasAvaliable = avaliableNodes.nonEmpty
+  def avaliableNodesSet: Set[String] = avaliableNodes.toSet
 
   def pop: String = {
     val node = avaliableNodes.dequeue
