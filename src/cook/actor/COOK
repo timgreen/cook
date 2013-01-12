@@ -43,6 +43,7 @@ scala_lib(
     ":messages",
     "util:token_based_worker",
     "//src/cook/config:config",
+    "//src/cook/util:dag_solver",
   ],
 )
 

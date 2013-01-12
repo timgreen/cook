@@ -16,7 +16,6 @@ case class FindConfigRef(configRef: ConfigRef)
 // to ConfigLoader
 case object PreFetchRootConfigRef
 case class LoadConfig(configRef: ConfigRef)
-case class LoadConfigSuccess(refName: String, config: Config)
 
 // to TargetManager
 case class GetTarget(targetRef: TargetRef)

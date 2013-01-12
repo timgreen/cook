@@ -4,6 +4,7 @@ import cook.actor.util.TokenBasedWorker
 import cook.actor.util.WorkerTask
 import cook.config.Config
 import cook.config.ConfigRef
+import cook.util.DagSolver
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -15,36 +16,46 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.Exception._
 
-case class ConfigLoadTaskStatus(
-  depConfigRefs: List[ConfigRef],
-  unloaded: List[ConfigRef],
-  shouldLoadDeps: Boolean = true
-)
-case class ConfigLoadTask(
+sealed trait ConfigLoaderWorkerTask extends WorkerTask
+case class SolveDepConfigRefs(configRef: ConfigRef) extends ConfigLoaderWorkerTask
+case class LoadConfigClassTask(
   configRef: ConfigRef,
-  statusOpt: Option[ConfigLoadTaskStatus]
-) extends WorkerTask
+  depConfigRefs: List[ConfigRef]
+) extends ConfigLoaderWorkerTask
+case class DoneSolveDepConfigRefs(configRef: ConfigRef, depConfigFileRefs: List[ConfigRef])
+case class DoneLoadConfigClass(refName: String, config: Config)
 
-class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoadTask] {
+class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoaderWorkerTask] {
 
   private val waiters = mutable.Map[String, mutable.ListBuffer[ActorRef]]()
+  private val doneSet = mutable.Set[String]()
+  private val dagSolver = new DagSolver
 
   val configRefManagerActor = context.actorFor("./ConfigRefManager")
   override val workerTokenManagerActor = context.actorFor("./WorkerTokenManager")
 
-  private val loadedConfigRefNames = mutable.Set[String]()
   private var rootConfigRef: ConfigRef = _
 
   def receive = workerReceive orElse {
     case LoadConfig(configRef) =>
-      val list = waiters.getOrElseUpdate(
-        configRef.fileRef.refName, mutable.ListBuffer[ActorRef]())
-      list += sender
-      if (list.size == 1) {
-        self ! ConfigLoadTask(configRef, None)
+      if (!doneSet.contains(configRef.refName)) {
+        val list = waiters.getOrElseUpdate(
+          configRef.fileRef.refName, mutable.ListBuffer[ActorRef]())
+        list += sender
+        if (list.size == 1) {
+          self ! SolveDepConfigRefs(configRef)
+        }
       }
-    case LoadConfigSuccess(refName, config) =>
-      loadedConfigRefNames += refName
+    case DoneSolveDepConfigRefs(configRef, depConfigRefs) =>
+      depUnsolvedTasks(configRef.refName) = LoadConfigClassTask(configRef, depConfigRefs)
+      dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
+      depConfigRefs foreach { depConfigRef =>
+        self ! LoadConfig(depConfigRef)
+      }
+      checkDag
+    case DoneLoadConfigClass(refName, config) =>
+      dagSolver.markDone(refName)
+      checkDag
       waiters.remove(refName) match {
         case None =>
         case Some(list) =>
@@ -52,40 +63,35 @@ class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoadTask] 
             s ! ConfigLoaded(refName, config)
           }
       }
+      doneSet += refName
     case PreFetchRootConfigRef =>
       val ref = ConfigRef.rootConfigFileRef
       val f = configRefManagerActor ask LoadConfigRef(ref.refName, ref)
       rootConfigRef = Await.result(f, 100 days).asInstanceOf[FindConfigRef].configRef
   }
 
-  private def isNotLoaded(refName: String) = !loadedConfigRefNames.contains(refName)
+  private val depUnsolvedTasks = mutable.Map[String, LoadConfigClassTask]()
+  private def checkDag = if (dagSolver.hasAvaliable) {
+    val refName = dagSolver.pop
+    val Some(task) = depUnsolvedTasks.remove(refName)
+    self ! task
+  }
 
-  override def doRunWorkerTask(token: Int, task: ConfigLoadTask): Future[Unit] = {
-    val f = task.statusOpt match {
-      case Some(status) =>
-        val unloaded = status.unloaded filter { x => isNotLoaded(x.fileRef.refName) }
-        if (status.shouldLoadDeps) {
-          unloaded foreach { depConfigRef =>
-            self ! LoadConfig(depConfigRef)
+  override def doRunWorkerTask(token: Int, task: ConfigLoaderWorkerTask): Future[Unit] = {
+    task match {
+      case SolveDepConfigRefs(configRef) =>
+        loadDepConfigDefs(configRef) map { depConfigRefs =>
+          self ! DoneSolveDepConfigRefs(configRef, depConfigRefs)
+        }
+      case LoadConfigClassTask(configRef, depConfigRefs) =>
+        Future {
+          load(configRef, depConfigRefs) match {
+            case Some(config) =>
+              self ! DoneLoadConfigClass(config.refName, config)
+            case None =>
+              // TODO(timgreen): error report
           }
         }
-        Future(status.copy(unloaded = unloaded, shouldLoadDeps = false))
-      case None =>
-        loadDepConfigDefs(task.configRef)
-    }
-
-    f map { status =>
-      if (status.unloaded.isEmpty) {
-        load(task.configRef, status.depConfigRefs) match {
-          case Some(config) =>
-            self ! LoadConfigSuccess(config.refName, config)
-          case None =>
-            // TODO(timgreen): error report
-        }
-      } else {
-        // deps is not ready yet, push back task
-        self ! ConfigLoadTask(task.configRef, Some(status))
-      }
     }
   }
 
@@ -99,7 +105,7 @@ class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoadTask] 
       }
   }
 
-  private def loadDepConfigDefs(configRef: ConfigRef): Future[ConfigLoadTaskStatus] = {
+  private def loadDepConfigDefs(configRef: ConfigRef): Future[List[ConfigRef]] = {
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
     val depConfigFileRef = Set(
       ConfigRef.rootConfigFileRef
@@ -110,8 +116,6 @@ class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoadTask] 
     Future.traverse(list) { configFileRef =>
       val msg = LoadConfigRef(configFileRef.refName, configFileRef)
       ask(configRefManagerActor, msg).mapTo[FindConfigRef].map(_.configRef)
-    } map { depConfigRefs =>
-      ConfigLoadTaskStatus(depConfigRefs, depConfigRefs)
     }
   }
 

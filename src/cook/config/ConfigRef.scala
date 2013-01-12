@@ -95,6 +95,8 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
     (importsList.toSet, mixinsList.toSet)
   }
 
+  def refName = fileRef.refName
+
   private def relativeConfigRef(ref: String): FileRef = {
     RefManager(fileRef.dir.segments, ref) match {
       case relativeFileRef: FileRef =>
