@@ -1,5 +1,6 @@
 package cook.actor
 
+import cook.actor.util.BatchResponser
 import cook.actor.util.TokenBasedWorker
 import cook.actor.util.WorkerTask
 import cook.config.Config
@@ -27,7 +28,7 @@ case class DoneLoadConfigClass(refName: String, config: Config)
 
 class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoaderWorkerTask] {
 
-  private val waiters = mutable.Map[String, mutable.ListBuffer[ActorRef]]()
+  private val responser = new BatchResponser[String, ActorRef]();
   private val doneSet = mutable.Set[String]()
   private val dagSolver = new DagSolver
 
@@ -39,10 +40,7 @@ class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoaderWork
   def receive = workerReceive orElse {
     case LoadConfig(configRef) =>
       if (!doneSet.contains(configRef.refName)) {
-        val list = waiters.getOrElseUpdate(
-          configRef.fileRef.refName, mutable.ListBuffer[ActorRef]())
-        list += sender
-        if (list.size == 1) {
+        responser.onTask(configRef.fileRef.refName, sender) {
           self ! SolveDepConfigRefs(configRef)
         }
       }
@@ -56,12 +54,8 @@ class ConfigLoaderActor extends ActorBase with TokenBasedWorker[ConfigLoaderWork
     case DoneLoadConfigClass(refName, config) =>
       dagSolver.markDone(refName)
       checkDag
-      waiters.remove(refName) match {
-        case None =>
-        case Some(list) =>
-          for (s <- list) {
-            s ! ConfigLoaded(refName, config)
-          }
+      responser.complete(refName) {
+        _ ! ConfigLoaded(refName, config)
       }
       doneSet += refName
     case PreFetchRootConfigRef =>

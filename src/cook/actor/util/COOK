@@ -28,3 +28,10 @@ scala_lib(
     "//lib/typesafe-config.jar",
   ],
 )
+
+scala_lib(
+  name = "batch_responser",
+  srcs = [
+    "BatchResponser.scala",
+  ],
+)

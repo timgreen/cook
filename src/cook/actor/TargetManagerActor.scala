@@ -1,38 +1,32 @@
 package cook.actor
 
+import cook.actor.util.BatchResponser
 import cook.config.Config
-import cook.ref.TargetRef
 import cook.ref.NativeTargetRef
+import cook.ref.TargetRef
 
 import akka.actor.ActorRef
 import scala.collection.mutable
 
 class TargetManagerActor extends ActorBase {
 
+  private val nativeResponser = new BatchResponser[String, (ActorRef, NativeTargetRef)]();
+
   val configManagerActor = context.actorFor("./ConfigManager")
-  private val nativeTargetWaiters = mutable.Map[String, mutable.ListBuffer[(ActorRef, NativeTargetRef)]]()
 
   def receive = {
     case GetTarget(targetRef) =>
       targetRef match {
         case nativeTargetRef: NativeTargetRef =>
-          val list = nativeTargetWaiters.getOrElseUpdate(
-            nativeTargetRef.cookFileRef.refName, mutable.ListBuffer[(ActorRef, NativeTargetRef)]())
-          list += (sender -> nativeTargetRef)
-          if (list.size == 1) {
+          nativeResponser.onTask(nativeTargetRef.cookFileRef.refName, sender -> nativeTargetRef) {
             configManagerActor ! GetConfig(nativeTargetRef.cookFileRef)
           }
         case _ =>
           // TODO(timgreen):
       }
     case config: Config =>
-      nativeTargetWaiters.remove(config.refName) match {
-        case None =>
-        case Some(list) =>
-          for ((s, ref) <- list) {
-            s ! config.getTargetOption(ref.targetName)
-          }
+      nativeResponser.complete(config.refName) { case (s, ref) =>
+        s ! config.getTargetOption(ref.targetName)
       }
-
   }
 }

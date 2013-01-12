@@ -29,6 +29,7 @@ scala_lib(
   deps = [
     ":actor_base",
     ":messages",
+    "util:batch_responser",
     "//src/cook/config:config",
   ],
 )
@@ -41,6 +42,7 @@ scala_lib(
   deps = [
     ":actor_base",
     ":messages",
+    "util:batch_responser",
     "util:token_based_worker",
     "//src/cook/config:config",
     "//src/cook/util:dag_solver",
@@ -55,6 +57,7 @@ scala_lib(
   deps = [
     ":actor_base",
     ":messages",
+    "util:batch_responser",
     "//src/cook/config:config_ref",
   ],
 )
@@ -67,6 +70,7 @@ scala_lib(
   deps = [
     ":actor_base",
     ":messages",
+    "util:batch_responser",
     "//src/cook/config:config",
     "//src/cook/target:target",
   ],

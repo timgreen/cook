@@ -1,5 +1,6 @@
 package cook.actor
 
+import cook.actor.util.BatchResponser
 import cook.config.Config
 import cook.config.ConfigRef
 import cook.ref.FileRef
@@ -14,7 +15,7 @@ import scala.concurrent.Future
 class ConfigManagerActor extends ActorBase {
 
   private val cache = mutable.Map[String, Config]()
-  private val configWaiters = mutable.Map[String, mutable.ListBuffer[ActorRef]]()
+  private val responser = new BatchResponser[String, ActorRef]()
 
   val configLoaderActor = context.actorFor("./ConfigLoader")
   val configRefManagerActor = context.actorFor("./ConfigRefManager")
@@ -26,21 +27,14 @@ class ConfigManagerActor extends ActorBase {
       cache.get(refName) match {
         case Some(config) => sender ! config
         case None =>
-          val list = configWaiters.getOrElseUpdate(
-            refName, mutable.ListBuffer[ActorRef]())
-          list += sender
-          if (list.size == 1) {
+          responser.onTask(refName, sender) {
             startLoadConfig(refName, cookFileRef)
           }
       }
     case ConfigLoaded(refName, config) =>
       cache(refName) = config
-      configWaiters.remove(refName) match {
-        case None =>
-        case Some(list) =>
-          for (s <- list) {
-            s ! config
-          }
+      responser.complete(refName) {
+        _ ! config
       }
     case FindConfigRef(configRef) =>
       configLoaderActor ! LoadConfig(configRef)

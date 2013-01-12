@@ -1,5 +1,6 @@
 package cook.actor
 
+import cook.actor.util.BatchResponser
 import cook.config.ConfigRef
 import cook.config.ConfigType
 import cook.error.ErrorTracking._
@@ -11,7 +12,7 @@ import scala.collection.mutable
 class ConfigRefManagerActor extends Actor {
 
   private val cache = mutable.Map[String, ConfigRef]()
-  private val waitingMap = mutable.Map[String, mutable.ListBuffer[ActorRef]]()
+  private val responser = new BatchResponser[String, ActorRef]()
   private val passVerifySet = mutable.Set[String]()
 
   def receive = {
@@ -21,19 +22,13 @@ class ConfigRefManagerActor extends Actor {
         case Some(configRef) =>
           sender ! configRef
         case None =>
-          val list = waitingMap.getOrElseUpdate(refName, mutable.ListBuffer[ActorRef]())
-          list += sender
-          if (list.size == 1) {
+          responser.onTask(refName, sender) {
             self ! LoadConfigRef(refName, cookFileRef)
           }
       }
     case ConfigRefLoaded(refName, configRef) =>
-      waitingMap.remove(refName) match {
-        case None =>
-        case Some(list) =>
-          for (s <- list) {
-            s ! FindConfigRef(configRef)
-          }
+      responser.complete(refName) {
+        _ ! FindConfigRef(configRef)
       }
     case LoadConfigRef(refName, cookFileRef) =>
       val ref = new ConfigRef(cookFileRef)
