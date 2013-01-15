@@ -21,8 +21,8 @@ cd ..
 ## prepare lib
 mkdir -p lib
 cd lib
-SCALA_TEST_JAR=scalatest_2.10.0-RC5-2.0.M5-B1.jar
-[ -r $SCALA_TEST_JAR ] || (wget -c https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.10.0-RC5/2.0.M5-B1/$SCALA_TEST_JAR &&
+SCALA_TEST_JAR=scalatest_2.10.0-2.0.M5.jar
+[ -r $SCALA_TEST_JAR ] || (wget -c https://oss.sonatype.org/content/groups/public/org/scalatest/scalatest_2.10.0/2.0.M5/$SCALA_TEST_JAR &&
   ln -sf $PWD/$SCALA_TEST_JAR ../../lib/scalatest.jar)
 SCALLOP_JAR=scallop_2.10-0.6.4.jar
 [ -r $SCALLOP_JAR ] || (wget -c http://repo.typesafe.com/typesafe/repo/org/rogach/scallop_2.10/0.6.4/$SCALLOP_JAR
