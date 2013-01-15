@@ -28,3 +28,14 @@ scala_lib(
     ":config_ref",
   ],
 )
+
+scala_lib(
+  name = "config_loader",
+  srcs = [
+    "ConfigLoader.scala",
+  ],
+  deps = [
+    ":config",
+    ":config_ref",
+  ],
+)
