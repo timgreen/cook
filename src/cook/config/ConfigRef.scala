@@ -9,7 +9,7 @@ import java.util.concurrent.{ ConcurrentHashMap => JConcurrentHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.io.Source
-import scala.reflect.io.{ Path => SPath}
+import scala.reflect.io.{ Path => SPath }
 
 
 object ConfigType extends Enumeration {

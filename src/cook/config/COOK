@@ -17,3 +17,14 @@ scala_lib(
     "//src/cook/ref:ref",
   ],
 )
+
+scala_lib(
+  name = "config_generator",
+  srcs = [
+    "ConfigGenerator.scala",
+  ],
+  deps = [
+    ":config",
+    ":config_ref",
+  ],
+)
