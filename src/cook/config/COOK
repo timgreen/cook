@@ -39,3 +39,14 @@ scala_lib(
     ":config_ref",
   ],
 )
+
+scala_lib(
+  name = "config_engine",
+  srcs = [
+    "ConfigEngine.scala",
+  ],
+  deps = [
+    ":config_generator",
+    ":config_loader",
+  ],
+)
