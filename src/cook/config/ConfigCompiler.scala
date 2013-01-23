@@ -7,37 +7,34 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import scala.collection.mutable
 import scala.io.Source
+import scala.reflect.io.AbstractFile
+import scala.reflect.io.{ Path => SPath }
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interactive.Global
-import scala.tools.nsc.io.AbstractFile
-import scala.tools.nsc.io.Path
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.util._
 
 object ConfigCompiler {
 
-  lazy val cpBuilder = new ClassPathBuilder
-
-  def compile(configRef: ConfigRef) {
+  def compile(configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
     val outDir = configRef.configByteCodeDir
     prepareOutDir(outDir)
-    prevCompileCpUpdate
+
+    val cpBuilder = defaultCp.copy()
+    addDepCp(cpBuilder, configRef, depConfigRefMap)
 
     val c = new ConfigCompiler(outDir, cpBuilder.classPath)
     c.compile(configRef.configScalaSourceFile, configRef)
-
-    postCompileCpUpdate(outDir)
   }
 
-  private def prevCompileCpUpdate {
-
+  private def addDepCp(cpBuilder: ClassPathBuilder,
+    configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
+    for (depRef <- depConfigRefMap.values) {
+      cpBuilder add depRef.configByteCodeDir.toString
+    }
   }
 
-  private def postCompileCpUpdate(outDir: Path) {
-    cpBuilder.add(outDir.path)
-  }
-
-  private def prepareOutDir(dir: Path) {
+  private def prepareOutDir(dir: SPath) {
     if (dir.canRead) {
       dir.deleteRecursively
     }
@@ -45,19 +42,18 @@ object ConfigCompiler {
   }
 
   def initDefaultCp = {
-    cpBuilder
+    (new ClassPathBuilder)
       .addJavaPath
       .addPathFor(classOf[cook.config.Config])
-      .addPathFor(classOf[cook.config.dsl.Dsl])
+      //.addPathFor(classOf[cook.config.dsl.Dsl])
   }
+  private val defaultCp = initDefaultCp
 }
 
-class ConfigCompiler(outDir: Path, cp: String) {
-
-  val settings = generateSettings
+class ConfigCompiler(outDir: SPath, cp: String) {
   val compiler = new Global(settings, null)
 
-  def compile(file: Path, configRef: ConfigRef) {
+  def compile(file: SPath, configRef: ConfigRef) {
     val messageCollector = new StringWriter
     val messageCollectorWrapper = new PrintWriter(messageCollector)
     val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper) {
@@ -88,7 +84,8 @@ class ConfigCompiler(outDir: Path, cp: String) {
           case NoPosition =>
             super.printMessage(posIn, msg);
           case _ =>
-            val cookSource = new BatchSourceFile(AbstractFile.getFile(configRef.p))
+            val cookSource = new BatchSourceFile(AbstractFile.getFile(
+              configRef.fileRef.toPath.path))
             val offset = startOffset(posIn.source)
             val newPos = posIn.withSource(cookSource, -offset)
             if (newPos.point < 0) {
@@ -129,4 +126,5 @@ class ConfigCompiler(outDir: Path, cp: String) {
 
     settings
   }
+  val settings = generateSettings
 }

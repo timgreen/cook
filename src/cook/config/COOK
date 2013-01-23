@@ -41,11 +41,25 @@ scala_lib(
 )
 
 scala_lib(
+  name = "config_compiler",
+  srcs = [
+    "ConfigCompiler.scala",
+  ],
+  deps = [
+    ":config",
+    ":config_ref",
+    "//src/cook/error:error",
+    "//src/cook/util:cp_builder",
+  ],
+)
+
+scala_lib(
   name = "config_engine",
   srcs = [
     "ConfigEngine.scala",
   ],
   deps = [
+    ":config_compiler",
     ":config_generator",
     ":config_loader",
   ],

@@ -26,7 +26,7 @@ private[cook] object ConfigEngine {
 
   private def doCompile(configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
     if (shouldRecompileScala(configRef)) {
-      // ConfigCompiler.compile(configRef)
+      ConfigCompiler.compile(configRef, depConfigRefMap)
     }
   }
 
