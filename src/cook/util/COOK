@@ -4,3 +4,10 @@ scala_lib(
     "DagSolver.scala",
   ],
 )
+
+scala_lib(
+  name = "cp_builder",
+  srcs = [
+    "ClassPathBuilder.scala",
+  ],
+)

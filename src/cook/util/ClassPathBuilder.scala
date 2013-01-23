@@ -8,7 +8,10 @@ import scala.collection.mutable
 /**
  * Copy from https://github.com/scalate/scalate/blob/master/scalate-util/src/main/scala/org/fusesource/scalate/util/ClassPathBuilder.scala
  */
-class ClassPathBuilder {
+case class ClassPathBuilder(
+  private val cp: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String](),
+  private val cpSet: mutable.Set[String] = mutable.Set[String]()
+) {
   import ClassPathBuilder._
 
   def classPath = cp mkString JFile.pathSeparator
@@ -47,11 +50,6 @@ class ClassPathBuilder {
       case None => Nil
     }
   }
-
-
-  private [util] val cp = mutable.ArrayBuffer[String]()
-  private [util] val cpSet = mutable.Set[String]()
-
 }
 
 object ClassPathBuilder {
