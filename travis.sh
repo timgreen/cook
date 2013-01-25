@@ -37,3 +37,4 @@ set -e
 ./bin/cook build src/cook/target:target
 ./bin/cook build src/cook/actor:actor
 ./bin/cook run test/cook/ref:run_basic_ref_test
+./bin/cook run test/cook/config:run_config_generator_test

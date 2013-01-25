@@ -7,16 +7,17 @@ import scala.reflect.io.{ Path => SPath, Directory }
 
 class Path(val rootDir: Directory, val currentDir: Directory) {
 
-  val WORKSPACE = ".cook_workspace"
+  val cookWorkspaceDir =
+    (rootDir / ".cook_workspace").toDirectory
 
   val configScalaSourceDir =
-    (rootDir / WORKSPACE / "config_srcs").toDirectory
+    (cookWorkspaceDir / "config_srcs").toDirectory
   val configByteCodeDir =
-    (rootDir / WORKSPACE / "config_bytecodes").toDirectory
+    (cookWorkspaceDir / "config_bytecodes").toDirectory
   val targetBuildDir =
-    (rootDir / WORKSPACE / "targets").toDirectory
+    (cookWorkspaceDir / "targets").toDirectory
   val configMetaDir =
-    (rootDir / WORKSPACE / "config_metas").toDirectory
+    (cookWorkspaceDir / "config_metas").toDirectory
 
   val currentSegments = currentDir.segments.drop(rootDir.segments.size)
 }
@@ -26,7 +27,7 @@ object Path {
   private var instance: Path = _
 
   def apply(): Path = instance
-  def apply(currentDir: Option[Directory]): Path = {
+  private [cook] def apply(currentDir: Option[Directory]): Path = {
     currentDir.map(_.normalize.toDirectory).flatMap(d => findRootDir(d, d)) match {
       case Some((currentDir, rootDir)) =>
         instance = new Path(rootDir, currentDir)

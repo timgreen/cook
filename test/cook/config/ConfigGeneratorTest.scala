@@ -1,79 +1,72 @@
 package cook.config
 
-import cook.config.testing.ConfigRefTestHelper
 import cook.error.CookException
-import cook.path.testing.PathUtilHelper
+import cook.path.Path
+import cook.ref.FileRef
+import cook.ref.RefFactoryRegister
+import cook.ref.RefManager
 
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import scala.io.Source
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.Path
+import scala.reflect.io.{ Path => SPath, Directory }
 
 
 class ConfigGeneratorTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
   before {
-    ConfigRefTestHelper.clearCache
+    RefFactoryRegister.init
   }
 
-  def generator(dirname: String) = {
-    val dir = Directory("testoutput/" + dirname)
-    dir.deleteRecursively
-    PathUtilHelper.fakePath(
-      cookRootOption = Some((Path("testdata") / dirname) toDirectory),
-      cookConfigScalaSourceDirOption = Some(dir)
-    )
-    ConfigGenerator
+  private def chroot(dirname: String) {
+    val dir = Directory("testdata/" + dirname)
+    Path(Some(dir)).cookWorkspaceDir.deleteRecursively
+  }
+
+  private def generateSourceFor(refName: String) = {
+    val ref = new ConfigRef(RefManager(Nil, refName).as[FileRef])
+    val rootRef = new ConfigRef(ConfigRef.rootConfigFileRef)
+    val depConfigRefsMap = ((ref.imports map { _.ref }) ++ ref.mixins ++ rootRef.mixins) map { r =>
+      r.refName -> new ConfigRef(r)
+    } toMap
+
+    ConfigGenerator.generate(ref, rootRef, depConfigRefsMap)
+    ref.configScalaSourceFile
   }
 
   "Generator" should "include imports" in {
-    val g = generator("test1")
-    val f = g.generate(ConfigRef(List("COOK")))
+    chroot("test1")
+    val f = generateSourceFor("/COOK")
     val content = Source.fromFile(f.jfile).getLines().toSeq
     content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
     content should contain ("val b: COOK_CONFIG_PACKAGE.rules.b_cookiTrait = COOK_CONFIG_PACKAGE.rules.b_cooki")
   }
 
   it should "report error when COOK_ROOT include lines other than mixin" in {
-    val g = generator("test2")
+    chroot("test2")
     evaluating {
-      g.generate(ConfigRef(List("COOK")))
+      val f = generateSourceFor("/COOK")
     } should produce [CookException]
   }
 
   it should "report error when include cooki doesn't exists" in {
-    val g = generator("test3")
+    chroot("test3")
     evaluating {
-      val f = g.generate(ConfigRef(List("COOK")))
-    } should produce [CookException]
-  }
-
-  it should "report error when detect cycle include" in {
-    val g = generator("test4")
-    evaluating {
-      val f = g.generate(ConfigRef(List("COOK")))
-    } should produce [CookException]
-  }
-
-  it should "report error when detect self include" in {
-    val g = generator("test5")
-    evaluating {
-      val f = g.generate(ConfigRef(List("COOK")))
+      val f = generateSourceFor("/COOK")
     } should produce [CookException]
   }
 
   it should "report error when cooki try to import others" in {
-    val g = generator("test6")
+    chroot("test6")
     evaluating {
-      val f = g.generate(ConfigRef(List("COOK")))
+      val f = generateSourceFor("/COOK")
     } should produce [CookException]
   }
 
   it should "import @mixined imports" in {
-    val g = generator("test7")
-    val f = g.generate(ConfigRef(List("COOK")))
+    chroot("test7")
+    val f = generateSourceFor("/COOK")
     val content = Source.fromFile(f.jfile).getLines().toSeq
     content should contain ("import COOK_CONFIG_PACKAGE.rules.a_cooki._")
   }

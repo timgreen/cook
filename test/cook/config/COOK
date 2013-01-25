@@ -2,10 +2,9 @@ scala_lib(
   name = "config_generator_test",
   srcs = "ConfigGeneratorTest.scala",
   deps = [
-    "//lib:scalatest",
-    "//src/cook/config/testing:config_ref_test_helper",
-    "//src/cook/config:generator",
-    "//src/cook/path/testing:path_util_helper",
+    "//src/cook/config:config_generator",
+    "//src/cook/ref:ref_factory_register",
+    "//lib/scalatest.jar",
   ],
 )
 
@@ -14,79 +13,6 @@ scala_test(
   deps = [ ":config_generator_test" ],
   testClasses = [
     "cook.config.ConfigGeneratorTest",
-  ],
-  res = [
-    ["testdata", "."],
-  ],
-)
-
-
-scala_lib(
-  name = "config_compiler_test",
-  srcs = "ConfigCompilerTest.scala",
-  deps = [
-    "//lib:scalatest",
-    "//src/cook/config/testing:config_ref_test_helper",
-    "//src/cook/config:compiler",
-    "//src/cook/config:generator",
-    "//src/cook/path/testing:path_util_helper",
-    "//src/cook/util/testing:class_path_builder_helper",
-  ],
-)
-
-scala_test(
-  name = "run_config_compiler_test",
-  deps = [ ":config_compiler_test" ],
-  testClasses = [
-    "cook.config.ConfigCompilerTest",
-  ],
-  res = [
-    ["testdata", "."],
-  ],
-)
-
-scala_lib(
-  name = "config_loader_test",
-  srcs = "ConfigLoaderTest.scala",
-  deps = [
-    "//lib:scalatest",
-    "//src/cook/config/testing:config_ref_test_helper",
-    "//src/cook/config:compiler",
-    "//src/cook/config:generator",
-    "//src/cook/config:loader",
-    "//src/cook/path/testing:path_util_helper",
-    "//src/cook/util/testing:class_path_builder_helper",
-  ],
-)
-
-scala_test(
-  name = "run_config_loader_test",
-  deps = [ ":config_loader_test" ],
-  testClasses = [
-    "cook.config.ConfigLoaderTest",
-  ],
-  res = [
-    ["testdata", "."],
-  ],
-)
-
-scala_lib(
-  name = "config_engine_test",
-  srcs = "ConfigEngineTest.scala",
-  deps = [
-    "//lib:scalatest",
-    "//src/cook/config/testing:config_ref_test_helper",
-    "//src/cook/config:engine",
-    "//src/cook/path/testing:path_util_helper",
-    "//src/cook/util/testing:class_path_builder_helper",
-  ],
-)
-
-scala_test(
-  name = "run_config_engine_test",
-  deps = [ ":config_engine_test" ],
-  testClasses = [
-    "cook.config.ConfigEngineTest",
   ],
   res = [
     ["testdata", "."],

@@ -8,17 +8,19 @@ package cook.config
  */
 private[cook] object ConfigEngine {
 
-  def load(configRef: ConfigRef, depConfigRefs: List[ConfigRef]): Config = {
+  def load(configRef: ConfigRef, rootConfigRef: ConfigRef,
+    depConfigRefs: List[ConfigRef]): Config = {
     val map: Map[String, ConfigRef] = depConfigRefs map { r => r.refName -> r } toMap
 
-    doGenerate(configRef, map)
+    doGenerate(configRef, rootConfigRef, map)
     doCompile(configRef, map)
     doLoad(configRef, map)
   }
 
-  private def doGenerate(configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
+  private def doGenerate(configRef: ConfigRef, rootConfigRef: ConfigRef,
+    depConfigRefMap: Map[String, ConfigRef]) {
     if (shouldRegenerateScala(configRef)) {
-      ConfigGenerator.generate(configRef, depConfigRefMap)
+      ConfigGenerator.generate(configRef, rootConfigRef, depConfigRefMap)
       configRef.configByteCodeDir.deleteRecursively
       //configRef.saveMeta
     }

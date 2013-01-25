@@ -25,33 +25,6 @@ case class ValDefine(ref: FileRef, name: String) extends ConfigRefImport
 
 private[cook] class ConfigRef(val fileRef: FileRef) {
 
-  private def verify {
-    if (!fileRef.toPath.canRead) {
-      reportError("Can not read config: %s", fileRef.toPath.path)
-    }
-
-    configType match {
-      case ConfigType.CookRootConfig =>
-        Source.fromFile(fileRef.toPath.path) getLines() forall { line =>
-          (line matches ConfigRef.MixinP.toString) ||
-            (line matches """^\s*//.*$""") ||
-            (line matches """^\s*$""")
-        } match {
-          case true =>
-          case false =>
-            // NOTE(timgreen): only always mixins in cook root config for now.
-            reportError("Only always mixins in COOK_ROOT config for now.")
-        }
-      case ConfigType.CookiConfig =>
-        if (imports.exists(_.isInstanceOf[ImportDefine])) {
-          reportError("Doesn't support @import define in *.cooki")
-        }
-        // NOTE: cycle import check will be done in config ref manager actor
-      case ConfigType.CookConfig =>  // pass
-    }
-  }
-  verify
-
   val configType = fileRef.filename match {
     case "COOK_ROOT" => ConfigType.CookRootConfig
     case "COOK" => ConfigType.CookConfig
@@ -61,13 +34,13 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
   }
 
   val configClassPackageName = (ConfigRef.packagePrefix :: fileRef.dir.segments) mkString "."
-  val configClassFullName = configClassPackageName + "." + configClassName
   val configClassName = configType match {
     case ConfigType.CookiConfig =>
       fileRef.filename.replace(".", "_")
     case _ =>
       fileRef.filename
   }
+  val configClassFullName = configClassPackageName + "." + configClassName
   val configClassTraitName = configClassName + "Trait"
   val configClassTraitFullName = configClassPackageName + "." + configClassTraitName
 
@@ -75,6 +48,9 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
     Path().configScalaSourceDir / (configClassFullName + ".scala")
   val configByteCodeDir = Path().configByteCodeDir / configClassFullName
 
+  if (!fileRef.toPath.canRead) {
+    reportError("Can not read config: %s", fileRef.toPath.path)
+  }
   val (imports, mixins): (Set[ConfigRefImport], Set[FileRef]) = {
     val list = Source.fromFile(fileRef.toPath.path) getLines() collect {
       case ConfigRef.ImportP(ref) =>
@@ -83,7 +59,7 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
         ValDefine(relativeConfigRef(ref + ".cooki"), name)
       case ConfigRef.MixinP(ref) =>
         relativeConfigRef(ref + ".cooki")
-    }
+    } toList
 
     val importsList = list collect {
       case x: ConfigRefImport => x
@@ -105,6 +81,29 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
         reportError("bad import %s", ref)
     }
   }
+
+  private def verify {
+    configType match {
+      case ConfigType.CookRootConfig =>
+        Source.fromFile(fileRef.toPath.path) getLines() forall { line =>
+          (line matches ConfigRef.MixinP.toString) ||
+            (line matches """^\s*//.*$""") ||
+            (line matches """^\s*$""")
+        } match {
+          case true =>
+          case false =>
+            // NOTE(timgreen): only always mixins in cook root config for now.
+            reportError("Only always mixins in COOK_ROOT config for now.")
+        }
+      case ConfigType.CookiConfig =>
+        if (imports.exists(_.isInstanceOf[ImportDefine])) {
+          reportError("Doesn't support @import define in *.cooki")
+        }
+        // NOTE: cycle import check will be done in config ref manager actor
+      case ConfigType.CookConfig =>  // pass
+    }
+  }
+  verify
 }
 
 object ConfigRef {

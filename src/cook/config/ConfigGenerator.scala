@@ -14,11 +14,12 @@ import scala.reflect.io.{ Path => SPath, Directory }
  */
 object ConfigGenerator {
 
-  def generate(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef]) {
+  def generate(configRef: ConfigRef, rootConfigRef: ConfigRef,
+    depConfigRefsMap: Map[String, ConfigRef]) {
     withWriter(configRef) { writer =>
       generateHeader(configRef, depConfigRefsMap, writer)
       if (configRef.configType != ConfigType.CookRootConfig) {
-        generateImports(configRef, depConfigRefsMap, writer)
+        generateImports(configRef, rootConfigRef, depConfigRefsMap, writer)
       }
       generateBody(configRef, depConfigRefsMap, writer)
       generateFooter(configRef, depConfigRefsMap, writer)
@@ -80,24 +81,25 @@ object ConfigGenerator {
 
   }
 
-  private def generateImports(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
+  private def generateImports(configRef: ConfigRef, rootConfigRef: ConfigRef,
+    depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
     writer.println("// IMPORTS START")
     if (configRef.configType == ConfigType.CookConfig) {
       writer.println("//// ROOT IMPORTS START")
-      //ConfigRef.rootConfigRef.mixins foreach { ref =>
-      //  writer.println("import %s._".format(ref.configClassFullName))
-      //}
+      rootConfigRef.mixins foreach { ref =>
+        writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
+      }
       writer.println("//// ROOT IMPORTS END")
     }
 
     for (importDefine <- configRef.imports) {
       importDefine match {
         case ImportDefine(ref) =>
-          //val isPartOfRootMixin = ConfigRef.rootConfigRef.mixins.contains(importDefine.ref)
-          //if (!isPartOfRootMixin) {
+          val isPartOfRootMixin = rootConfigRef.mixins.contains(importDefine.ref)
+          if (!isPartOfRootMixin) {
             writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
-          //}
+          }
         case ValDefine(ref, name) =>
           writer.println("val %s: %s = %s".format(
             name,
