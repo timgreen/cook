@@ -89,3 +89,21 @@ scala_lib(
     ":target_manager_actor",
   ],
 )
+
+scala_lib(
+  name = "config_ref_loader",
+  srcs = "ConfigRefLoader.scala",
+  deps = [
+    "//src/cook/config:config_ref",
+    "//src/cook/ref:ref",
+  ]
+)
+
+scala_lib(
+  name = "config_ref_loader_impl",
+  srcs = "ConfigRefLoaderImpl.scala",
+  deps = [
+    ":config_ref_loader",
+    "util:batch_responser",
+  ]
+)
