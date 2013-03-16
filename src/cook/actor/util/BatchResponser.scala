@@ -1,26 +1,27 @@
 package cook.actor.util
 
 import scala.collection.mutable
+import scala.concurrent.{ Promise, Future }
 
 /**
  * Batch message responser.
  */
-class BatchResponser[Key, Value] {
+class BatchResponser[Key, Result] {
 
-  private val waiters = mutable.Map[Key, mutable.ListBuffer[Value]]()
+  private val waiters = mutable.Map[Key, Promise[Result]]()
 
-  def onTask(key: Key, value: Value)(firstTimeAction: => Unit) {
-    val list = waiters.getOrElseUpdate(key, mutable.ListBuffer[Value]())
-    list += value
-    if (list.size == 1) {
-      firstTimeAction
-    }
+  def onTask(key: Key)(firstTimeAction: Promise[Result] => Unit): Future[Result] = {
+    waiters.getOrElseUpdate(key, {
+      val p = Promise[Result]()
+      firstTimeAction(p)
+      p
+    }).future
   }
 
-  def complete(key: Key)(completeAction: Value => Unit) {
+  def complete(key: Key, result: Result) {
     waiters.remove(key) match {
       case None =>
-      case Some(list) => list foreach completeAction
+      case Some(p) => p success result
     }
   }
 }
