@@ -105,6 +105,24 @@ scala_lib(
   ]
 )
 
+scala_lib(
+  name = "config_manager",
+  srcs = "ConfigManager.scala",
+  deps = [
+    "//src/cook/config:config",
+    "//src/cook/config:config_ref",
+  ]
+)
+
+scala_lib(
+  name = "config_loader",
+  srcs = "ConfigLoader.scala",
+  deps = [
+    "//src/cook/config:config",
+    "//src/cook/config:config_ref",
+  ]
+)
+
 # base
 
 scala_lib(
@@ -114,7 +132,9 @@ scala_lib(
   ],
   deps = [
     ":config_ref_loader",
+    ":config_ref_manager",
     ":config_ref_verifier",
+    ":config_loader",
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
   ]
@@ -148,6 +168,17 @@ scala_lib(
   srcs = "ConfigRefManagerImpl.scala",
   deps = [
     ":config_ref_manager",
+    ":typed_actor_base",
+    "util:batch_responser",
+    "//src/cook/app:global",
+  ]
+)
+
+scala_lib(
+  name = "config_manager_impl",
+  srcs = "ConfigManagerImpl.scala",
+  deps = [
+    ":config_manager",
     ":typed_actor_base",
     "util:batch_responser",
     "//src/cook/app:global",
