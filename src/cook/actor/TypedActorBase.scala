@@ -8,4 +8,9 @@ trait TypedActorBase {
     TypedActor(TypedActor.context.system).typedActorOf(
       TypedProps[ConfigRefLoader],
       TypedActor.context.system.actorFor("ConfigRefLoader"))
+
+  protected def configRefVerifier =
+    TypedActor(TypedActor.context.system).typedActorOf(
+      TypedProps[ConfigRefVerifier],
+      TypedActor.context.system.actorFor("ConfigRefVerifier"))
 }

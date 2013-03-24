@@ -8,4 +8,7 @@ import scala.concurrent.Future
 trait ConfigRefManager {
 
   def getConfigRef(cookFileRef: FileRef): Future[ConfigRef]
+
+  def getSuccess(refName: String, configRef: ConfigRef)
+  def getFailure(refName: String, e: Throwable)
 }

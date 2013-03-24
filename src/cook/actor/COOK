@@ -114,6 +114,7 @@ scala_lib(
   ],
   deps = [
     ":config_ref_loader",
+    ":config_ref_verifier",
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
   ]
@@ -146,8 +147,8 @@ scala_lib(
   name = "config_ref_manager_impl",
   srcs = "ConfigRefManagerImpl.scala",
   deps = [
-    ":config_ref_loader",
     ":config_ref_manager",
+    ":typed_actor_base",
     "util:batch_responser",
     "//src/cook/app:global",
   ]

@@ -1,13 +1,14 @@
 package cook.actor
 
 import cook.actor.util.BatchResponser
+import cook.app.Global
 import cook.config.ConfigRef
 import cook.ref.FileRef
 
 import scala.concurrent.{ Future, Promise, Await }
 import scala.concurrent.duration._
 import scala.collection.mutable
-import scala.util.{ Success, Failure }
+import scala.util.{ Try, Success, Failure }
 import akka.actor.{ TypedActor, TypedProps }
 
 object ConfigRefVerifyTask {
@@ -19,76 +20,43 @@ object ConfigRefVerifyTask {
   }
 }
 
-class ConfigRefManagerImpl extends ConfigRefManager {
+class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 
   private val responser = new BatchResponser[String, ConfigRef]()
 
   override def getConfigRef(cookFileRef: FileRef): Future[ConfigRef] = {
     val refName = cookFileRef.refName
-    responser.onTask(refName) { p =>
-      doGetConfigRef(refName, cookFileRef, p)
+    responser.onTask(refName) {
+      doGetConfigRef(refName, cookFileRef)
     }
   }
 
-  private def configRefLoader = {
-    val system = TypedActor.context.system
-    TypedActor(system).typedActorOf(
-      TypedProps[ConfigRefLoader],
-      system.actorFor("ConfigRefLoader"))
+  override def getSuccess(refName: String, configRef: ConfigRef) {
+    responser.success(refName, configRef)
+  }
+  override def getFailure(refName: String, e: Throwable) {
+    responser.failure(refName, e)
   }
 
-  private def doGetConfigRef(refName: String, cookFileRef: FileRef, p: Promise[ConfigRef]) {
+  private def doGetConfigRef(refName: String, cookFileRef: FileRef) {
+    val self = TypedActor.self[ConfigRefManager]
     // TODO(timgreen): use another ec?
     import scala.concurrent.ExecutionContext.Implicits.global
     configRefLoader.loadConfigRef(cookFileRef) onComplete {
       case Success(configRef) =>
-        val ec = TypedActor.context.system.dispatchers.lookup("configref-verify-worker-dispatcher")
-        ec.execute(ConfigRefVerifyTask(refName) {
-          if (passCycleCheck(refName, configRef)) {
-            p.success(configRef)
-          } else {
-            // TODO(timgreen):
-            // p.failure()
+        Global.configRefVerifyDispatcher.execute(ConfigRefVerifyTask(refName) {
+          Await.result(configRefVerifier.passCycleCheck(configRef), Duration.Inf) match {
+            case Success(true) =>
+              self.getSuccess(refName, configRef)
+            case Success(false) =>
+              // TODO(timgreen): throw cycleFound exception
+              // self.getFailure(refName, )
+            case Failure(e) =>
+              self.getFailure(refName, e)
           }
         })
       case Failure(failure) =>
-        // TODO(timgreen):
-        p.failure(failure)
-    }
-  }
-
-  private val passVerifySet = mutable.Set[String]()
-
-  private def passCycleCheck(refName: String, configRef: ConfigRef): Boolean = {
-    if (passVerifySet.contains(refName)) {
-      true
-    } else {
-      val trace = mutable.Set[String]()
-      doCycleCheck(trace, configRef)
-    }
-  }
-
-  private def doCycleCheck(trace: mutable.Set[String], ref: ConfigRef): Boolean = {
-    if (passVerifySet.contains(ref.fileRef.toPath.path)) {
-      true
-    } else if (trace.contains(ref.fileRef.toPath.path)) {
-      false
-    } else {
-      trace += ref.fileRef.toPath.path
-      val fRefs = ref.imports map { d =>
-        configRefLoader.loadConfigRef(d.ref)
-      }
-
-      // TODO(timgreen): use another ec?
-      import scala.concurrent.ExecutionContext.Implicits.global
-      val refs = Await.result(Future.sequence(fRefs), Duration.Inf)
-      val foundCycle = refs find { ref =>
-        !doCycleCheck(trace, ref)
-      } isDefined
-
-      trace -= ref.fileRef.refName
-      passVerifySet += ref.fileRef.refName
-      !foundCycle
+        self.getFailure(refName, failure)
     }
   }
 }
