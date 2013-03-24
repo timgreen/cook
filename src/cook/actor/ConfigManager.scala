@@ -4,10 +4,10 @@ import cook.config.Config
 import cook.ref.FileRef
 
 import scala.concurrent.Future
+import scala.util.Try
 
 trait ConfigManager {
 
   def getConfig(cookFileRef: FileRef): Future[Config]
-  def taskSuccess(refName: String, config: Config)
-  def taskFailure(refName: String, e: Throwable)
+  def taskComplete(refName: String)(tryConfig: Try[Config])
 }

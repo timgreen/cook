@@ -26,13 +26,14 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
   private val cache = mutable.Map[String, Config]()
   private val responser = new BatchResponser[String, Config]()
 
-  override def taskSuccess(refName: String, config: Config) {
-    cache(refName) = config
-    responser.success(refName, config)
-  }
-
-  override def taskFailure(refName: String, e: Throwable) {
-    responser.failure(refName, e)
+  override def taskComplete(refName: String)(tryConfig: Try[Config]) {
+    tryConfig match {
+      case Success(config) =>
+        cache(refName) = config
+        responser.success(refName, config)
+      case Failure(e) =>
+        responser.failure(refName, e)
+    }
   }
 
   override def getConfig(cookFileRef: FileRef): Future[Config] = {
@@ -58,11 +59,6 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
       config <- configLoader.loadConfig(configRef)
     } yield config
 
-    f onComplete {
-      case Success(config) =>
-        self.taskSuccess(refName, config)
-      case Failure(e) =>
-        self.taskFailure(refName, e)
-    }
+    f onComplete self.taskComplete(refName)
   }
 }

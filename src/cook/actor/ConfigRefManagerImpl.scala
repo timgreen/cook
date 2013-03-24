@@ -31,11 +31,13 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
     }
   }
 
-  override def getSuccess(refName: String, configRef: ConfigRef) {
-    responser.success(refName, configRef)
-  }
-  override def getFailure(refName: String, e: Throwable) {
-    responser.failure(refName, e)
+  override def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef]) {
+    tryConfigRef match {
+      case Success(configRef) =>
+        responser.success(refName, configRef)
+      case Failure(e) =>
+        responser.failure(refName, e)
+    }
   }
 
   private def doGetConfigRef(refName: String, cookFileRef: FileRef) {
@@ -47,16 +49,16 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
         Global.configRefVerifyDispatcher.execute(ConfigRefVerifyTask(refName) {
           Await.result(configRefVerifier.passCycleCheck(configRef), Duration.Inf) match {
             case Success(true) =>
-              self.getSuccess(refName, configRef)
+              self.taskComplete(refName)(Success(configRef))
             case Success(false) =>
               // TODO(timgreen): throw cycleFound exception
-              // self.getFailure(refName, )
+              // self.taskComplete(refName)(...)
             case Failure(e) =>
-              self.getFailure(refName, e)
+              self.taskComplete(refName)(Failure(e))
           }
         })
-      case Failure(failure) =>
-        self.getFailure(refName, failure)
+      case Failure(e) =>
+        self.taskComplete(refName)(Failure(e))
     }
   }
 }

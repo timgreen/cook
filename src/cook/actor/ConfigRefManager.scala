@@ -4,11 +4,11 @@ import cook.config.ConfigRef
 import cook.ref.FileRef
 
 import scala.concurrent.Future
+import scala.util.Try
 
 trait ConfigRefManager {
 
   def getConfigRef(cookFileRef: FileRef): Future[ConfigRef]
 
-  def getSuccess(refName: String, configRef: ConfigRef)
-  def getFailure(refName: String, e: Throwable)
+  def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef])
 }
