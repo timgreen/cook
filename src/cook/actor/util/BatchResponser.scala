@@ -10,18 +10,25 @@ class BatchResponser[Key, Result] {
 
   private val waiters = mutable.Map[Key, Promise[Result]]()
 
-  def onTask(key: Key)(firstTimeAction: Promise[Result] => Unit): Future[Result] = {
+  def onTask(key: Key)(firstTimeAction: => Unit): Future[Result] = {
     waiters.getOrElseUpdate(key, {
       val p = Promise[Result]()
-      firstTimeAction(p)
+      firstTimeAction
       p
     }).future
   }
 
-  def complete(key: Key, result: Result) {
+  def success(key: Key, result: Result) {
     waiters.remove(key) match {
       case None =>
       case Some(p) => p success result
+    }
+  }
+
+  def failure(key: Key, e: Throwable) {
+    waiters.remove(key) match {
+      case None =>
+      case Some(p) => p failure e
     }
   }
 }

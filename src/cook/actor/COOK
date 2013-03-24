@@ -91,6 +91,7 @@ scala_lib(
   deps = [
     ":config_ref_loader",
     "util:batch_responser",
+    "//src/cook/app:global",
   ]
 )
 

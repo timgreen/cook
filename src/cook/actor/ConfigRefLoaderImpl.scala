@@ -1,6 +1,7 @@
 package cook.actor
 
 import cook.actor.util.BatchResponser
+import cook.app.Global
 import cook.config.ConfigRef
 import cook.ref.FileRef
 
@@ -23,8 +24,12 @@ class ConfigRefLoaderImpl extends ConfigRefLoader {
   private val cache = mutable.Map[String, ConfigRef]()
   private val responser = new BatchResponser[String, ConfigRef]()
 
-  override def cacheConfigRef(refName: String, configRef: ConfigRef) {
+  override def loadSuccess(refName: String, configRef: ConfigRef) {
     cache(refName) = configRef
+    responser.success(refName, configRef)
+  }
+  override def loadFailure(refName: String, e: Throwable) {
+    responser.failure(refName, e)
   }
 
   override def loadConfigRef(cookFileRef: FileRef): Future[ConfigRef] = {
@@ -33,23 +38,22 @@ class ConfigRefLoaderImpl extends ConfigRefLoader {
       case Some(configRef) =>
         Future.successful(configRef)
       case None =>
-        val f = responser.onTask(refName) { p =>
-          doLoadConfigRef(refName, cookFileRef, p)
+        responser.onTask(refName) {
+          doLoadConfigRef(refName, cookFileRef)
         }
-        // TODO(timgreen): use another ec?
-        import scala.concurrent.ExecutionContext.Implicits.global
-        f onSuccess { case configRef =>
-          TypedActor.self[ConfigRefLoader].cacheConfigRef(refName, configRef)
-        }
-        f
     }
   }
 
-  private def doLoadConfigRef(refName: String, cookFileRef: FileRef, p: Promise[ConfigRef]) {
-    val workerExecutionContext = TypedActor.context.system.dispatchers.lookup("worker-dispatcher")
-    workerExecutionContext.execute(ConfigRefLoadTask(refName) {
-      val ref = new ConfigRef(cookFileRef)
-      p.success(ref)
+  private def doLoadConfigRef(refName: String, cookFileRef: FileRef) {
+    val self = TypedActor.self[ConfigRefLoader]
+    Global.workerDispatcher.execute(ConfigRefLoadTask(refName) {
+      try {
+        val ref = new ConfigRef(cookFileRef)
+        self.loadSuccess(refName, ref)
+      } catch {
+        case e =>
+          self.loadFailure(refName, e)
+      }
     })
   }
 }

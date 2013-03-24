@@ -8,5 +8,7 @@ import scala.concurrent.Future
 trait ConfigRefLoader {
 
   def loadConfigRef(cookFileRef: FileRef): Future[ConfigRef]
-  def cacheConfigRef(refName: String, configRef: ConfigRef)
+
+  def loadSuccess(refName: String, configRef: ConfigRef)
+  def loadFailure(refName: String, e: Throwable)
 }
