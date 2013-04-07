@@ -1,35 +1,4 @@
 scala_lib(
-  name = "worker_message",
-  srcs = [
-    "worker_messages.scala",
-  ],
-)
-
-scala_lib(
-  name = "worker_token_manager_actor",
-  srcs = [
-    "WorkerTokenManagerActor.scala",
-  ],
-  deps = [
-    ":worker_message",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
-  ],
-)
-
-scala_lib(
-  name = "token_based_worker",
-  srcs = [
-    "TokenBasedWorker.scala",
-  ],
-  deps = [
-    ":worker_message",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
-  ],
-)
-
-scala_lib(
   name = "batch_responser",
   srcs = [
     "BatchResponser.scala",

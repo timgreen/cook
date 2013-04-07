@@ -24,12 +24,24 @@ scala_lib(
 )
 
 scala_lib(
+  name = "global",
+  srcs = [
+    "Global.scala",
+  ],
+  deps = [
+    "//lib/akka-actors.jar",
+    "//lib/typesafe-config.jar",
+  ],
+)
+
+scala_lib(
   name = "main",
   srcs = [
     "Main.scala",
   ],
   deps = [
     ":parser",
+    "action:actions",
     "//src/cook/app/console:console",
     "//src/cook/path:path",
     "//src/cook/ref:ref_factory_register",
