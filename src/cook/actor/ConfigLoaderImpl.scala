@@ -3,6 +3,7 @@ package cook.actor
 import cook.actor.util.BatchResponser
 import cook.app.Global
 import cook.config.Config
+import cook.config.ConfigEngine
 import cook.config.ConfigRef
 import cook.util.DagSolver
 
@@ -98,15 +99,6 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   }
 
   private def doLoadConfig(taskInfo: LoadConfigClassTaskInfo): Config = {
-    // TODO(timgreen): gen source / compile
-
-    val cl = getClassLoader(taskInfo)
-    val clazz = cl.loadClass(taskInfo.configRef.configClassFullName)
-    clazz.asInstanceOf[Class[Config]].newInstance
-  }
-
-  private def getClassLoader(taskInfo: LoadConfigClassTaskInfo) = {
-    val cp = (taskInfo.configRef :: taskInfo.depConfigRefs).map(_.configByteCodeDir.toURI.toURL).toArray
-    new URLClassLoader(cp, this.getClass.getClassLoader)
+    ConfigEngine.load(taskInfo.configRef, rootConfigRef, taskInfo.depConfigRefs)
   }
 }
