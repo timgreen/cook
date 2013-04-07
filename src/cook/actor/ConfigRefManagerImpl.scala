@@ -32,12 +32,7 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
   }
 
   override def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef]) {
-    tryConfigRef match {
-      case Success(configRef) =>
-        responser.success(refName, configRef)
-      case Failure(e) =>
-        responser.failure(refName, e)
-    }
+    responser.complete(refName)(tryConfigRef)
   }
 
   private def doGetConfigRef(refName: String, cookFileRef: FileRef) {

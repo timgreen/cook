@@ -35,12 +35,7 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   private val dagSolver = new DagSolver
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
-    tryConfig match {
-      case Success(config) =>
-        responser.success(refName, config)
-      case Failure(e) =>
-        responser.failure(refName, e)
-    }
+    responser.complete(refName)(tryConfig)
   }
 
   override def loadConfig(configRef: ConfigRef): Future[Config] = {
