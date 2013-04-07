@@ -1,16 +1,4 @@
 scala_lib(
-  name = "messages",
-  srcs = [
-    "messages.scala",
-  ],
-  deps = [
-    "//src/cook/config:config",
-    "//src/cook/config:config_ref",
-    "//src/cook/ref:ref",
-  ],
-)
-
-scala_lib(
   name = "actor_base",
   srcs = [
     "ActorBase.scala",
@@ -18,34 +6,6 @@ scala_lib(
   deps = [
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
-  ],
-)
-
-scala_lib(
-  name = "config_manager_actor",
-  srcs = [
-    "ConfigManagerActor.scala",
-  ],
-  deps = [
-    ":actor_base",
-    ":messages",
-    "util:batch_responser",
-    "//src/cook/config:config",
-  ],
-)
-
-scala_lib(
-  name = "config_loader_actor",
-  srcs = [
-    "ConfigLoaderActor.scala",
-  ],
-  deps = [
-    ":actor_base",
-    ":messages",
-    "util:batch_responser",
-    "util:token_based_worker",
-    "//src/cook/config:config",
-    "//src/cook/util:dag_solver",
   ],
 )
 
@@ -182,5 +142,17 @@ scala_lib(
     ":typed_actor_base",
     "util:batch_responser",
     "//src/cook/app:global",
+  ]
+)
+
+scala_lib(
+  name = "config_loader_impl",
+  srcs = "ConfigLoaderImpl.scala",
+  deps = [
+    ":config_loader",
+    ":typed_actor_base",
+    "util:batch_responser",
+    "//src/cook/app:global",
+    "//src/cook/util:dag_solver",
   ]
 )
