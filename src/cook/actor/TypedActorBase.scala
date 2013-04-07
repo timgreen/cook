@@ -23,4 +23,9 @@ trait TypedActorBase {
     TypedActor(TypedActor.context.system).typedActorOf(
       TypedProps[ConfigLoader],
       TypedActor.context.system.actorFor("ConfigLoader"))
+
+  protected def configManager =
+    TypedActor(TypedActor.context.system).typedActorOf(
+      TypedProps[ConfigManager],
+      TypedActor.context.system.actorFor("ConfigManager"))
 }
