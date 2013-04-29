@@ -18,4 +18,6 @@ trait ConfigLoader {
 
   def step2WaitDepConfig(configRef: ConfigRef)(tryDepConfigRefs: Try[List[ConfigRef]])
   def step3LoadConfigClass(taskInfo: LoadConfigClassTaskInfo)
+
+  def checkDag
 }

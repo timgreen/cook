@@ -40,6 +40,8 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     responser.complete(refName)(tryConfig)
+    dagSolver.markDone(refName)
+    self.checkDag
   }
 
   override def loadConfig(configRef: ConfigRef): Future[Config] = {
@@ -72,17 +74,20 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
           // TODO(timgreen): mark sure success
           self.loadConfig(depConfigRef)
         }
-        checkDag
+        self.checkDag
       case Failure(e) =>
         self.taskComplete(configRef.refName)(Failure(e))
     }
   }
 
   private val depUnsolvedTasks = mutable.Map[String, LoadConfigClassTaskInfo]()
-  private def checkDag = if (dagSolver.hasAvaliable) {
-    val refName = dagSolver.pop
-    val Some(taskInfo) = depUnsolvedTasks.remove(refName)
-    self.step3LoadConfigClass(taskInfo)
+
+  override def checkDag {
+    if (dagSolver.hasAvaliable) {
+      val refName = dagSolver.pop
+      val Some(taskInfo) = depUnsolvedTasks.remove(refName)
+      self.step3LoadConfigClass(taskInfo)
+    }
   }
 
   override def step3LoadConfigClass(taskInfo: LoadConfigClassTaskInfo) {
