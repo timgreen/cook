@@ -25,6 +25,8 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 
   private val responser = new BatchResponser[String, ConfigRef]()
 
+  private def self = configRefManager
+
   override def getConfigRef(cookFileRef: FileRef): Future[ConfigRef] = {
     val refName = cookFileRef.refName
     responser.onTask(refName) {
@@ -37,9 +39,8 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
   }
 
   private def doGetConfigRef(refName: String, cookFileRef: FileRef) {
-    val self = TypedActor.self[ConfigRefManager]
     // TODO(timgreen): use another ec?
-    import scala.concurrent.ExecutionContext.Implicits.global
+    import TypedActor.dispatcher
     configRefLoader.loadConfigRef(cookFileRef) onComplete {
       case Success(configRef) =>
         Global.configRefVerifyDispatcher.execute(ConfigRefVerifyTask(refName) {

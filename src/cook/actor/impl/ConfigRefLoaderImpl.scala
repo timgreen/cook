@@ -21,10 +21,12 @@ object ConfigRefLoadTask {
   }
 }
 
-class ConfigRefLoaderImpl extends ConfigRefLoader {
+class ConfigRefLoaderImpl extends ConfigRefLoader with TypedActorBase {
 
   private val cache = mutable.Map[String, ConfigRef]()
   private val responser = new BatchResponser[String, ConfigRef]()
+
+  private def self = configRefLoader
 
   override def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef]) {
     tryConfigRef match {
@@ -49,7 +51,6 @@ class ConfigRefLoaderImpl extends ConfigRefLoader {
   }
 
   private def doLoadConfigRef(refName: String, cookFileRef: FileRef) {
-    val self = TypedActor.self[ConfigRefLoader]
     Global.workerDispatcher.execute(ConfigRefLoadTask(refName) {
       self.taskComplete(refName)(Try(new ConfigRef(cookFileRef)))
     })

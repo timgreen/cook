@@ -36,6 +36,8 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   private val responser = new BatchResponser[String, Config]()
   private val dagSolver = new DagSolver
 
+  private def self = configLoader
+
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     responser.complete(refName)(tryConfig)
   }
@@ -49,16 +51,13 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   }
 
   def step1WaitDepConfigRefs(configRef: ConfigRef) {
-    val self = TypedActor.self[ConfigLoader]
 
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
     val depConfigFileRef = Set(
       ConfigRef.rootConfigFileRef
     ) ++ configRef.imports.map(_.ref) ++ rootConfigRef.mixins
 
-    // TODO(timgreen): use another ec?
-    import scala.concurrent.ExecutionContext.Implicits.global
-
+    import TypedActor.dispatcher
     Future.traverse(depConfigFileRef.toList) { cookFileRef =>
       configRefManager.getConfigRef(cookFileRef)
     } onComplete self.step2WaitDepConfig(configRef)
@@ -71,24 +70,22 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
         dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
         depConfigRefs foreach { depConfigRef =>
           // TODO(timgreen): mark sure success
-          configLoader.loadConfig(depConfigRef)
+          self.loadConfig(depConfigRef)
         }
         checkDag
       case Failure(e) =>
-        configLoader.taskComplete(configRef.refName)(Failure(e))
+        self.taskComplete(configRef.refName)(Failure(e))
     }
   }
 
   private val depUnsolvedTasks = mutable.Map[String, LoadConfigClassTaskInfo]()
   private def checkDag = if (dagSolver.hasAvaliable) {
-    val self = TypedActor.self[ConfigLoader]
     val refName = dagSolver.pop
     val Some(taskInfo) = depUnsolvedTasks.remove(refName)
     self.step3LoadConfigClass(taskInfo)
   }
 
   override def step3LoadConfigClass(taskInfo: LoadConfigClassTaskInfo) {
-    val self = TypedActor.self[ConfigLoader]
     val refName = taskInfo.configRef.refName
     Global.workerDispatcher.execute(ConfigLoadTask(refName) {
       self.taskComplete(refName)(Try(doLoadConfig(taskInfo)))

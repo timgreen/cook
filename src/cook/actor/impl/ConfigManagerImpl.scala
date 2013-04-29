@@ -27,6 +27,8 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
   private val cache = mutable.Map[String, Config]()
   private val responser = new BatchResponser[String, Config]()
 
+  private def self = configManager
+
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     tryConfig match {
       case Success(config) =>
@@ -50,10 +52,7 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
   }
 
   private def doGetConfig(refName: String, cookFileRef: FileRef) {
-    val self = TypedActor.self[ConfigManager]
-
-    // TODO(timgreen): use another ec?
-    import scala.concurrent.ExecutionContext.Implicits.global
+    import TypedActor.dispatcher
 
     val f = for {
       configRef <- configRefManager.getConfigRef(cookFileRef)
