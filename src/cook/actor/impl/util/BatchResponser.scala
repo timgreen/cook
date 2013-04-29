@@ -1,4 +1,4 @@
-package cook.actor.util
+package cook.actor.impl.util
 
 import scala.collection.mutable
 import scala.concurrent.{ Promise, Future }

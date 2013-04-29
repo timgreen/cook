@@ -1,5 +1,6 @@
-package cook.actor
+package cook.actor.impl
 
+import cook.actor.ConfigRefVerifier
 import cook.config.ConfigRef
 import cook.ref.FileRef
 

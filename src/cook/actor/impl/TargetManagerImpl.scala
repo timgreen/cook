@@ -1,6 +1,7 @@
-package cook.actor
+package cook.actor.impl
 
-import cook.actor.util.BatchResponser
+import cook.actor.TargetManager
+import cook.actor.impl.util.BatchResponser
 import cook.config.Config
 import cook.ref.NativeTargetRef
 import cook.ref.TargetRef

@@ -1,4 +1,10 @@
-package cook.actor
+package cook.actor.impl
+
+import cook.actor.ConfigLoader
+import cook.actor.ConfigManager
+import cook.actor.ConfigRefLoader
+import cook.actor.ConfigRefManager
+import cook.actor.ConfigRefVerifier
 
 import akka.actor.{ TypedActor, TypedProps }
 
