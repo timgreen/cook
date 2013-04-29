@@ -59,3 +59,17 @@ scala_lib(
   ],
 )
 
+scala_lib(
+  name = "actors",
+  srcs = "Actors.scala",
+  deps = [
+    "impl:config_ref_verifier_impl",
+    "impl:config_ref_manager_impl",
+    "impl:config_ref_loader_impl",
+    "impl:config_manager_impl",
+    "impl:config_loader_impl",
+    "impl:target_manager_impl",
+    "impl:target_builder_impl",
+    "//src/cook/app:global",
+  ],
+)
