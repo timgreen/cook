@@ -5,7 +5,9 @@ import scala.collection.mutable
 
 
 /**
- * Help to find topological sorting in dag.
+ * Help to find topological sorting on dag.
+ *
+ * Use addDeps to add all deps for one node at once.
  */
 class DagSolver {
 
@@ -14,20 +16,29 @@ class DagSolver {
   private val avaliableNodes = mutable.Queue[String]()
   private val depNodesCount = mutable.Map[String, Int]()
   private val nodesDepOnMe = mutable.Map[String, mutable.ListBuffer[String]]()
+  /**
+   * Nodes already known deps.
+   */
+  private val solvedNodes = mutable.Set[String]()
 
   import DagSolver._
 
   def addDeps(node: String, deps: List[String]): AddDepsResult =  {
-    if (deps.isEmpty) {
-      avaliableNodes += node
-      Ok
+    if (solvedNodes.contains(node)) {
+      FoundDuplicatedNode(node)
     } else {
-      val set = deps.toSet
-      depNodesCount(node) = set.size
-      set foreach { dep =>
-        nodesDepOnMe.getOrElseUpdate(dep, mutable.ListBuffer()) += node
+      solvedNodes += node
+      if (deps.isEmpty) {
+        avaliableNodes += node
+        Ok
+      } else {
+        val set = deps.toSet
+        depNodesCount(node) = set.size
+        set foreach { dep =>
+          nodesDepOnMe.getOrElseUpdate(dep, mutable.ListBuffer()) += node
+        }
+        checkCycle(node, nodesDepOnMe.getOrElse(node, List()).toList)
       }
-      checkCycle(node, nodesDepOnMe.getOrElse(node, List()).toList)
     }
   }
 
@@ -93,4 +104,5 @@ object DagSolver {
   sealed trait AddDepsResult
   case object Ok extends AddDepsResult
   case class FoundDepCycle(cycle: List[String]) extends AddDepsResult
+  case class FoundDuplicatedNode(node: String) extends AddDepsResult
 }
