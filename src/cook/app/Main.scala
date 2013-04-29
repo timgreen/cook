@@ -1,5 +1,6 @@
 package cook.app
 
+import cook.app.action._
 import cook.app.console.CookConsole
 import cook.path.Path
 import cook.ref.RefFactoryRegister
@@ -23,6 +24,7 @@ object Main {
         parser.showUsage
       case Some(parser.commandBuild) =>
         println("build " + parser.commandBuild.targets())
+        BuildAction.run(parser.commandBuild.targets())
       case Some(parser.commandClean) =>
         println("clean " + parser.commandClean.targets())
       case Some(parser.commandRun) =>

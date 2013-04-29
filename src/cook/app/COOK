@@ -52,6 +52,7 @@ java_bin(
   name = "run_main",
   java_libs = [
     ":main",
+    "//lib/scala-library.jar",
   ],
   mainClass = "cook.app.Main",
 )
