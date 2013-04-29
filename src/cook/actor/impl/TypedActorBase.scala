@@ -5,6 +5,8 @@ import cook.actor.ConfigManager
 import cook.actor.ConfigRefLoader
 import cook.actor.ConfigRefManager
 import cook.actor.ConfigRefVerifier
+import cook.actor.TargetManager
+import cook.actor.TargetBuilder
 
 import akka.actor.{ TypedActor, TypedProps }
 
@@ -34,4 +36,14 @@ trait TypedActorBase {
     TypedActor(TypedActor.context.system).typedActorOf(
       TypedProps[ConfigManager],
       TypedActor.context.system.actorFor("ConfigManager"))
+
+  protected def targetManager =
+    TypedActor(TypedActor.context.system).typedActorOf(
+      TypedProps[TargetManager],
+      TypedActor.context.system.actorFor("TargetManager"))
+
+  protected def targetBuilder =
+    TypedActor(TypedActor.context.system).typedActorOf(
+      TypedProps[TargetBuilder],
+      TypedActor.context.system.actorFor("TargetBuilder"))
 }

@@ -11,6 +11,7 @@ scala_lib(
     "//src/cook/actor:config_ref_verifier",
     "//src/cook/actor:config_loader",
     "//src/cook/actor:config_manager",
+    "//src/cook/actor:target_builder",
     "//src/cook/actor:target_manager",
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
@@ -85,5 +86,6 @@ scala_lib(
   deps = [
     ":typed_actor_base",
     "util:batch_responser",
+    "//src/cook/util:dag_solver",
   ],
 )

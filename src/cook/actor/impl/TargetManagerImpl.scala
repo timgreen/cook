@@ -6,19 +6,20 @@ import cook.config.Config
 import cook.ref.NativeTargetRef
 import cook.ref.TargetRef
 import cook.target.Target
+import cook.target.TargetResult
 
+import akka.actor.{ ActorContext, TypedActor, TypedProps }
 import scala.concurrent.{ Promise, Future, Await }
 import scala.concurrent.duration._
-import akka.actor.{ ActorContext, TypedActor, TypedProps }
 
 
 class TargetNotFoundException(val refName: String) extends RuntimeException
 
 class TargetManagerImpl extends TargetManager with TypedActorBase {
 
-  private val nativeResponser = new BatchResponser[String, Target[_]]();
+  private val nativeResponser = new BatchResponser[String, Target[TargetResult]]();
 
-  override def getTarget(targetRef: TargetRef): Future[Target[_]] = {
+  override def getTarget(targetRef: TargetRef): Future[Target[TargetResult]] = {
     targetRef match {
       case nativeTargetRef: NativeTargetRef =>
         nativeResponser.onTask(nativeTargetRef.cookFileRef.refName) {
@@ -28,8 +29,7 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
   }
 
   private def doGetNativeTarget(refName: String, nativeTargetRef: NativeTargetRef) {
-    // TODO(timgreen): use another ec?
-    import scala.concurrent.ExecutionContext.Implicits.global
+    import TypedActor.dispatcher
 
     configManager.getConfig(nativeTargetRef.cookFileRef) flatMap { config =>
       config.getTargetOption(refName) match {

@@ -11,6 +11,7 @@ abstract class Target[R <: TargetResult](
   val runCmd: Option[TargetRunCmd[R]],
   val deps: List[TargetRef]
 ) {
+  def refName = ref.refName
 
   // TODO(timgreen): use meta
   protected def isCached: Boolean
