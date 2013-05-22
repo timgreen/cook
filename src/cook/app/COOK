@@ -48,6 +48,15 @@ scala_lib(
   ],
 )
 
+scala_lib(
+  name = "main_handler",
+  srcs = [
+    "MainHandler.scala",
+  ],
+  deps = [
+  ],
+)
+
 java_bin(
   name = "run_main",
   java_libs = [

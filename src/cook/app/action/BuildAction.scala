@@ -1,9 +1,10 @@
 package cook.app.action
 
+import cook.actor.Actors
+import cook.app.MainHandler
 import cook.path.Path
 import cook.ref.RefManager
 import cook.ref.TargetRef
-import cook.actor.Actors
 
 object BuildAction extends ActionBase {
 
@@ -20,6 +21,6 @@ object BuildAction extends ActionBase {
         Actors.targetBuilder build targetRef
       }
 
-    // TODO(timgreen): wait all results
+    MainHandler.exec(futureResults: _*)
   }
 }

@@ -6,6 +6,7 @@ scala_lib(
   ],
   deps = [
     "//src/cook/actor:actors",
+    "//src/cook/app:main_handler",
     "//src/cook/path:path",
     "//src/cook/ref:ref",
     "//src/cook/ref:ref_manager",
