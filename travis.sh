@@ -35,6 +35,6 @@ set -e
 ./bin/cook clean
 ./bin/cook build src/cook/app:main
 ./bin/cook build src/cook/target:target
-./bin/cook build src/cook/actor:actor
+./bin/cook build src/cook/actor:actors
 ./bin/cook run test/cook/ref:run_basic_ref_test
 ./bin/cook run test/cook/config:run_config_generator_test

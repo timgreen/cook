@@ -4,4 +4,10 @@ scala_lib(
     "ActionBase.scala",
     "BuildAction.scala",
   ],
+  deps = [
+    "//src/cook/actor:actors",
+    "//src/cook/path:path",
+    "//src/cook/ref:ref",
+    "//src/cook/ref:ref_manager",
+  ],
 )

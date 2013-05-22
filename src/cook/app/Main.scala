@@ -18,7 +18,10 @@ object Main {
     findAndPrintRootDir
     RefFactoryRegister.init
     parseAndLoadCookRoot
+    runSubCommand(parser)
+  }
 
+  def runSubCommand(parser: CookOptionParser) {
     parser.subcommand match {
       case None =>
         parser.showUsage
