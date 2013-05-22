@@ -5,30 +5,34 @@ import cook.app.Global
 import cook.config.ConfigRef
 
 import akka.actor.{ ActorContext, TypedActor, TypedProps }
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 object Actors {
 
   val system = Global.system
+  // NOTE(timgreen): there is no inf const for Timeout.
+  val timeout = Timeout(100 days)
 
   val configRefLoader =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefLoader],
-        new ConfigRefLoaderImpl),
+        new ConfigRefLoaderImpl).withTimeout(timeout),
       "ConfigRefLoader")
 
   val configRefVerifier =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefVerifier],
-        new ConfigRefVerifierImpl),
+        new ConfigRefVerifierImpl).withTimeout(timeout),
       "ConfigRefVerifier")
 
   val configRefManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefManager],
-        new ConfigRefManagerImpl),
+        new ConfigRefManagerImpl).withTimeout(timeout),
       "ConfigRefManager")
 
   val rootConfigRef = new ConfigRef(ConfigRef.rootConfigFileRef)
@@ -36,27 +40,27 @@ object Actors {
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigLoader],
-        new ConfigLoaderImpl(rootConfigRef)),
+        new ConfigLoaderImpl(rootConfigRef)).withTimeout(timeout),
       "ConfigLoader")
 
   val configManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigManager],
-        new ConfigManagerImpl),
+        new ConfigManagerImpl).withTimeout(timeout),
       "ConfigManager")
 
   val targetManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[TargetManager],
-        new TargetManagerImpl),
+        new TargetManagerImpl).withTimeout(timeout),
       "TargetManager")
 
   val targetBuilder =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[TargetBuilder],
-        new TargetBuilderImpl),
+        new TargetBuilderImpl).withTimeout(timeout),
       "TargetBuilder")
 }
