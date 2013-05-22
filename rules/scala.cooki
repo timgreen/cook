@@ -36,15 +36,15 @@ def scala_lib(name, srcs, deps = []) {
 
       [
         "SOURCES=(%s)" % [ scalafiles.join(" ") ],
-        "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
+        "CP=\"%s\"" % [ (cp ++ lib).toSet().join(":") ],
 	"SCALAC=$SCALA_HOME/bin/scalac",
         "$SCALAC -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}",
       ]
     },
     postBuild = lambda(t) {
       t.setValues({
-        cp: cp,
-        lib: lib
+        cp: cp.toSet(),
+        lib: lib.toSet()
       })
     }
   )
