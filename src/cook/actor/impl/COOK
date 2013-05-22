@@ -89,3 +89,12 @@ scala_lib(
     "//src/cook/util:dag_solver",
   ],
 )
+
+scala_lib(
+  name = "console_outputter_impl",
+  srcs = "ConsoleOutputterImpl.scala",
+  deps = [
+    ":typed_actor_base",
+    "//src/cook/actor:console_outputter",
+  ],
+)

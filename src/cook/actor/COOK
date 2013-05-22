@@ -60,6 +60,14 @@ scala_lib(
 )
 
 scala_lib(
+  name = "console_outputter",
+  srcs = "ConsoleOutputter.scala",
+  deps = [
+     "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
   name = "actors",
   srcs = "Actors.scala",
   deps = [
@@ -70,6 +78,7 @@ scala_lib(
     "impl:config_loader_impl",
     "impl:target_manager_impl",
     "impl:target_builder_impl",
+    "impl:console_outputter_impl",
     "//src/cook/app:global",
   ],
 )

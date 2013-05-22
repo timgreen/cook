@@ -63,4 +63,11 @@ object Actors {
         classOf[TargetBuilder],
         new TargetBuilderImpl).withTimeout(timeout),
       "TargetBuilder")
+
+  val consoleOutputter =
+    TypedActor(system).typedActorOf(
+      TypedProps(
+        classOf[ConsoleOutputter],
+        new ConsoleOutputterImpl).withTimeout(timeout),
+      "ConsoleOutputter")
 }
