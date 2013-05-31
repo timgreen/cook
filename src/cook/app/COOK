@@ -54,6 +54,7 @@ scala_lib(
     "MainHandler.scala",
   ],
   deps = [
+    "//src/cook/actor:actors",
   ],
 )
 

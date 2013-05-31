@@ -1,5 +1,8 @@
 package cook.app
 
+import cook.error.CookException
+import cook.actor.Actors.consoleOutputter
+
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -31,7 +34,21 @@ object MainHandler {
     // TODO(timgreen):
   }
 
-  private def handleException(e: Throwable) {
+  private def handleException(e: Throwable) = {
+    consoleOutputter.stopStatusUpdate
+    tryToStopWorkers
+    e match {
+      case e: CookException =>
+        consoleOutputter.printError(e)
+      case _: Throwable =>
+        consoleOutputter.printUnknownError(e)
+    }
+    consoleOutputter.blockToFinish
+
+    sys.exit(1)
+  }
+
+  private def tryToStopWorkers {
     // TODO(timgreen):
   }
 }
