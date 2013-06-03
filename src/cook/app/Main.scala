@@ -57,8 +57,6 @@ object Main {
       cookRootConfigFile.toPath.jfile,
       ConfigParseOptions.defaults.setAllowMissing(false)
     )
-    // TODO(timgreen): fallback to default settings
-    // TODO(timgreen): prepare the value of $processors
 
     Config.setConf(config)
   }

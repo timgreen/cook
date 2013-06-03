@@ -13,5 +13,5 @@ cook {
 
   # Specifies the max number of jobs (commands) to run simultaneously
   # ${processors} stand for number of processors on current machine
-  max-jobs = ${processors} - 1
+  max-jobs = ${processors}
 }
