@@ -7,6 +7,7 @@ import cook.app.Global
 import cook.config.Config
 import cook.config.ConfigEngine
 import cook.config.ConfigRef
+import cook.config.ConfigRefInclude
 import cook.util.DagSolver
 
 import akka.actor.TypedActor
@@ -31,7 +32,7 @@ object ConfigLoadTask {
  * step2: wait all dep config is already loaded
  * step3: load self config
  */
-class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with TypedActorBase {
+class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoader with TypedActorBase {
 
   private val responser = new BatchResponser[String, Config]()
   private val dagSolver = new DagSolver
@@ -55,9 +56,9 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   def step1WaitDepConfigRefs(configRef: ConfigRef) {
 
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
-    val depConfigFileRef = Set(
-      ConfigRef.rootConfigFileRef
-    ) ++ configRef.imports.map(_.ref) ++ rootConfigRef.mixins
+    val depConfigFileRef =
+      rootIncludes.map(_.ref) ++
+      configRef.includes.map(_.ref)
 
     import TypedActor.dispatcher
     Future.traverse(depConfigFileRef.toList) { cookFileRef =>
@@ -98,6 +99,6 @@ class ConfigLoaderImpl(val rootConfigRef: ConfigRef) extends ConfigLoader with T
   }
 
   private def doLoadConfig(taskInfo: LoadConfigClassTaskInfo): Config = {
-    ConfigEngine.load(taskInfo.configRef, rootConfigRef, taskInfo.depConfigRefs)
+    ConfigEngine.load(taskInfo.configRef, rootIncludes, taskInfo.depConfigRefs)
   }
 }

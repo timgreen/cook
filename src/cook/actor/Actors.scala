@@ -1,6 +1,7 @@
 package cook.actor
 
 import cook.actor.impl._
+import cook.app.Config
 import cook.app.Global
 import cook.config.ConfigRef
 
@@ -35,12 +36,11 @@ object Actors {
         new ConfigRefManagerImpl).withTimeout(timeout),
       "ConfigRefManager")
 
-  val rootConfigRef = new ConfigRef(ConfigRef.rootConfigFileRef)
   val configLoader =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigLoader],
-        new ConfigLoaderImpl(rootConfigRef)).withTimeout(timeout),
+        new ConfigLoaderImpl(Config.rootIncludes)).withTimeout(timeout),
       "ConfigLoader")
 
   val configManager =

@@ -14,13 +14,11 @@ import scala.reflect.io.{ Path => SPath, Directory }
  */
 object ConfigGenerator {
 
-  def generate(configRef: ConfigRef, rootConfigRef: ConfigRef,
+  def generate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefsMap: Map[String, ConfigRef]) {
     withWriter(configRef) { writer =>
       generateHeader(configRef, depConfigRefsMap, writer)
-      if (configRef.configType != ConfigType.CookRootConfig) {
-        generateImports(configRef, rootConfigRef, depConfigRefsMap, writer)
-      }
+      generateIncludes(configRef, rootIncludes, depConfigRefsMap, writer)
       generateBody(configRef, depConfigRefsMap, writer)
       generateFooter(configRef, depConfigRefsMap, writer)
     }
@@ -65,42 +63,19 @@ object ConfigGenerator {
           configRef.configClassTraitName,
           dslClassName
         ))
-      case ConfigType.CookRootConfig =>
-        writer.println("// TRAIT START")
-        writer.println("trait %s".format(configRef.configClassTraitName))
-        configRef.mixins map { m => depConfigRefsMap(m.refName).configClassTraitFullName } toList match {
-          case h :: t =>
-            writer.println("  extends %s" format h)
-            t foreach { c =>
-              writer.println("  with %s" format c)
-            }
-          case _ =>
-        }
-        writer.println("{")
     }
 
   }
 
-  private def generateImports(configRef: ConfigRef, rootConfigRef: ConfigRef,
+  private def generateIncludes(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
-    writer.println("// IMPORTS START")
-    if (configRef.configType == ConfigType.CookConfig) {
-      writer.println("//// ROOT IMPORTS START")
-      rootConfigRef.mixins foreach { ref =>
-        writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
-      }
-      writer.println("//// ROOT IMPORTS END")
-    }
 
-    for (importDefine <- configRef.imports) {
-      importDefine match {
-        case ImportDefine(ref) =>
-          val isPartOfRootMixin = rootConfigRef.mixins.contains(importDefine.ref)
-          if (!isPartOfRootMixin) {
-            writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
-          }
-        case ValDefine(ref, name) =>
+    def writeInclude(include: ConfigRefInclude) {
+      include match {
+        case IncludeDefine(ref) =>
+          writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
+        case IncludeAsDefine(ref, name) =>
           writer.println("val %s: %s = %s".format(
             name,
             depConfigRefsMap(ref.refName).configClassTraitFullName,
@@ -108,14 +83,23 @@ object ConfigGenerator {
           ))
       }
     }
-    writer.println("// IMPORTS END")
+
+    if (configRef.configType == ConfigType.CookConfig) {
+      writer.println("// {{{ ROOT INCLUDES START")
+      rootIncludes foreach writeInclude
+      writer.println("// }}} ROOT INCLUDES END")
+    }
+
+    writer.println("// {{{ INCLUDES START")
+    configRef.includes foreach writeInclude
+    writer.println("// }}} INCLUDES END")
   }
 
   private def generateBody(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
-    writer.println("// BODY START")
+    writer.println("// {{{ BODY START")
     Source.fromFile(configRef.fileRef.toPath.path) getLines() foreach writer.println
-    writer.println("// BODY END")
+    writer.println("// }}} BODY END")
   }
 
   private def generateFooter(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],

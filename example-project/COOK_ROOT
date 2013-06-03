@@ -1,17 +1,17 @@
 cook {
   # rules defined here will be mixined into each COOK file by default.
-  mixin-rules = [
+  include-rules = [
     // "rules/java"
     // "rules/scala"
   ]
 
   # rules defined here will be importted in each COOK file by default.
-  import-rules {
+  include-as-rules {
     // java  = "rules/java"
     // scala = "rules/scala"
   }
 
   # Specifies the max number of jobs (commands) to run simultaneously
-  # $processors stand for number of processors on current machine
-  max-jobs = $processors - 1
+  # ${processors} stand for number of processors on current machine
+  max-jobs = ${processors} - 1
 }

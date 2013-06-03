@@ -10,6 +10,9 @@ scala_lib(
   srcs = [
     "Config.scala",
   ],
+  deps = [
+    "//src/cook/config:config_ref",
+  ],
 )
 
 scala_lib(

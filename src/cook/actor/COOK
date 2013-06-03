@@ -79,6 +79,7 @@ scala_lib(
     "impl:target_manager_impl",
     "impl:target_builder_impl",
     "impl:console_outputter_impl",
+    "//src/cook/app:config",
     "//src/cook/app:global",
   ],
 )

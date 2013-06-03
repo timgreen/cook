@@ -1,7 +1,9 @@
 package cook.app
 
-import com.typesafe.config.{ Config => HonocConfig}
+import cook.config.{ConfigRefInclude, IncludeDefine, IncludeAsDefine}
+import cook.ref.{RefManager, FileRef}
 
+import com.typesafe.config.{ Config => HonocConfig}
 import scala.collection.JavaConversions._
 
 object Config {
@@ -12,8 +14,7 @@ object Config {
     this.config = config
     // verify
     maxJobs
-    mixinRules
-    importRules
+    rootIncludes
   }
 
   def conf = config
@@ -22,12 +23,17 @@ object Config {
 
   var cliMaxJobs: Option[Int] = _
   lazy val maxJobs: Int = Math.max(1, cliMaxJobs getOrElse config.getInt("cook.maxJobs"))
-  lazy val mixinRules: List[String] = config.getStringList("cook.mixin-rules") toList
-  lazy val importRules: Map[String, String] = buildImportRules
+  lazy val rootIncludes: List[ConfigRefInclude] = includeRules ::: includeAsRules
 
-  private def buildImportRules = {
-    config.getObject("cook.import-rules").unwrapped map { case (k: String, v: Any) =>
-      k -> v.asInstanceOf[String]
-    } toMap
+  private def includeRules: List[IncludeDefine] = {
+    config.getStringList("cook.include-rules") map { path =>
+      IncludeDefine(RefManager(Nil, path).as[FileRef])
+    } toList
+  }
+
+  private def includeAsRules: List[IncludeAsDefine] = {
+    config.getObject("cook.include-as-rules").unwrapped map { case (name: String, path: Any) =>
+      IncludeAsDefine(RefManager(Nil, path.asInstanceOf[String]).as[FileRef], name)
+    } toList
   }
 }
