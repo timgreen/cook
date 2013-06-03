@@ -1,9 +1,0 @@
-scala_lib(
-  name = "config_ref_test_helper",
-  srcs = [
-    "ConfigRefTestHelper.scala",
-  ],
-  deps = [
-    "//src/cook/config:config_ref",
-  ],
-)

@@ -1,8 +1,0 @@
-scala_lib(
-  name = "subcommand",
-  srcs = glob("*.scala"),
-  deps = [
-    "//src/cook/actors:actors",
-    "//src/cook/app/console:console",
-  ],
-)

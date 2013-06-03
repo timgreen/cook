@@ -1,9 +1,0 @@
-scala_lib(
-  name = "path_util_helper",
-  srcs = [
-    "PathUtilHelper.scala",
-  ],
-  deps = [
-    "//src/cook/path:path_util",
-  ],
-)
