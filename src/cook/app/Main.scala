@@ -13,12 +13,17 @@ object Main {
     val parser = new CookOptionParser(args)
 
     Config.cols = parser.cols()
-    Config.parallel = parser.parallel()
+    Config.cliMaxJobs = parser.maxJobs.get
 
-    findAndPrintRootDir
-    RefFactoryRegister.init
-    parseAndLoadCookRoot
-    runSubCommand(parser)
+    try {
+      findAndPrintRootDir
+      RefFactoryRegister.init
+      loadCookRootConfig
+      runSubCommand(parser)
+    } catch {
+      case e: Throwable =>
+        MainHandler.handleException(e)
+    }
   }
 
   def runSubCommand(parser: CookOptionParser) {
@@ -43,9 +48,18 @@ object Main {
     CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
   }
 
-  def parseAndLoadCookRoot {
-    CookConsole.updateCookRootLoadingStatus()
-    // TODO(timgreen):
-    CookConsole.clearCookRootLoadingStatus
+  def loadCookRootConfig {
+    import cook.ref.{RefManager, Ref, FileRef}
+    import com.typesafe.config.{ConfigFactory, ConfigParseOptions}
+
+    val cookRootConfigFile = RefManager(Nil, "/COOK_ROOT").as[FileRef]
+    val config = ConfigFactory.parseFile(
+      cookRootConfigFile.toPath.jfile,
+      ConfigParseOptions.defaults.setAllowMissing(false)
+    )
+    // TODO(timgreen): fallback to default settings
+    // TODO(timgreen): prepare the value of $processors
+
+    Config.setConf(config)
   }
 }

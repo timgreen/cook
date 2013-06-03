@@ -45,6 +45,7 @@ scala_lib(
     "//src/cook/app/console:console",
     "//src/cook/path:path",
     "//src/cook/ref:ref_factory_register",
+    "//lib/typesafe-config.jar",
   ],
 )
 

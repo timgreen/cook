@@ -34,7 +34,7 @@ object MainHandler {
     // TODO(timgreen):
   }
 
-  private def handleException(e: Throwable) = {
+  def handleException(e: Throwable) = {
     consoleOutputter.stopStatusUpdate
     tryToStopWorkers
     e match {
