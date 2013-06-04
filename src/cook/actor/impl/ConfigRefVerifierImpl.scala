@@ -30,7 +30,7 @@ class ConfigRefVerifierImpl extends ConfigRefVerifier with TypedActorBase {
       false
     } else {
       val nextTraceSet = traceSet + refName
-      val fRefs = ref.imports map { d =>
+      val fRefs = ref.includes map { d =>
         configRefLoader.loadConfigRef(d.ref)
       }
 
