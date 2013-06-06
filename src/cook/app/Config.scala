@@ -3,14 +3,14 @@ package cook.app
 import cook.config.{ConfigRefInclude, IncludeDefine, IncludeAsDefine}
 import cook.ref.{RefManager, FileRef}
 
-import com.typesafe.config.{ConfigFactory, Config => HonocConfig}
+import com.typesafe.config.{ConfigFactory, Config => HoconConfig}
 import scala.collection.JavaConversions._
 
 object Config {
 
-  private var config: HonocConfig = _
+  private var config: HoconConfig = _
 
-  def setConf(config: HonocConfig) {
+  def setConf(config: HoconConfig) {
     this.config = config.withFallback(defaultConf).resolve
     // verify
     maxJobs
