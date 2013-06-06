@@ -31,7 +31,6 @@ object Main {
       case None =>
         parser.showUsage
       case Some(parser.commandBuild) =>
-        println("build " + parser.commandBuild.targets())
         BuildAction.run(parser.commandBuild.targets())
       case Some(parser.commandClean) =>
         println("clean " + parser.commandClean.targets())

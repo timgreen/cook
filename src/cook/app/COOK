@@ -32,6 +32,7 @@ scala_lib(
     "Global.scala",
   ],
   deps = [
+    ":config",
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
   ],

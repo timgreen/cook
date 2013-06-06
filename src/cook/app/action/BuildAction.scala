@@ -9,11 +9,16 @@ import cook.ref.TargetRef
 object BuildAction extends ActionBase {
 
   override def run(args: List[String]) {
+    if (args.isEmpty) {
+      // TODO(timgreen): show help
+      println("show help")
+      return
+    }
+
     val currentSegments = Path().currentSegments
     val targetRefs = args map { arg =>
       // TODO(timgreen): catch exception
-      val ref = RefManager(currentSegments, arg)
-      ref.asInstanceOf[TargetRef]
+      RefManager(currentSegments, arg).as[TargetRef]
     }
 
     val futureResults =
