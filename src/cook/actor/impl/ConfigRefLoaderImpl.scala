@@ -23,6 +23,8 @@ object ConfigRefLoadTask {
 
 class ConfigRefLoaderImpl extends ConfigRefLoader with TypedActorBase {
 
+  import ActorRefs._
+
   private val cache = mutable.Map[String, ConfigRef]()
   private val responser = new BatchResponser[String, ConfigRef]()
 

@@ -17,6 +17,8 @@ class TargetNotFoundException(val refName: String) extends RuntimeException
 
 class TargetManagerImpl extends TargetManager with TypedActorBase {
 
+  import ActorRefs._
+
   private val nativeResponser = new BatchResponser[String, Target[TargetResult]]();
 
   override def getTarget(targetRef: TargetRef): Future[Target[TargetResult]] = {

@@ -20,6 +20,8 @@ import scala.util.{ Try, Success, Failure }
  */
 class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
+  import ActorRefs._
+
   private val responser = new BatchResponser[String, TargetResult]()
   private val dagSolver = new DagSolver
   private val builtTargetNames = mutable.Set[String]()
@@ -34,6 +36,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
   override def build(targetRef: TargetRef): Future[TargetResult] = {
     val refName = targetRef.refName
+    log.debug("building {}", refName)
     responser.onTask(refName) {
       step1GetTarget(targetRef)
     }

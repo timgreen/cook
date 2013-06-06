@@ -6,13 +6,14 @@ scala_lib(
     "TypedActorBase.scala",
   ],
   deps = [
+    "//src/cook/actor:config_loader",
+    "//src/cook/actor:config_manager",
     "//src/cook/actor:config_ref_loader",
     "//src/cook/actor:config_ref_manager",
     "//src/cook/actor:config_ref_verifier",
-    "//src/cook/actor:config_loader",
-    "//src/cook/actor:config_manager",
     "//src/cook/actor:target_builder",
     "//src/cook/actor:target_manager",
+    "//src/cook/app:global",
     "//lib/akka-actors.jar",
     "//lib/typesafe-config.jar",
   ]

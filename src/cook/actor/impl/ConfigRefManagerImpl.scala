@@ -23,6 +23,8 @@ object ConfigRefVerifyTask {
 
 class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 
+  import ActorRefs._
+
   private val responser = new BatchResponser[String, ConfigRef]()
 
   private def self = configRefManager

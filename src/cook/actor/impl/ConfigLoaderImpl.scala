@@ -34,6 +34,8 @@ object ConfigLoadTask {
  */
 class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoader with TypedActorBase {
 
+  import ActorRefs._
+
   private val responser = new BatchResponser[String, Config]()
   private val dagSolver = new DagSolver
 

@@ -5,47 +5,53 @@ import cook.actor.ConfigManager
 import cook.actor.ConfigRefLoader
 import cook.actor.ConfigRefManager
 import cook.actor.ConfigRefVerifier
-import cook.actor.TargetManager
 import cook.actor.TargetBuilder
+import cook.actor.TargetManager
+import cook.app.Global
 
 import akka.actor.{ TypedActor, TypedProps }
 import akka.event.Logging
 
 trait TypedActorBase {
   val log = Logging(TypedActor.context.system, TypedActor.context.self)
+}
 
-  protected def configRefLoader =
-    TypedActor(TypedActor.context.system).typedActorOf(
+object ActorRefs {
+
+  import Global.system
+
+  lazy val configRefLoader =
+    TypedActor(system).typedActorOf(
       TypedProps[ConfigRefLoader],
-      TypedActor.context.system.actorFor("/user/ConfigRefLoader"))
+      system.actorFor("/user/ConfigRefLoader"))
 
-  protected def configRefVerifier =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val configRefVerifier =
+    TypedActor(system).typedActorOf(
       TypedProps[ConfigRefVerifier],
-      TypedActor.context.system.actorFor("/user/ConfigRefVerifier"))
+      system.actorFor("/user/ConfigRefVerifier"))
 
-  protected def configRefManager =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val configRefManager =
+    TypedActor(system).typedActorOf(
       TypedProps[ConfigRefManager],
-      TypedActor.context.system.actorFor("/user/ConfigRefManager"))
+      system.actorFor("/user/ConfigRefManager"))
 
-  protected def configLoader =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val configLoader =
+    TypedActor(system).typedActorOf(
       TypedProps[ConfigLoader],
-      TypedActor.context.system.actorFor("/user/ConfigLoader"))
+      system.actorFor("/user/ConfigLoader"))
 
-  protected def configManager =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val configManager =
+    TypedActor(system).typedActorOf(
       TypedProps[ConfigManager],
-      TypedActor.context.system.actorFor("/user/ConfigManager"))
+      system.actorFor("/user/ConfigManager"))
 
-  protected def targetManager =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val targetManager =
+    TypedActor(system).typedActorOf(
       TypedProps[TargetManager],
-      TypedActor.context.system.actorFor("/user/TargetManager"))
+      system.actorFor("/user/TargetManager"))
 
-  protected def targetBuilder =
-    TypedActor(TypedActor.context.system).typedActorOf(
+  lazy val targetBuilder =
+    TypedActor(system).typedActorOf(
       TypedProps[TargetBuilder],
-      TypedActor.context.system.actorFor("/user/TargetBuilder"))
+      system.actorFor("/user/TargetBuilder"))
 }

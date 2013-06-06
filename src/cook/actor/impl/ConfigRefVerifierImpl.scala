@@ -12,6 +12,8 @@ import scala.util.{ Try, Success, Failure }
 
 class ConfigRefVerifierImpl extends ConfigRefVerifier with TypedActorBase {
 
+  import ActorRefs._
+
   private val passVerifySet = mutable.Set[String]()
 
   override def passCycleCheck(configRef: ConfigRef): Future[Try[Boolean]] = Future successful {

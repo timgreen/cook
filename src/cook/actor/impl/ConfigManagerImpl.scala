@@ -24,6 +24,8 @@ object ConfigGetTask {
 
 class ConfigManagerImpl extends ConfigManager with TypedActorBase {
 
+  import ActorRefs._
+
   private val cache = mutable.Map[String, Config]()
   private val responser = new BatchResponser[String, Config]()
 
