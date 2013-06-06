@@ -2,5 +2,5 @@
 
 set -e
 
-export TRAVIS_SCALA_VERSION=2.10.0
+export TRAVIS_SCALA_VERSION=2.10.1
 ./travis.sh

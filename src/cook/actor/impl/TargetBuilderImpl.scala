@@ -44,8 +44,11 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
   private def step1GetTarget(targetRef: TargetRef) {
     import TypedActor.dispatcher
-    targetManager.getTarget(targetRef) map { t =>
-      self.step2WaitForDeps(t)
+    targetManager.getTarget(targetRef) onComplete {
+      case Success(t) =>
+        self.step2WaitForDeps(t)
+      case Failure(e) =>
+        self.taskComplete(targetRef.refName)(Failure(e))
     }
   }
 
