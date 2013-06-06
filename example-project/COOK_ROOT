@@ -14,4 +14,15 @@ cook {
   # Specifies the max number of jobs (commands) to run simultaneously
   # ${processors} stand for number of processors on current machine
   max-jobs = ${processors}
+
+#  akka {
+#    loglevel = "DEBUG"
+#    stdout-loglevel = "DEBUG"
+#    debug {
+#      event-stream = on
+#      receive = on
+#      autoreceive = on
+#      lifecycle = on
+#    }
+#  }
 }
