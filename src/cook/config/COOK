@@ -51,6 +51,7 @@ scala_lib(
     ":config_ref",
     "//src/cook/error:error",
     "//src/cook/util:cp_builder",
+    "//lib/scala-compiler.jar",
   ],
 )
 
