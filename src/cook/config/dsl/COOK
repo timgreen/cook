@@ -8,3 +8,13 @@ scala_lib(
     "//src/cook/target:target",
   ],
 )
+
+scala_lib(
+  name = "dsl",
+  srcs = [
+    "Dsl.scala",
+  ],
+  deps = [
+    "buildin:buildin_commands",
+  ],
+)

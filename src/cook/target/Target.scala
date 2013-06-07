@@ -3,12 +3,12 @@ package cook.target
 import cook.error.ErrorTracking._
 import cook.ref.TargetRef
 
-abstract class Target[R <: TargetResult](
+abstract class Target[+R <: TargetResult](
   val ref: TargetRef,
-  val buildCmd: TargetBuildCmd[R],
-  val resultFn: TargetResultFn[R],
-  val metaFn: TargetMetaFn[R],
-  val runCmd: Option[TargetRunCmd[R]],
+  private[this] val buildCmd: TargetBuildCmd[R],
+  private[this] val resultFn: TargetResultFn[R],
+  private[this] val metaFn: TargetMetaFn[R],
+  private[this] val runCmd: Option[TargetRunCmd[R]],
   val deps: List[TargetRef]
 ) {
   def refName = ref.refName
@@ -16,7 +16,7 @@ abstract class Target[R <: TargetResult](
   // TODO(timgreen): use meta
   protected def isCached: Boolean
 
-  private var _result: Option[R] = _
+  private[this] var _result: Option[R] = _
   private var built: Boolean = false
   private def needBuild: Boolean = !built && !isCached
 

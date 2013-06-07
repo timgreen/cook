@@ -26,6 +26,7 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
+    "dsl:dsl",
   ],
 )
 

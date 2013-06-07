@@ -35,8 +35,7 @@ object ConfigGenerator {
 
   val configClassName = classOf[cook.config.Config].getName
   val configContextClassName = classOf[cook.config.dsl.ConfigContext].getName
-  //val dslClassName = classOf[cook.config.dsl.Dsl].getName
-  val dslClassName = "dslclass"
+  val dslClassName = cook.config.dsl.Dsl.getClass.getName.split("\\$").last
 
   private def generateHeader(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
@@ -45,10 +44,9 @@ object ConfigGenerator {
 
     configRef.configType match {
       case ConfigType.CookConfig =>
-        writer.println("trait %s extends %s with %s {  // TRAIT START".format(
+        writer.println("trait %s extends %s {  // TRAIT START".format(
           configRef.configClassTraitName,
-          configClassName,
-          dslClassName
+          configClassName
         ))
         val cookFileRef = "cook.ref.RefManager(\"%s\").as[cook.ref.FileRef]" format {
           configRef.fileRef.refName
@@ -98,6 +96,7 @@ object ConfigGenerator {
   private def generateBody(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
     writer.println("// {{{ BODY START")
+    writer.println("import %s._".format(dslClassName))
     Source.fromFile(configRef.fileRef.toPath.path) getLines() foreach writer.println
     writer.println("// }}} BODY END")
   }

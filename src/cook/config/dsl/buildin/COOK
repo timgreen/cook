@@ -1,0 +1,17 @@
+scala_lib(
+  name = "define_target",
+  srcs = "DefineTarget.scala",
+  deps = [
+    "//src/cook/config/dsl:context",
+    "//src/cook/ref:ref",
+    "//src/cook/target:native_target",
+  ],
+)
+
+scala_lib(
+  name = "buildin_commands",
+  srcs = "BuildinCommands.scala",
+  deps = [
+    ":define_target",
+  ],
+)
