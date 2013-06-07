@@ -54,10 +54,13 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
   }
 
   private def doGetConfig(refName: String, cookFileRef: FileRef) {
-    import TypedActor.dispatcher
+    implicit val ec = TypedActor.dispatcher
 
-    configRefManager.getConfigRef(cookFileRef) flatMap { configRef =>
-      configLoader.loadConfig(configRef)
-    } onComplete self.taskComplete(refName)
+    val f = for {
+      configRef <- configRefManager.getConfigRef(cookFileRef)
+      config <- configLoader.loadConfig(configRef)
+    } yield config
+
+    f onComplete self.taskComplete(refName)
   }
 }
