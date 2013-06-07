@@ -11,63 +11,61 @@ import scala.concurrent.duration._
 
 object Actors {
 
-  val system = Global.system
-  // NOTE(timgreen): there is no inf const for Timeout.
-  val timeout = Timeout(100 days)
+  import Global.system
 
   val configRefLoader =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefLoader],
-        new ConfigRefLoaderImpl).withTimeout(timeout),
+        new ConfigRefLoaderImpl),
       "ConfigRefLoader")
 
   val configRefVerifier =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefVerifier],
-        new ConfigRefVerifierImpl).withTimeout(timeout),
+        new ConfigRefVerifierImpl),
       "ConfigRefVerifier")
 
   val configRefManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigRefManager],
-        new ConfigRefManagerImpl).withTimeout(timeout),
+        new ConfigRefManagerImpl),
       "ConfigRefManager")
 
   val configLoader =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigLoader],
-        new ConfigLoaderImpl(Config.rootIncludes)).withTimeout(timeout),
+        new ConfigLoaderImpl(Config.rootIncludes)),
       "ConfigLoader")
 
   val configManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConfigManager],
-        new ConfigManagerImpl).withTimeout(timeout),
+        new ConfigManagerImpl),
       "ConfigManager")
 
   val targetManager =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[TargetManager],
-        new TargetManagerImpl).withTimeout(timeout),
+        new TargetManagerImpl),
       "TargetManager")
 
   val targetBuilder =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[TargetBuilder],
-        new TargetBuilderImpl).withTimeout(timeout),
+        new TargetBuilderImpl),
       "TargetBuilder")
 
   val consoleOutputter =
     TypedActor(system).typedActorOf(
       TypedProps(
         classOf[ConsoleOutputter],
-        new ConsoleOutputterImpl).withTimeout(timeout),
+        new ConsoleOutputterImpl),
       "ConsoleOutputter")
 }

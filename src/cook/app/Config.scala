@@ -30,7 +30,7 @@ object Config {
     cook.include-rules = []
     cook.include-as-rules = {}
     cook.max-jobs = ${sys.runtime.availableProcessors - 1}
-    cook.akka.typed.timeout = 100d
+    cook.akka.actor.typed.timeout = 100 days
   """)
 
   private def includeRules: List[IncludeDefine] = {
