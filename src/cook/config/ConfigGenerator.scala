@@ -48,7 +48,7 @@ object ConfigGenerator {
           configRef.configClassTraitName,
           configClassName
         ))
-        val cookFileRef = "cook.ref.RefManager(\"%s\").as[cook.ref.FileRef]" format {
+        val cookFileRef = "cook.ref.RefManager(Nil, \"%s\").as[cook.ref.FileRef]" format {
           configRef.fileRef.refName
         }
         writer.println("override implicit val context: %s = new %s(%s)".format(
@@ -57,9 +57,8 @@ object ConfigGenerator {
           cookFileRef
         ))
       case ConfigType.CookiConfig =>
-        writer.println("trait %s extends %s {  // TRAIT START".format(
-          configRef.configClassTraitName,
-          dslClassName
+        writer.println("trait %s {  // TRAIT START".format(
+          configRef.configClassTraitName
         ))
     }
 
@@ -95,8 +94,8 @@ object ConfigGenerator {
 
   private def generateBody(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
-    writer.println("// {{{ BODY START")
     writer.println("import %s._".format(dslClassName))
+    writer.println("// {{{ BODY START")
     Source.fromFile(configRef.fileRef.toPath.path) getLines() foreach writer.println
     writer.println("// }}} BODY END")
   }

@@ -13,6 +13,6 @@ class ConfigContext(val cookFileRef: FileRef) {
   def dir = cookFileRef.dir
 
   private [dsl] def addTarget(t: Target[TargetResult]) {
-    targets += (t.ref.targetName -> t)
+    targets += (t.refName -> t)
   }
 }

@@ -22,10 +22,11 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
   private val nativeResponser = new BatchResponser[String, Target[TargetResult]]();
 
   override def getTarget(targetRef: TargetRef): Future[Target[TargetResult]] = {
+    log.debug("getTarget {}", targetRef.refName)
     targetRef match {
       case nativeTargetRef: NativeTargetRef =>
         nativeResponser.onTask(nativeTargetRef.cookFileRef.refName) {
-          doGetNativeTarget(nativeTargetRef.cookFileRef.refName, nativeTargetRef)
+          doGetNativeTarget(nativeTargetRef.refName, nativeTargetRef)
         }
     }
   }

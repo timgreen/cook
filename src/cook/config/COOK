@@ -49,6 +49,7 @@ scala_lib(
   deps = [
     ":config",
     ":config_ref",
+    "//src/cook/config/dsl:dsl",
     "//src/cook/error:error",
     "//src/cook/util:cp_builder",
     "//lib/scala-compiler.jar",

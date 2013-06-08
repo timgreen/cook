@@ -9,10 +9,10 @@ import scala.collection.mutable
 import scala.io.Source
 import scala.reflect.io.AbstractFile
 import scala.reflect.io.{ Path => SPath }
+import scala.reflect.internal.util._
 import scala.tools.nsc.Settings
-import scala.tools.nsc.interactive.Global
+import scala.tools.nsc.Global
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.util._
 
 object ConfigCompiler {
 
@@ -45,18 +45,16 @@ object ConfigCompiler {
     (new ClassPathBuilder)
       .addJavaPath
       .addPathFor(classOf[cook.config.Config])
-      //.addPathFor(classOf[cook.config.dsl.Dsl])
+      .addPathFor(cook.config.dsl.Dsl.getClass)
   }
   private val defaultCp = initDefaultCp
 }
 
 class ConfigCompiler(outDir: SPath, cp: String) {
-  val compiler = new Global(settings, null)
 
   def compile(file: SPath, configRef: ConfigRef) {
     val messageCollector = new StringWriter
-    val messageCollectorWrapper = new PrintWriter(messageCollector)
-    val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper) {
+    val reporter = new ConsoleReporter(settings, Console.in, new PrintWriter(messageCollector)) {
 
       var _startOffset: Option[Int] = None
       def startOffset(source: SourceFile): Int = _startOffset getOrElse {
@@ -64,7 +62,7 @@ class ConfigCompiler(outDir: SPath, cp: String) {
         _startOffset.get
       }
       private def calcStartOffSet(source: SourceFile): Int = {
-        val marker = "// BODY START"
+        val marker = "// {{{ BODY START"
         for (i <- 0 until source.length) {
           if (marker == source.lineToString(i)) {
             return source.lineToOffset(i + 1)
@@ -96,7 +94,7 @@ class ConfigCompiler(outDir: SPath, cp: String) {
         }
       }
     }
-    compiler.reporter = reporter
+    val compiler = new Global(settings, reporter)
 
     // Attempt compilation
     (new compiler.Run).compile(List(file.path))
@@ -106,8 +104,6 @@ class ConfigCompiler(outDir: SPath, cp: String) {
       reportError("Config Compilation Error: %s\n\n%s", configRef.refName, messageCollector)
     }
   }
-
-  def shutdown = compiler.askShutdown()
 
   private def errorHandler(message: String): Unit = {
     //throw new TemplateException("Compilation failed:\n" + message)

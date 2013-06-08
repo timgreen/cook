@@ -11,13 +11,13 @@ class Path(val rootDir: Directory, val currentDir: Directory) {
     (rootDir / ".cook_workspace").toDirectory
 
   val configScalaSourceDir =
-    (cookWorkspaceDir / "config_srcs").toDirectory
+    (cookWorkspaceDir / "config" / "srcs").toDirectory
   val configByteCodeDir =
-    (cookWorkspaceDir / "config_bytecodes").toDirectory
+    (cookWorkspaceDir / "config" / "bytecodes").toDirectory
   val targetBuildDir =
     (cookWorkspaceDir / "targets").toDirectory
   val configMetaDir =
-    (cookWorkspaceDir / "config_metas").toDirectory
+    (cookWorkspaceDir / "config" / "metas").toDirectory
 
   val currentSegments = currentDir.segments.drop(rootDir.segments.size)
 }
