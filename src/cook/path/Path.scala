@@ -18,6 +18,8 @@ class Path(val rootDir: Directory, val currentDir: Directory) {
     (cookWorkspaceDir / "targets").toDirectory
   val configMetaDir =
     (cookWorkspaceDir / "config" / "metas").toDirectory
+  val metaDbFile =
+    cookWorkspaceDir / "meta" / "meta.db"
 
   val currentSegments = currentDir.segments.drop(rootDir.segments.size)
 }

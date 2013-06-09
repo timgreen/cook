@@ -1,0 +1,21 @@
+scala_lib(
+  name = "db",
+  srcs = [
+    "Db.scala",
+  ],
+  deps = [
+    "//src/cook/meta:meta",
+    "//src/cook/path:path",
+  ],
+)
+
+scala_lib(
+  name = "berkeley_db_impl",
+  srcs = [
+    "BerkeleyDbImpl.scala",
+  ],
+  deps = [
+    ":db",
+    "//lib/je.jar",
+  ],
+)

@@ -1,6 +1,6 @@
 scala_lib(
   name = "meta",
   srcs = [
-    "packages.scala",
+    "Meta.scala",
   ],
 )
