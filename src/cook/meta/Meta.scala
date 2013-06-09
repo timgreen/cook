@@ -13,13 +13,18 @@ class Meta extends mutable.HashMap[String, String] {
 
 object Meta {
 
+  // TODO(timgreen): re-impl toBytes & fromBytes
+
   def toBytes(meta: Meta): Array[Byte] = {
-    // TODO(timgreen):
-    null
+    meta.mkString("\n").getBytes("UTF-8")
   }
 
   def fromBytes(bytes: Array[Byte]): Meta = {
-    // TODO(timgreen):
-    null
+    val s = new String(bytes)
+    val values = s.split('\n') map { line =>
+      val Array(key, value) = line.split(" -> ", 2)
+      key -> value
+    }
+    new Meta  ++= values
   }
 }
