@@ -8,6 +8,9 @@ class Meta extends mutable.HashMap[String, String] {
     this(group + "|" + key) = value
   }
 
+  def merge(other: Meta) =
+    this ++= other
+
   def toBytes: Array[Byte] = Meta.toBytes(this)
 }
 
