@@ -60,6 +60,7 @@ scala_lib(
   ],
   deps = [
     "//src/cook/actor:actors",
+    "//src/cook/meta/db:db_provider",
   ],
 )
 

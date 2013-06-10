@@ -2,6 +2,7 @@ package cook.app
 
 import cook.app.action._
 import cook.app.console.CookConsole
+import cook.meta.db.DbProvider
 import cook.path.Path
 import cook.ref.RefFactoryRegister
 
@@ -19,6 +20,7 @@ object Main {
       findAndPrintRootDir
       RefFactoryRegister.init
       loadCookRootConfig
+      DbProvider.db.open
       runSubCommand(parser)
     } catch {
       case e: Throwable =>

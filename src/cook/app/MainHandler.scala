@@ -1,7 +1,8 @@
 package cook.app
 
-import cook.error.CookException
 import cook.actor.Actors.consoleOutputter
+import cook.error.CookException
+import cook.meta.db.DbProvider
 
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -31,7 +32,7 @@ object MainHandler {
   }
 
   private def handleNormalExit {
-    // TODO(timgreen):
+    shutdownCleanUp
   }
 
   def handleException(e: Throwable) = {
@@ -43,6 +44,7 @@ object MainHandler {
       case _: Throwable =>
         consoleOutputter.printUnknownError(e)
     }
+    shutdownCleanUp
     consoleOutputter.blockToFinish
 
     sys.exit(1)
@@ -50,5 +52,9 @@ object MainHandler {
 
   private def tryToStopWorkers {
     // TODO(timgreen):
+  }
+
+  private def shutdownCleanUp {
+    DbProvider.db.close
   }
 }

@@ -15,20 +15,23 @@ object BerkeleyDbImpl extends Db {
 
   private var _db: Database = _
 
-  def dbFile = Path().metaDbFile
+  def dbDir = Path().metaDir
 
   override def open {
+    dbDir.createDirectory()
     val envConf = new EnvironmentConfig
     envConf.setAllowCreate(true)
-    dbFile.parent.createDirectory()
-    val dbEnv = new Environment(dbFile.jfile, envConf)
+    val dbEnv = new Environment(dbDir.jfile, envConf)
     val dbConf = new DatabaseConfig
     dbConf.setAllowCreate(true)
     _db = dbEnv.openDatabase(null, "meta", dbConf)
   }
 
   override def close {
-    _db.close
+    if (_db ne null) {
+      _db.close
+      _db = null
+    }
   }
 
   private implicit def string2databaseEntry(s: String) =

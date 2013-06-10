@@ -19,3 +19,13 @@ scala_lib(
     "//lib/je.jar",
   ],
 )
+
+scala_lib(
+  name = "db_provider",
+  srcs = [
+    "DbProvider.scala",
+  ],
+  deps = [
+    ":berkeley_db_impl",
+  ],
+)
