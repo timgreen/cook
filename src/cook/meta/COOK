@@ -4,3 +4,13 @@ scala_lib(
     "Meta.scala",
   ],
 )
+
+scala_lib(
+  name = "file_hash",
+  srcs = [
+    "FileHash.scala",
+  ],
+  deps = [
+    "//lib/scala-reflect.jar",
+  ],
+)
