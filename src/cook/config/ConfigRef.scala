@@ -43,7 +43,7 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
 
   val configScalaSourceFile =
     Path().configScalaSourceDir / (configClassFullName + ".scala")
-  val configByteCodeDir = Path().configByteCodeDir / configClassFullName
+  val configByteCodeDir = (Path().configByteCodeDir / configClassFullName).toDirectory
 
   if (!fileRef.toPath.canRead) {
     reportError("Can not read config: %s", fileRef.toPath.path)
@@ -58,6 +58,9 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
   }
 
   def refName = fileRef.refName
+
+  def configScalaSourceMetaKey = "configSrc" + ":" + refName
+  def configByteCodeMetaKey = "configBytecode" + ":" + refName
 
   private def relativeConfigRef(ref: String): FileRef = {
     RefManager(fileRef.dir.segments, ref) match {

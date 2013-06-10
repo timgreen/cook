@@ -21,6 +21,9 @@ object Main {
       RefFactoryRegister.init
       loadCookRootConfig
       DbProvider.db.open
+      sys.addShutdownHook {
+        DbProvider.db.close
+      }
       runSubCommand(parser)
     } catch {
       case e: Throwable =>

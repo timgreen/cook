@@ -27,6 +27,7 @@ object ConfigGenerator {
   private def withWriter(configRef: ConfigRef)(op: PrintWriter => Unit) {
     val source = configRef.configScalaSourceFile
     source.parent.createDirectory()
+    source.delete
     source.createFile(true)
     val writer = new PrintWriter(source.jfile)
     op(writer)

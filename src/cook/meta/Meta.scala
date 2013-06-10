@@ -11,6 +11,8 @@ class Meta extends mutable.HashMap[String, String] {
   def merge(other: Meta) =
     this ++= other
 
+  def + (other: Meta): Meta = (new Meta).merge(this).merge(other)
+
   def toBytes: Array[Byte] = Meta.toBytes(this)
 }
 
