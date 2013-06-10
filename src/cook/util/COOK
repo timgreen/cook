@@ -11,3 +11,10 @@ scala_lib(
     "ClassPathBuilder.scala",
   ],
 )
+
+scala_lib(
+  name = "glob_scanner",
+  srcs = [
+    "GlobScanner.scala",
+  ],
+)
