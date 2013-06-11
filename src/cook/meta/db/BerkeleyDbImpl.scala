@@ -14,6 +14,7 @@ import com.sleepycat.je.OperationStatus
 object BerkeleyDbImpl extends Db {
 
   private var _db: Database = _
+  private var _dbEnv: Environment = _
 
   def dbDir = Path().metaDir
 
@@ -22,6 +23,7 @@ object BerkeleyDbImpl extends Db {
     val envConf = new EnvironmentConfig
     envConf.setAllowCreate(true)
     val dbEnv = new Environment(dbDir.jfile, envConf)
+    _dbEnv = dbEnv
     val dbConf = new DatabaseConfig
     dbConf.setAllowCreate(true)
     _db = dbEnv.openDatabase(null, "meta", dbConf)
@@ -31,6 +33,11 @@ object BerkeleyDbImpl extends Db {
     if (_db ne null) {
       _db.close
       _db = null
+    }
+    if (_dbEnv ne null) {
+      _dbEnv.sync
+      _dbEnv.close
+      _dbEnv = null
     }
   }
 
