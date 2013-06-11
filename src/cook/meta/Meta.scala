@@ -14,6 +14,14 @@ class Meta extends mutable.HashMap[String, String] {
   def + (other: Meta): Meta = (new Meta).merge(this).merge(other)
 
   def toBytes: Array[Byte] = Meta.toBytes(this)
+
+  def hash: String = {
+    val h = this map { v =>
+      v._1.hashCode + v._2.hashCode
+    } sum
+
+    Math.abs(h).toString
+  }
 }
 
 object Meta {

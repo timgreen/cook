@@ -34,8 +34,10 @@ private[cook] object ConfigEngine {
   }
 
   private def doCompile(configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
-    if (shouldRecompileScala(configRef)) {
+    if (shouldRecompileScala(configRef, depConfigRefMap)) {
       ConfigCompiler.compile(configRef, depConfigRefMap)
+      val meta = buildConfigByteCodeMeta(configRef, depConfigRefMap)
+      metaDb.put(configRef.configByteCodeMetaKey, meta)
     }
   }
 
@@ -70,19 +72,25 @@ private[cook] object ConfigEngine {
     m1 + m2 + m3
   }
 
-  private def shouldRecompileScala(configRef: ConfigRef): Boolean = {
-    val meta = buildConfigByteCodeMeta(configRef)
+  private def shouldRecompileScala(
+    configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]): Boolean = {
+    val meta = buildConfigByteCodeMeta(configRef, depConfigRefMap)
     val cachedMeta = metaDb.get(configRef.configByteCodeMetaKey)
     meta != cachedMeta
   }
 
-  private def buildConfigByteCodeMeta(configRef: ConfigRef): Meta = {
-    // TODO(timgreen): add include & rootInclude meta info
+  private def buildConfigByteCodeMeta(
+    configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]): Meta = {
     val m1 = MetaHelper.buildFileMeta("cookScalaSource", configRef.configScalaSourceFile :: Nil)
     val bytecodes = Try {
       GlobScanner(configRef.configByteCodeDir, "**/*" :: Nil, fileOnly = true)
     } getOrElse Seq()
     val m2 = MetaHelper.buildFileMeta("cookByteCode", bytecodes)
-    m1 + m2
+    val m3 = new Meta
+    depConfigRefMap foreach { case (refName, ref) =>
+      val depMeta = metaDb.get(ref.configByteCodeMetaKey)
+      m3.add("depRef", refName, depMeta.hash)
+    }
+    m1 + m2 + m3
   }
 }
