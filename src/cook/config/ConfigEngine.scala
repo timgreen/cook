@@ -26,9 +26,9 @@ private[cook] object ConfigEngine {
 
   private def doGenerate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefMap: Map[String, ConfigRef]) {
-    if (shouldRegenerateScala(configRef)) {
+    if (shouldRegenerateScala(configRef, rootIncludes)) {
       ConfigGenerator.generate(configRef, rootIncludes, depConfigRefMap)
-      val meta = buildConfigScalaMeta(configRef)
+      val meta = buildConfigScalaMeta(configRef, rootIncludes)
       metaDb.put(configRef.configScalaSourceMetaKey, meta)
     }
   }
@@ -44,17 +44,30 @@ private[cook] object ConfigEngine {
     c
   }
 
-  private def shouldRegenerateScala(configRef: ConfigRef): Boolean = {
-    val meta = buildConfigScalaMeta(configRef)
+  private def shouldRegenerateScala(
+    configRef: ConfigRef, rootIncludes: List[ConfigRefInclude]): Boolean = {
+    val meta = buildConfigScalaMeta(configRef, rootIncludes)
     val cachedMeta = metaDb.get(configRef.configScalaSourceMetaKey)
     meta != cachedMeta
   }
 
-  private def buildConfigScalaMeta(configRef: ConfigRef): Meta = {
-    // TODO(timgreen): also add include & rootInclude info
+  import cook.config.IncludeDefine
+  import cook.config.IncludeAsDefine
+
+  private def buildConfigScalaMeta(
+    configRef: ConfigRef, rootIncludes: List[ConfigRefInclude]): Meta = {
     val m1 = MetaHelper.buildFileMeta("cookSource", configRef.fileRef.toPath :: Nil)
     val m2 = MetaHelper.buildFileMeta("cookScalaSource", configRef.configScalaSourceFile :: Nil)
-    m1 + m2
+    val m3 = new Meta
+    rootIncludes foreach { include =>
+      include match {
+        case IncludeDefine(ref) =>
+          m3.add("rootInclude", ref.refName, "")
+        case IncludeAsDefine(ref, name) =>
+          m3.add("rootIncludeAs", name, ref.refName)
+      }
+    }
+    m1 + m2 + m3
   }
 
   private def shouldRecompileScala(configRef: ConfigRef): Boolean = {
@@ -64,6 +77,7 @@ private[cook] object ConfigEngine {
   }
 
   private def buildConfigByteCodeMeta(configRef: ConfigRef): Meta = {
+    // TODO(timgreen): add include & rootInclude meta info
     val m1 = MetaHelper.buildFileMeta("cookScalaSource", configRef.configScalaSourceFile :: Nil)
     val bytecodes = Try {
       GlobScanner(configRef.configByteCodeDir, "**/*" :: Nil, fileOnly = true)
