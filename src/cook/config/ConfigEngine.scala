@@ -15,6 +15,11 @@ import scala.util.Try
  */
 private[cook] object ConfigEngine {
 
+  import cook.util.LogSourceProvider._
+  import akka.event.Logging
+
+  val log = Logging(cook.app.Global.system, this)
+
   def load(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefs: List[ConfigRef]): Config = {
     val map: Map[String, ConfigRef] = depConfigRefs map { r => r.refName -> r } toMap
@@ -27,17 +32,23 @@ private[cook] object ConfigEngine {
   private def doGenerate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefMap: Map[String, ConfigRef]) {
     if (shouldRegenerateScala(configRef, rootIncludes)) {
+      log.debug("config scala source {}: generating", configRef.refName)
       ConfigGenerator.generate(configRef, rootIncludes, depConfigRefMap)
       val meta = buildConfigScalaMeta(configRef, rootIncludes)
       metaDb.put(configRef.configScalaSourceMetaKey, meta)
+    } else {
+      log.debug("config scala source {}: cached", configRef.refName)
     }
   }
 
   private def doCompile(configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]) {
     if (shouldRecompileScala(configRef, depConfigRefMap)) {
+      log.debug("config bytecode {}: building", configRef.refName)
       ConfigCompiler.compile(configRef, depConfigRefMap)
       val meta = buildConfigByteCodeMeta(configRef, depConfigRefMap)
       metaDb.put(configRef.configByteCodeMetaKey, meta)
+    } else {
+      log.debug("config bytecode {}: cached", configRef.refName)
     }
   }
 

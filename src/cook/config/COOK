@@ -65,8 +65,10 @@ scala_lib(
     ":config_compiler",
     ":config_generator",
     ":config_loader",
+    "//src/cook/app:global",
     "//src/cook/meta/db:db_provider",
     "//src/cook/meta:meta_helper",
     "//src/cook/util:glob_scanner",
+    "//src/cook/util:log_source_provider",
   ],
 )
