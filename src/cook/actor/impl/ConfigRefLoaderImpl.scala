@@ -8,7 +8,6 @@ import cook.ref.FileRef
 
 import scala.concurrent.{ Future, Promise }
 import scala.concurrent.duration._
-import scala.collection.mutable
 import scala.util.{ Try, Success, Failure }
 import akka.actor.TypedActor
 
@@ -25,30 +24,19 @@ class ConfigRefLoaderImpl extends ConfigRefLoader with TypedActorBase {
 
   import ActorRefs._
 
-  private val cache = mutable.Map[String, ConfigRef]()
   private val responser = new BatchResponser[String, ConfigRef]()
 
   private def self = configRefLoader
 
   override def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef]) {
-    tryConfigRef match {
-      case Success(configRef) =>
-        cache(refName) = configRef
-        responser.success(refName, configRef)
-      case Failure(e) =>
-        responser.failure(refName, e)
-    }
+    responser.complete(refName)(tryConfigRef)
   }
 
   override def loadConfigRef(cookFileRef: FileRef): Future[ConfigRef] = {
     val refName = cookFileRef.refName
-    cache.get(refName) match {
-      case Some(configRef) =>
-        Future.successful(configRef)
-      case None =>
-        responser.onTask(refName) {
-          doLoadConfigRef(refName, cookFileRef)
-        }
+    log.debug("loadConfigRef {}", refName)
+    responser.onTask(refName) {
+      doLoadConfigRef(refName, cookFileRef)
     }
   }
 

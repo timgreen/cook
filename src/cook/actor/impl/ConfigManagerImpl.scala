@@ -8,7 +8,6 @@ import cook.config.ConfigRef
 import cook.ref.FileRef
 
 import akka.actor.TypedActor
-import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ Future, Promise }
 import scala.util.{ Try, Success, Failure }
@@ -26,30 +25,20 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
 
   import ActorRefs._
 
-  private val cache = mutable.Map[String, Config]()
   private val responser = new BatchResponser[String, Config]()
 
   private def self = configManager
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
-    tryConfig match {
-      case Success(config) =>
-        cache(refName) = config
-        responser.success(refName, config)
-      case Failure(e) =>
-        responser.failure(refName, e)
-    }
+    log.debug("configManager.taskComplete {} {}", refName, tryConfig)
+    responser.complete(refName)(tryConfig)
   }
 
   override def getConfig(cookFileRef: FileRef): Future[Config] = {
     val refName = cookFileRef.refName
-    cache.get(refName) match {
-      case Some(config) =>
-        Future.successful(config)
-      case None =>
-        responser.onTask(refName) {
-          doGetConfig(refName, cookFileRef)
-        }
+    log.debug("getConfig {}", refName)
+    responser.onTask(refName) {
+      doGetConfig(refName, cookFileRef)
     }
   }
 
