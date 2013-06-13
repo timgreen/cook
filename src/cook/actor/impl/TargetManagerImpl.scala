@@ -25,7 +25,7 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
     log.debug("getTarget {}", targetRef.refName)
     targetRef match {
       case nativeTargetRef: NativeTargetRef =>
-        nativeResponser.onTask(nativeTargetRef.cookFileRef.refName) {
+        nativeResponser.onTask(nativeTargetRef.refName) {
           doGetNativeTarget(nativeTargetRef.refName, nativeTargetRef)
         }
     }
