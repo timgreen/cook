@@ -18,3 +18,13 @@ scala_lib(
     "GlobScanner.scala",
   ],
 )
+
+scala_lib(
+  name = "log_source_provider",
+  srcs = [
+    "LogSourceProvider.scala",
+  ],
+  deps = [
+    "//lib/akka-actors.jar",
+  ],
+)
