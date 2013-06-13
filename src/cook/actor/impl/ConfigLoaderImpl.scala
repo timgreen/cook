@@ -73,9 +73,14 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
       case Success(depConfigRefs) =>
         depUnsolvedTasks(configRef.refName) = LoadConfigClassTaskInfo(configRef, depConfigRefs)
         dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
+
+        import TypedActor.dispatcher
         depConfigRefs foreach { depConfigRef =>
-          // TODO(timgreen): mark sure success
-          self.loadConfig(depConfigRef)
+          self.loadConfig(depConfigRef) onFailure {
+            case e =>
+              // TODO(timgreen): wrapper the error
+              self.taskComplete(configRef.refName)(Failure(e))
+          }
         }
         self.checkDag
       case Failure(e) =>

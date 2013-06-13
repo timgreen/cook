@@ -20,13 +20,21 @@ private[cook] object ConfigEngine {
 
   val log = Logging(cook.app.Global.system, this)
 
+  /**
+   * Return config instance for cook, and null for cooki.
+   */
   def load(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefs: List[ConfigRef]): Config = {
     val map: Map[String, ConfigRef] = depConfigRefs map { r => r.refName -> r } toMap
 
     doGenerate(configRef, rootIncludes, map)
     doCompile(configRef, map)
-    doLoad(configRef, map)
+    configRef.configType match {
+      case ConfigType.CookConfig =>
+        doLoad(configRef, map)
+      case ConfigType.CookiConfig =>
+        null
+    }
   }
 
   private def doGenerate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
