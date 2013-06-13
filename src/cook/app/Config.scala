@@ -27,10 +27,21 @@ object Config {
 
   private def defaultConf = ConfigFactory.parseString(s"""
     processors = ${sys.runtime.availableProcessors}
-    cook.include-rules = []
-    cook.include-as-rules = {}
-    cook.max-jobs = ${sys.runtime.availableProcessors - 1}
-    cook.akka.actor.typed.timeout = 100 days
+    cook {
+      include-rules = []
+      include-as-rules = {}
+      max-jobs = ${sys.runtime.availableProcessors - 1}
+      akka.actor.typed.timeout = 100 days
+      configref-verify-worker-dispatcher {
+        type = "Dispatcher"
+        executor = "fork-join-executor"
+        fork-join-executor {
+          parallelism-min = 1
+          parallelism-factor = 0.0
+          parallelism-max = 1
+        }
+      }
+    }
   """)
 
   private def includeRules: List[IncludeDefine] = {
