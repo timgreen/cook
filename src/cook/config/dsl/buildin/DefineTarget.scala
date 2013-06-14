@@ -14,7 +14,12 @@ trait DefineTarget {
     runCmd: Option[TargetRunCmd[T]] = None,
     deps: Seq[TargetRef] = Nil
   )(implicit context: ConfigContext): NativeTarget[T] = {
-    checkTargetName(name)
+    require(resultFn    != null, "resultFn can not be null")
+    require(buildCmd    != null, "buildCmd can not be null")
+    require(inputMetaFn != null, "inputMetaFn can not be null")
+    require(runCmd      != null, "runCmd can not be null")
+    require(deps        != null, "deps can not be null")
+    require(passTargetNameCheck(name), "invalid target name: " + name)
 
     val targetRef = new NativeTargetRef(context.dir, name)
     val t = new NativeTarget[T](
@@ -31,7 +36,7 @@ trait DefineTarget {
     t
   }
 
-  private def checkTargetName(name: String) {
-    // TODO(timgreen):
+  private def passTargetNameCheck(name: String): Boolean = {
+    name.matches("^[a-zA-Z0-9_]+$")
   }
 }
