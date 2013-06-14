@@ -21,15 +21,3 @@ scala_lib(
     ":target",
   ],
 )
-
-scala_lib(
-  name = "manager",
-  srcs = [
-    "TargetManager.scala",
-  ],
-  deps = [
-    ":native_target",
-    "//src/cook/ref:ref",
-    "//src/cook/config:manager",
-  ],
-)
