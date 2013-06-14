@@ -69,21 +69,21 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
   }
 
   override def step2WaitDepConfig(configRef: ConfigRef)(tryDepConfigRefs: Try[List[ConfigRef]]) {
+    log.debug("step2WaitDepConfig {} {}", configRef.refName, tryDepConfigRefs)
     tryDepConfigRefs match {
       case Success(depConfigRefs) =>
         depUnsolvedTasks(configRef.refName) = LoadConfigClassTaskInfo(configRef, depConfigRefs)
         dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
 
         import TypedActor.dispatcher
-        depConfigRefs foreach { depConfigRef =>
-          self.loadConfig(depConfigRef) onFailure {
-            case e =>
-              // TODO(timgreen): wrapper the error
-              self.taskComplete(configRef.refName)(Failure(e))
-          }
+        Future.sequence(depConfigRefs map self.loadConfig) onFailure {
+          case e =>
+            // TODO(timgreen): wrapper the error
+            self.taskComplete(configRef.refName)(Failure(e))
         }
         self.checkDag
       case Failure(e) =>
+        // TODO(timgreen): wrapper the error
         self.taskComplete(configRef.refName)(Failure(e))
     }
   }

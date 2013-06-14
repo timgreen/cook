@@ -69,11 +69,9 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     pendingTargets(target.refName) = target
     dagSolver.addDeps(target.refName, target.deps.map(_.refName))
     import TypedActor.dispatcher
-    target.deps foreach { depTargetRef =>
-      self.build(depTargetRef) onFailure {
-        case e =>
-          self.taskComplete(target.refName)(Failure(e))
-      }
+    Future.sequence(target.deps map self.build) onFailure {
+      case e =>
+        self.taskComplete(target.refName)(Failure(e))
     }
     self.checkDag
   }
@@ -86,16 +84,15 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
   }
 
   override def step3BuildTarget(targetName: String) {
-    pendingTargets.remove(targetName) match {
-      case Some(target) =>
-        Global.workerDispatcher.execute(TargetBuildTask(targetName) {
-          self.taskComplete(targetName)(Try {
-            target.build
-            target.result
-          })
-        })
-      case None =>
-        // TODO(timgreen): this should never happen, report error
-    }
+    val optTarget = pendingTargets.remove(targetName)
+    assert(optTarget.isDefined, "the target ready for build must in pending list: " + targetName)
+    val target = optTarget.get
+
+    Global.workerDispatcher.execute(TargetBuildTask(targetName) {
+      self.taskComplete(targetName)(Try {
+        target.build
+        target.result
+      })
+    })
   }
 }
