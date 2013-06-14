@@ -12,14 +12,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, Promise }
 import scala.util.{ Try, Success, Failure }
 
-object ConfigGetTask {
-
-  def apply(refName: String)(runBlock: => Unit): Runnable = new Runnable {
-    override def run() {
-      runBlock
-    }
-  }
-}
 
 class ConfigManagerImpl extends ConfigManager with TypedActorBase {
 

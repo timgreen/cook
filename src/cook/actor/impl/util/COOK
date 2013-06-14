@@ -4,3 +4,14 @@ scala_lib(
     "BatchResponser.scala",
   ],
 )
+
+scala_lib(
+  name = "task_builder",
+  srcs = [
+    "TaskBuilder.scala",
+  ],
+  deps = [
+    "//src/cook/app:global",
+    "//src/cook/util:log_source_provider",
+  ],
+)

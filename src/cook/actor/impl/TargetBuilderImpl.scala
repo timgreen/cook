@@ -2,6 +2,7 @@ package cook.actor.impl
 
 import cook.actor.TargetBuilder
 import cook.actor.impl.util.BatchResponser
+import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.ref.TargetRef
 import cook.target.Target
@@ -14,14 +15,7 @@ import scala.concurrent.{ Promise, Future, Await }
 import scala.util.{ Try, Success, Failure }
 
 
-object TargetBuildTask {
-
-  def apply(refName: String)(runBlock: => Unit): Runnable = new Runnable {
-    override def run() {
-      runBlock
-    }
-  }
-}
+object TargetBuildTask extends TaskBuilder("TargetBuild")
 
 
 /**

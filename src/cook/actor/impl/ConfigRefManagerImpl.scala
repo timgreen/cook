@@ -2,6 +2,7 @@ package cook.actor.impl
 
 import cook.actor.ConfigRefManager
 import cook.actor.impl.util.BatchResponser
+import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.config.ConfigRef
 import cook.ref.FileRef
@@ -12,14 +13,7 @@ import scala.collection.mutable
 import scala.util.{ Try, Success, Failure }
 import akka.actor.{ TypedActor, TypedProps }
 
-object ConfigRefVerifyTask {
-
-  def apply(refName: String)(runBlock: => Unit): Runnable = new Runnable {
-    override def run() {
-      runBlock
-    }
-  }
-}
+object ConfigRefVerifyTask extends TaskBuilder("ConfigRefVerify")
 
 class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 

@@ -3,6 +3,7 @@ package cook.actor.impl
 import cook.actor.ConfigLoader
 import cook.actor.LoadConfigClassTaskInfo
 import cook.actor.impl.util.BatchResponser
+import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.config.Config
 import cook.config.ConfigEngine
@@ -17,14 +18,7 @@ import scala.concurrent.Future
 import scala.util.{ Try, Success, Failure }
 
 
-object ConfigLoadTask {
-
-  def apply(refName: String)(runBlock: => Unit): Runnable = new Runnable {
-    override def run() {
-      runBlock
-    }
-  }
-}
+object ConfigLoadTask extends TaskBuilder("ConfigLoad")
 
 /**
  *
