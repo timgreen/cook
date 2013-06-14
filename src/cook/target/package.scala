@@ -19,4 +19,8 @@ package object target {
   object EmptyBuildCmd {
     def apply[R <: TargetResult](): TargetBuildCmd[R] = { t => }
   }
+
+  object EmptyMetaFn {
+    def apply[R <: TargetResult](): TargetMetaFn[R] = { t => new Meta }
+  }
 }

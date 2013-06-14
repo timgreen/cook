@@ -7,4 +7,5 @@ object Dsl extends BuildinCommands {
   val UnitResult    = cook.target.UnitResult
   val UnitResultFn  = cook.target.UnitResultFn
   val EmptyBuildCmd = cook.target.EmptyBuildCmd
+  val EmptyMetaFn   = cook.target.EmptyMetaFn
 }
