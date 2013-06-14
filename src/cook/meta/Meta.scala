@@ -33,11 +33,17 @@ object Meta {
   }
 
   def fromBytes(bytes: Array[Byte]): Meta = {
-    val s = new String(bytes)
-    val values = s.split('\n') map { line =>
-      val Array(key, value) = line.split(" -> ", 2)
-      key -> value
+    val m = new Meta
+    try {
+      val s = new String(bytes)
+      val values = s.split('\n') map { line =>
+        val Array(key, value) = line.split(" -> ", 2)
+        key -> value
+      }
+      m ++= values
+    } catch {
+      case e: Throwable =>
     }
-    new Meta  ++= values
+    m
   }
 }
