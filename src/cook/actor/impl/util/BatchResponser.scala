@@ -26,7 +26,7 @@ class BatchResponser[Key, Result] {
   def success(key: Key, result: Result) {
     waiters.remove(key) match {
       case None =>
-        // TODO(timgreen): this should never happen, report error
+        assert(false, "Can not complete an unexist task as success: " + key)
       case Some(p) =>
         cache(key) = result
         p.success(result)
@@ -36,7 +36,7 @@ class BatchResponser[Key, Result] {
   def failure(key: Key, e: Throwable) {
     waiters.remove(key) match {
       case None =>
-        // TODO(timgreen): this should never happen, report error
+        assert(false, "Can not complete an unexist task as failure: " + key)
       case Some(p) =>
         p.failure(e)
     }
