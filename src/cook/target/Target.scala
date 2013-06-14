@@ -45,9 +45,7 @@ abstract class Target[+R <: TargetResult](
   }
 
   private [cook] def build {
-    if (_status != Pending) {
-      // TODO(timgreen): this should never happen, report error
-    }
+    assert(_status != Pending, "target should only be built once: " + refName)
 
     if (needBuild) {
       // cache hint
@@ -71,16 +69,12 @@ abstract class Target[+R <: TargetResult](
     inputMeta + depsMeta
   }
 
-  private [cook] def run(args: List[String] = List()): Int = runCmd match {
-    case None =>
-      reportError("Can not run target %s, target not runable", refName)
-    case Some(cmd) =>
-      if (needBuild) {
-        reportError("Can not run target %s, target not built yet. Do you miss deps", refName)
-      }
-      cmd(this, args)
+  def isRunnable = runCmd.isDefined
+  private [cook] def run(args: List[String] = List()): Int = {
+    assert(isRunnable, "can not run a target without runCmd: " + refName)
+    assert(isResultReady, "can not run a target that was not built yet: " + refName)
+    runCmd.get(this, args)
   }
-
 }
 
 object Target {
