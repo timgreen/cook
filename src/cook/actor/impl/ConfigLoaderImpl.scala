@@ -37,12 +37,15 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     responser.complete(refName)(tryConfig)
-    dagSolver.markDone(refName)
-    self.checkDag
+    if (tryConfig.isSuccess) {
+      dagSolver.markDone(refName)
+      self.checkDag
+    }
   }
 
   override def loadConfig(configRef: ConfigRef): Future[Config] = {
     val refName = configRef.refName
+    log.debug("loadConfig {}", refName)
 
     responser.onTask(refName) {
       step1WaitDepConfigRefs(configRef)
