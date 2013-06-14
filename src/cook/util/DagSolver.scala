@@ -23,7 +23,7 @@ class DagSolver {
 
   import DagSolver._
 
-  def addDeps(node: String, deps: List[String]): AddDepsResult =  {
+  def addDeps(node: String, deps: Seq[String]): AddDepsResult =  {
     if (solvedNodes.contains(node)) {
       FoundDuplicatedNode(node)
     } else {
