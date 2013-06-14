@@ -113,6 +113,8 @@ trait TargetRef extends Ref {
   }
 
   def targetBuildDir: Directory = targetBuildParentDir / (targetName + ".cook_target") toDirectory
+
+  def metaKey: String
 }
 
 class NativeTargetRef(dir: DirRef, val targetName: String)
@@ -131,6 +133,8 @@ class NativeTargetRef(dir: DirRef, val targetName: String)
   override def isTarget: Boolean = true
   override def isNativeTarget: Boolean = true
   def cookFileRef: FileRef = new FileRef(dir, "COOK")
+
+  override def metaKey: String = "nativeTarget:" + refName
 }
 
 object NativeTargetRefFactory extends RefFactory[NativeTargetRef] {

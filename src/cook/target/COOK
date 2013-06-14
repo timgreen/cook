@@ -6,6 +6,7 @@ scala_lib(
   ],
   deps = [
     "//src/cook/error:error",
+    "//src/cook/meta/db:db_provider",
     "//src/cook/meta:meta",
     "//src/cook/ref:ref",
   ],

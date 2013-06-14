@@ -10,9 +10,9 @@ trait DefineTarget {
     name: String,
     resultFn: TargetResultFn[T],
     buildCmd: TargetBuildCmd[T],
-    metaFn: TargetMetaFn[T],
+    inputMetaFn: TargetMetaFn[T],
     runCmd: Option[TargetRunCmd[T]] = None,
-    deps: List[TargetRef] = Nil
+    deps: Seq[TargetRef] = Nil
   )(implicit context: ConfigContext): NativeTarget[T] = {
     checkTargetName(name)
 
@@ -21,7 +21,7 @@ trait DefineTarget {
       ref = targetRef,
       buildCmd = buildCmd,
       resultFn = resultFn,
-      metaFn = metaFn,
+      inputMetaFn = inputMetaFn,
       runCmd = runCmd,
       deps = deps
     )

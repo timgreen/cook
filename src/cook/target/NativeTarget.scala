@@ -8,9 +8,9 @@ class NativeTarget[R <: TargetResult](
     ref: NativeTargetRef,
     buildCmd: TargetBuildCmd[R],
     resultFn: TargetResultFn[R],
-    metaFn: TargetMetaFn[R],
+    inputMetaFn: TargetMetaFn[R],
     runCmd: Option[TargetRunCmd[R]],
     deps: Seq[TargetRef])
-  extends Target[R](ref, buildCmd, resultFn, metaFn, runCmd, deps) {
+  extends Target[R](ref, buildCmd, resultFn, inputMetaFn, runCmd, deps) {
 
 }

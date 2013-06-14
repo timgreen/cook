@@ -1,6 +1,8 @@
 package cook.target
 
 import cook.error.ErrorTracking._
+import cook.meta.Meta
+import cook.meta.db.DbProvider.{ db => metaDb }
 import cook.ref.TargetRef
 
 
@@ -14,7 +16,7 @@ abstract class Target[+R <: TargetResult](
     val ref: TargetRef,
     private[this] val buildCmd: TargetBuildCmd[R],
     private[this] val resultFn: TargetResultFn[R],
-    private[this] val metaFn: TargetMetaFn[R],
+    private[this] val inputMetaFn: TargetMetaFn[R],
     private[this] val runCmd: Option[TargetRunCmd[R]],
     val deps: Seq[TargetRef]) {
 
@@ -24,9 +26,6 @@ abstract class Target[+R <: TargetResult](
   private var _status: TargetStatus = Pending
   def status = _status
   def isResultReady = (_status == Cached) || (_status == Built)
-
-  // TODO(timgreen): use meta
-  private def needBuild: Boolean = (_status == Pending)
 
   private[this] var _result: Option[R] = None
   def result: R = _result getOrElse {
@@ -39,12 +38,37 @@ abstract class Target[+R <: TargetResult](
     r
   }
 
+  private def needBuild: Boolean = {
+    val meta = buildMeta
+    val cachedMeta = metaDb.get(ref.metaKey)
+    meta != cachedMeta
+  }
+
   private [cook] def build {
+    if (_status != Pending) {
+      // TODO(timgreen): this should never happen, report error
+    }
+
     if (needBuild) {
+      // cache hint
+      _status = Cached
+    } else {
+      // need build
       ref.targetBuildDir.createDirectory(force = true)
       buildCmd(this)
       _status = Built
+      val meta = buildMeta
+      metaDb.put(ref.metaKey, meta)
     }
+  }
+
+  private [cook] def buildMeta: Meta = {
+    val inputMeta = inputMetaFn(this)
+    val depsMeta = new Meta
+    deps foreach { dep =>
+      depsMeta.add(Target.DepMetaGroup, dep.refName, metaDb.get(dep.metaKey).hash)
+    }
+    inputMeta + depsMeta
   }
 
   private [cook] def run(args: List[String] = List()): Int = runCmd match {
@@ -57,4 +81,9 @@ abstract class Target[+R <: TargetResult](
       cmd(this, args)
   }
 
+}
+
+object Target {
+
+  val DepMetaGroup = "deps"
 }
