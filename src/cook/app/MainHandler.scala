@@ -33,6 +33,7 @@ object MainHandler {
 
   private def handleNormalExit {
     shutdownCleanUp
+    Global.system.shutdown
   }
 
   def handleException(e: Throwable) = {
