@@ -45,7 +45,7 @@ abstract class Target[+R <: TargetResult](
   }
 
   private [cook] def build {
-    assert(_status != Pending, "target should only be built once: " + refName)
+    assert(_status == Pending, "target should only be built once: " + refName)
 
     if (needBuild) {
       // cache hint
