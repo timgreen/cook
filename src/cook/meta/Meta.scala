@@ -5,7 +5,7 @@ import scala.collection.mutable
 class Meta extends mutable.HashMap[String, String] {
 
   def add(group: String, key: String, value: String) {
-    this(group + "|" + key) = value
+    this(group + "." + key) = value
   }
 
   def merge(other: Meta) =
@@ -21,6 +21,14 @@ class Meta extends mutable.HashMap[String, String] {
     } sum
 
     Math.abs(h).toString
+  }
+
+  def withPrefix(prefix: String): Meta = {
+    val m = new Meta
+    m ++= this map { case (k, v) =>
+      s"${prefix}.${k}" -> v
+    }
+    m
   }
 }
 

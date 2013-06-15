@@ -66,7 +66,7 @@ abstract class Target[+R <: TargetResult](
     deps foreach { dep =>
       depsMeta.add(Target.DepMetaGroup, dep.refName, metaDb.get(dep.metaKey).hash)
     }
-    inputMeta + depsMeta
+    inputMeta.withPrefix(Target.InputMetaPrefix) + depsMeta
   }
 
   def isRunnable = runCmd.isDefined
@@ -80,4 +80,5 @@ abstract class Target[+R <: TargetResult](
 object Target {
 
   val DepMetaGroup = "deps"
+  val InputMetaPrefix = "input"
 }
