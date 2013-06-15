@@ -57,5 +57,16 @@ object MainHandler {
 
   private def shutdownCleanUp {
     DbProvider.db.close
+    if (shutdownHookThread ne null) {
+      shutdownHookThread.remove
+    }
+  }
+
+  private var shutdownHookThread: sys.ShutdownHookThread = _
+  def prepareMetaDb {
+    DbProvider.db.open
+    shutdownHookThread = sys.addShutdownHook {
+      DbProvider.db.close
+    }
   }
 }
