@@ -70,7 +70,8 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
     tryDepConfigRefs match {
       case Success(depConfigRefs) =>
         depUnsolvedTasks(configRef.refName) = LoadConfigClassTaskInfo(configRef, depConfigRefs)
-        dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
+        val r = dagSolver.addDeps(configRef.refName, depConfigRefs.map(_.refName))
+        assert(r == DagSolver.Ok, "error when add deps for " + configRef.refName)
 
         import TypedActor.dispatcher
         Future.sequence(depConfigRefs map self.loadConfig) onFailure {
@@ -92,6 +93,7 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
       val refName = dagSolver.pop
       val Some(taskInfo) = depUnsolvedTasks.remove(refName)
       self.step3LoadConfigClass(taskInfo)
+      self.checkDag
     }
   }
 

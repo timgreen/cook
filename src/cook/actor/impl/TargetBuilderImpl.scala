@@ -74,6 +74,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     if (dagSolver.hasAvaliable) {
       val avaliableTargetName = dagSolver.pop
       self.step3BuildTarget(avaliableTargetName)
+      self.checkDag
     }
   }
 
