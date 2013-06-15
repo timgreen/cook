@@ -44,4 +44,5 @@ set -e
 ./bin/cook build src/cook/target:target
 ./bin/cook build src/cook/actor:actors
 ./bin/cook run test/cook/ref:run_basic_ref_test
-./bin/cook run test/cook/config:run_config_generator_test
+./bin/cook run test/cook/util:run_glob_scanner_test
+./bin/cook run test/cook/util:run_dag_solver_test

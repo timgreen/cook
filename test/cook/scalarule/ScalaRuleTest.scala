@@ -12,8 +12,7 @@ import cook.util.testing.ClassPathBuilderHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.Path
+import scala.reflect.io.{ Path => SPath, Directory }
 
 class ScalaRuleTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 

@@ -3,15 +3,13 @@ package cook.util
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.File
-import scala.tools.nsc.io.Path
+import scala.reflect.io.{ Path => SPath, Directory, File }
 
 class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
 
-  val testRoot = Path("testdata")
+  val testRoot = SPath("testdata")
 
-  def comparePathSet(results: Seq[Path], excepts: Seq[Path]) {
+  def comparePathSet(results: Seq[SPath], excepts: Seq[SPath]) {
     results should have length (excepts.length)
     for (p <- excepts) {
       results should contain (p)

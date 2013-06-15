@@ -87,15 +87,10 @@ case class Pattern(val values: Array[String], index: Int = 0) {
 
 class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[String]) {
 
-  initCheck
-
-  private def initCheck {
-    if (rootDir == null) throw new IllegalArgumentException("rootDir cannot be null.")
-    if (!rootDir.exists) throw new IllegalArgumentException("Directory does not exist: " + rootDir)
-
-    if (includes == null) throw new IllegalArgumentException("includes cannot be null.");
-    if (excludes == null) throw new IllegalArgumentException("excludes cannot be null.");
-  }
+  require(rootDir != null,  "rootDir cannot be null.")
+  require(rootDir.exists,   "Directory does not exist: " + rootDir)
+  require(includes != null, "includes cannot be null.")
+  require(excludes != null, "excludes cannot be null.")
 
   private def scanDir(dir: Directory, includes: Seq[Pattern], excludes: Seq[Pattern],
     matches: mutable.ListBuffer[SPath]) {
@@ -111,7 +106,7 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
       // If not scanning all the files, we know exactly which ones to follow.
       includes.groupBy(_.value).foreach { kv =>
         val name = kv._1
-        process(dir / name, kv._2, excludes.filter(_.matches(name)), matches);
+        process(dir / name, kv._2, excludes.filter(_.matches(name)), matches)
       }
     } else {
       // Scan every file.
