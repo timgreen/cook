@@ -28,12 +28,12 @@ abstract class Target[+R <: TargetResult](
   def isResultReady = (_status == Cached) || (_status == Built)
 
   private[this] var _result: Option[R] = None
-  def result: R = _result getOrElse {
+  def result(depTargets: List[Target[TargetResult]]): R = _result getOrElse {
     if (!isResultReady) {
       reportError("Can not call target %s.result, target not built yet. Do you miss deps", refName)
     }
 
-    val r = resultFn(this)
+    val r = resultFn(this, depTargets)
     _result = Some(r)
     r
   }
@@ -44,7 +44,7 @@ abstract class Target[+R <: TargetResult](
     meta != cachedMeta
   }
 
-  private [cook] def build {
+  private [cook] def build(depTargets: List[Target[TargetResult]]) {
     assert(_status == Pending, "target should only be built once: " + refName)
 
     if (needBuild) {
@@ -53,7 +53,7 @@ abstract class Target[+R <: TargetResult](
     } else {
       // need build
       ref.targetBuildDir.createDirectory(force = true)
-      buildCmd(this)
+      buildCmd(this, depTargets)
       _status = Built
       val meta = buildMeta
       metaDb.put(ref.metaKey, meta)
@@ -70,7 +70,7 @@ abstract class Target[+R <: TargetResult](
   }
 
   def isRunnable = runCmd.isDefined
-  private [cook] def run(args: List[String] = List()): Int = {
+  private [cook] def run(args: List[String] = Nil): Int = {
     assert(isRunnable, "can not run a target without runCmd: " + refName)
     assert(isResultReady, "can not run a target that was not built yet: " + refName)
     runCmd.get(this, args)
