@@ -2,7 +2,7 @@ package cook.config.dsl
 
 import cook.config.dsl.buildin._
 
-object Dsl extends BuildinCommands {
+object Dsl extends BuildinCommands with Implicits {
 
   type TargetResult = cook.target.TargetResult
   type Target[R <: TargetResult] = cook.target.Target[R]
