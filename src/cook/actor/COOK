@@ -17,15 +17,6 @@ scala_lib(
 )
 
 scala_lib(
-  name = "config_ref_verifier",
-  srcs = "ConfigRefVerifier.scala",
-  deps = [
-    "//src/cook/config:config_ref",
-    "//src/cook/ref:ref",
-  ]
-)
-
-scala_lib(
   name = "config_manager",
   srcs = "ConfigManager.scala",
   deps = [
@@ -71,7 +62,6 @@ scala_lib(
   name = "actors",
   srcs = "Actors.scala",
   deps = [
-    "impl:config_ref_verifier_impl",
     "impl:config_ref_manager_impl",
     "impl:config_ref_loader_impl",
     "impl:config_manager_impl",

@@ -20,7 +20,6 @@ object Config {
 
   var cols: Int = _
 
-  var cliMaxJobs: Option[Int] = _
   lazy val rootIncludes: List[ConfigRefInclude] = includeRules ::: includeAsRules
 
   private def defaultConf = ConfigFactory.parseString(s"""
@@ -29,15 +28,6 @@ object Config {
       include-rules = []
       include-as-rules = {}
       akka.actor.typed.timeout = 100 days
-      configref-verify-worker-dispatcher {
-        type = "Dispatcher"
-        executor = "fork-join-executor"
-        fork-join-executor {
-          parallelism-min = 1
-          parallelism-factor = 0.0
-          parallelism-max = 1
-        }
-      }
       worker-dispatcher {
         type = "Dispatcher"
         executor = "fork-join-executor"

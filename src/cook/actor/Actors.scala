@@ -20,13 +20,6 @@ object Actors {
         new ConfigRefLoaderImpl),
       "ConfigRefLoader")
 
-  val configRefVerifier =
-    TypedActor(system).typedActorOf(
-      TypedProps(
-        classOf[ConfigRefVerifier],
-        new ConfigRefVerifierImpl),
-      "ConfigRefVerifier")
-
   val configRefManager =
     TypedActor(system).typedActorOf(
       TypedProps(

@@ -4,7 +4,6 @@ import cook.actor.ConfigLoader
 import cook.actor.ConfigManager
 import cook.actor.ConfigRefLoader
 import cook.actor.ConfigRefManager
-import cook.actor.ConfigRefVerifier
 import cook.actor.TargetBuilder
 import cook.actor.TargetManager
 import cook.app.Global
@@ -24,11 +23,6 @@ object ActorRefs {
     TypedActor(system).typedActorOf(
       TypedProps[ConfigRefLoader],
       system.actorFor("/user/ConfigRefLoader"))
-
-  lazy val configRefVerifier =
-    TypedActor(system).typedActorOf(
-      TypedProps[ConfigRefVerifier],
-      system.actorFor("/user/ConfigRefVerifier"))
 
   lazy val configRefManager =
     TypedActor(system).typedActorOf(
