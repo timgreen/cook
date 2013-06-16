@@ -4,6 +4,7 @@ import cook.actor.TargetBuilder
 import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
+import cook.error.CookException
 import cook.ref.TargetRef
 import cook.target.Target
 import cook.target.TargetResult
@@ -16,6 +17,9 @@ import scala.util.{ Try, Success, Failure }
 
 
 object TargetBuildTask extends TaskBuilder("TargetBuild")
+
+class TargetCycleDepException(cycle: List[String])
+  extends CookException("Found cycle dep in targets")
 
 
 /**
@@ -61,13 +65,17 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
   override def step2WaitForDeps(target: Target[TargetResult]) {
     pendingTargets(target.refName) = target
-    dagSolver.addDeps(target.refName, target.deps.map(_.refName))
-    import TypedActor.dispatcher
-    Future.sequence(target.deps map self.build) onFailure {
-      case e =>
-        self.taskComplete(target.refName)(Failure(e))
+    dagSolver.addDeps(target.refName, target.deps.map(_.refName)) match {
+      case DagSolver.Ok =>
+        import TypedActor.dispatcher
+        Future.sequence(target.deps map self.build) onFailure {
+          case e =>
+            self.taskComplete(target.refName)(Failure(e))
+        }
+        self.checkDag
+      case DagSolver.FoundDepCycle(cycle) =>
+        self.taskComplete(target.refName)(Failure(new TargetCycleDepException(cycle)))
     }
-    self.checkDag
   }
 
   override def checkDag {

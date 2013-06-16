@@ -83,6 +83,7 @@ scala_lib(
     ":typed_actor_base",
     "util:batch_responser",
     "util:task_builder",
+    "//src/cook/error:error",
     "//src/cook/util:dag_solver",
   ],
 )
