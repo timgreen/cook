@@ -1,7 +1,7 @@
 package cook.app
 
 import cook.app.action._
-import cook.app.console.CookConsole
+import cook.console.CookConsole
 import cook.path.Path
 import cook.ref.RefFactoryRegister
 

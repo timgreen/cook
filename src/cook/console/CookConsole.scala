@@ -1,4 +1,4 @@
-package cook.app.console
+package cook.console
 
 import cook.app.Config
 
