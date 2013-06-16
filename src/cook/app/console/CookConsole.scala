@@ -21,11 +21,27 @@ trait ConsoleBase {
 object CookConsole extends ConsoleBase {
   import Console._
 
+  def cookRootNotFound {
+    reset
+    printf("%sCOOK_ROOT Not Found%s", RED, RESET)
+    newLine
+    flush
+  }
+
   def printRootDir(rootDirStr: String) {
     reset
     printf("COOK_ROOT: %s%s%s", YELLOW, rootDirStr, RESET)
     newLine
     saveCursor
+    flush
+  }
+
+  def CookRootFormatError(msg: String) {
+    reset
+    printf("%sCOOK_ROOT format error%s", RED, RESET)
+    newLine
+    printf(msg)
+    newLine
     flush
   }
 

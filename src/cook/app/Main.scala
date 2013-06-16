@@ -14,10 +14,10 @@ object Main {
 
     Config.cols = parser.cols()
 
+    RefFactoryRegister.init
+    findAndPrintRootDir
+    loadCookRootConfig
     try {
-      findAndPrintRootDir
-      RefFactoryRegister.init
-      loadCookRootConfig
       MainHandler.prepareMetaDb
       runSubCommand(parser)
     } catch {
@@ -44,19 +44,31 @@ object Main {
   }
 
   def findAndPrintRootDir {
-    CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
+    try {
+      CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
+    } catch {
+      case e: Throwable =>
+        CookConsole.cookRootNotFound
+        sys.exit(1)
+    }
   }
 
   def loadCookRootConfig {
     import cook.ref.{RefManager, Ref, FileRef}
     import com.typesafe.config.{ConfigFactory, ConfigParseOptions}
 
-    val cookRootConfigFile = RefManager(Nil, "/COOK_ROOT").as[FileRef]
-    val config = ConfigFactory.parseFile(
-      cookRootConfigFile.toPath.jfile,
-      ConfigParseOptions.defaults.setAllowMissing(false)
-    )
+    try {
+      val cookRootConfigFile = RefManager(Nil, "/COOK_ROOT").as[FileRef]
+      val config = ConfigFactory.parseFile(
+        cookRootConfigFile.toPath.jfile,
+        ConfigParseOptions.defaults.setAllowMissing(false)
+      )
 
-    Config.setConf(config)
+      Config.setConf(config)
+    } catch {
+      case e: com.typesafe.config.ConfigException =>
+        CookConsole.CookRootFormatError(e.getMessage)
+        sys.exit(1)
+    }
   }
 }
