@@ -13,7 +13,6 @@ object Config {
   def setConf(config: HoconConfig) {
     this.config = config.withFallback(defaultConf).resolve
     // verify
-    maxJobs
     rootIncludes
   }
 
@@ -22,7 +21,6 @@ object Config {
   var cols: Int = _
 
   var cliMaxJobs: Option[Int] = _
-  lazy val maxJobs: Int = Math.max(1, cliMaxJobs getOrElse config.getInt("cook.max-jobs"))
   lazy val rootIncludes: List[ConfigRefInclude] = includeRules ::: includeAsRules
 
   private def defaultConf = ConfigFactory.parseString(s"""
@@ -30,7 +28,6 @@ object Config {
     cook {
       include-rules = []
       include-as-rules = {}
-      max-jobs = ${sys.runtime.availableProcessors - 1}
       akka.actor.typed.timeout = 100 days
       configref-verify-worker-dispatcher {
         type = "Dispatcher"
@@ -39,6 +36,14 @@ object Config {
           parallelism-min = 1
           parallelism-factor = 0.0
           parallelism-max = 1
+        }
+      }
+      worker-dispatcher {
+        type = "Dispatcher"
+        executor = "fork-join-executor"
+        fork-join-executor {
+          parallelism-min = 1
+          parallelism-factor = 1.0
         }
       }
     }

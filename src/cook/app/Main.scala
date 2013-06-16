@@ -13,7 +13,6 @@ object Main {
     val parser = new CookOptionParser(args)
 
     Config.cols = parser.cols()
-    Config.cliMaxJobs = parser.maxJobs.get
 
     try {
       findAndPrintRootDir

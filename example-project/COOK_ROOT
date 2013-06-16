@@ -11,10 +11,6 @@ cook {
     // scala = "rules/scala"
   }
 
-  # Specifies the max number of jobs (commands) to run simultaneously
-  # ${processors} stand for number of processors on current machine
-  max-jobs = ${processors}
-
 #  akka {
 #    loglevel = "DEBUG"
 #    stdout-loglevel = "DEBUG"

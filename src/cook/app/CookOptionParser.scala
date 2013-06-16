@@ -9,9 +9,6 @@ class CookOptionParser(args: Seq[String]) extends ScallopConf(args, "") {
   banner("Cook [options] <sub command> [target(s) ...]")
 
   val cols = opt[Int]("cols", 'w', descr = "Terminal width", default = Some(80))
-  val maxJobs = opt[Int]("max-jobs", 'j',
-    descr = "the max number of jobs (commands) to run simultaneously",
-    required = false)
 
   val commandBuild = new Subcommand("build") {
     val targets = trailArg[List[String]]("targets")
