@@ -24,21 +24,19 @@ class DagSolver {
   import DagSolver._
 
   def addDeps(node: String, deps: Seq[String]): AddDepsResult =  {
-    if (solvedNodes.contains(node)) {
-      FoundDuplicatedNode(node)
+    assert(!solvedNodes.contains(node), "Duplicated node: " + node)
+
+    solvedNodes += node
+    if (deps.isEmpty) {
+      avaliableNodes += node
+      Ok
     } else {
-      solvedNodes += node
-      if (deps.isEmpty) {
-        avaliableNodes += node
-        Ok
-      } else {
-        val set = deps.toSet
-        depNodesCount(node) = set.size
-        set foreach { dep =>
-          nodesDepOnMe.getOrElseUpdate(dep, mutable.ListBuffer()) += node
-        }
-        checkCycle(node, nodesDepOnMe.getOrElse(node, List()).toList)
+      val set = deps.toSet
+      depNodesCount(node) = set.size
+      set foreach { dep =>
+        nodesDepOnMe.getOrElseUpdate(dep, mutable.ListBuffer()) += node
       }
+      checkCycle(node, nodesDepOnMe.getOrElse(node, Nil).toList)
     }
   }
 
@@ -55,7 +53,7 @@ class DagSolver {
         if (node == startNode) {
           FoundDepCycle(buildCycleSeq(startNode, fromPath))
         } else {
-          val extendPending = nodesDepOnMe.getOrElse(node, List()) filterNot checkedNodes.contains
+          val extendPending = nodesDepOnMe.getOrElse(node, Nil) filterNot checkedNodes.contains
           checkedNodes += node
           extendPending foreach { d =>
             fromPath(d) = node
@@ -104,5 +102,4 @@ object DagSolver {
   sealed trait AddDepsResult
   case object Ok extends AddDepsResult
   case class FoundDepCycle(cycle: List[String]) extends AddDepsResult
-  case class FoundDuplicatedNode(node: String) extends AddDepsResult
 }
