@@ -34,24 +34,24 @@ class Meta extends mutable.HashMap[String, String] {
 
 object Meta {
 
-  // TODO(timgreen): re-impl toBytes & fromBytes
+  import java.io._
 
   def toBytes(meta: Meta): Array[Byte] = {
-    meta.mkString("\n").getBytes("UTF-8")
+    val ba = new ByteArrayOutputStream
+    val out = new ObjectOutputStream(ba)
+    out.writeObject(meta)
+    out.close
+    ba.toByteArray
   }
 
   def fromBytes(bytes: Array[Byte]): Meta = {
-    val m = new Meta
     try {
-      val s = new String(bytes)
-      val values = s.split('\n') map { line =>
-        val Array(key, value) = line.split(" -> ", 2)
-        key -> value
-      }
-      m ++= values
+      val in =
+        new ObjectInputStream(new ByteArrayInputStream(bytes))
+      in.readObject().asInstanceOf[Meta]
     } catch {
       case e: Throwable =>
+        new Meta
     }
-    m
   }
 }
