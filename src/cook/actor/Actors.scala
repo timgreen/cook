@@ -61,4 +61,11 @@ object Actors {
         classOf[ConsoleOutputter],
         new ConsoleOutputterImpl),
       "ConsoleOutputter")
+
+  val statusManager =
+    TypedActor(system).typedActorOf(
+      TypedProps(
+        classOf[StatusManager],
+        new StatusManagerImpl),
+      "StatusManager")
 }

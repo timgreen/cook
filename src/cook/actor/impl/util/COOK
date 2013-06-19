@@ -11,6 +11,7 @@ scala_lib(
     "TaskBuilder.scala",
   ],
   deps = [
+    "//src/cook/actor:status_manager",
     "//src/cook/app:global",
     "//src/cook/util:log_source_provider",
   ],

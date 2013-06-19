@@ -59,16 +59,25 @@ scala_lib(
 )
 
 scala_lib(
+  name = "status_manager",
+  srcs = "StatusManager.scala",
+  deps = [
+     "//src/cook/error:error",
+  ],
+)
+
+scala_lib(
   name = "actors",
   srcs = "Actors.scala",
   deps = [
-    "impl:config_ref_manager_impl",
-    "impl:config_ref_loader_impl",
-    "impl:config_manager_impl",
     "impl:config_loader_impl",
-    "impl:target_manager_impl",
-    "impl:target_builder_impl",
+    "impl:config_manager_impl",
+    "impl:config_ref_loader_impl",
+    "impl:config_ref_manager_impl",
     "impl:console_outputter_impl",
+    "impl:status_manager_impl",
+    "impl:target_builder_impl",
+    "impl:target_manager_impl",
     "//src/cook/app:config",
     "//src/cook/app:global",
   ],

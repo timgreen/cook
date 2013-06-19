@@ -4,6 +4,8 @@ import cook.actor.ConfigLoader
 import cook.actor.ConfigManager
 import cook.actor.ConfigRefLoader
 import cook.actor.ConfigRefManager
+import cook.actor.ConsoleOutputter
+import cook.actor.StatusManager
 import cook.actor.TargetBuilder
 import cook.actor.TargetManager
 import cook.app.Global
@@ -48,4 +50,15 @@ object ActorRefs {
     TypedActor(system).typedActorOf(
       TypedProps[TargetBuilder],
       system.actorFor("/user/TargetBuilder"))
+
+  lazy val consoleOutputter =
+    TypedActor(system).typedActorOf(
+      TypedProps[ConsoleOutputter],
+      system.actorFor("/user/ConsoleOutputter"))
+
+  implicit lazy val statusManager =
+    TypedActor(system).typedActorOf(
+      TypedProps[StatusManager],
+      system.actorFor("/user/StatusManager"))
+
 }

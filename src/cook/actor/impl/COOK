@@ -10,6 +10,8 @@ scala_lib(
     "//src/cook/actor:config_manager",
     "//src/cook/actor:config_ref_loader",
     "//src/cook/actor:config_ref_manager",
+    "//src/cook/actor:console_outputter",
+    "//src/cook/actor:status_manager",
     "//src/cook/actor:target_builder",
     "//src/cook/actor:target_manager",
     "//src/cook/app:global",
@@ -94,5 +96,15 @@ scala_lib(
   deps = [
     ":typed_actor_base",
     "//src/cook/actor:console_outputter",
+    "//src/cook/console:console",
+  ],
+)
+
+scala_lib(
+  name = "status_manager_impl",
+  srcs = "StatusManagerImpl.scala",
+  deps = [
+    ":typed_actor_base",
+    "//src/cook/actor:status_manager",
   ],
 )

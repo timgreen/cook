@@ -6,6 +6,17 @@ import cook.console.ops._
 import scala.{ Console => SConsole }
 
 
+/** Example console output for 80-cols:
+  * <code>
+  * COOK_ROOT: xxxxxxxxxx
+    Find x target(s)
+  * Done x Cached x Building x Pending x Unsolved x
+  * [Cooooooooooooooooooooooooooooooooooooooooook                                 ]
+  * Loading Config: xxxxxx
+  * BuildingTarget: xxxxxx
+  * </code>
+  *
+  */
 object Console {
 
   def print(ops: ConsoleOps) {
@@ -44,7 +55,7 @@ object Console {
     val total = done + cached + building + pending + unsolved
 
     val targetInfoOps =
-      "Find " + cyan(total.toString) + " targets(s)" +
+      "Find " + cyan(total.toString) + " target(s)" +
       newLine
 
     val statusInfoOps =
@@ -73,5 +84,15 @@ object Console {
       newLine + showCursor
 
     clearOps + targetInfoOps + statusInfoOps + statusBarOps
+  }
+
+  def updateTaskInfo(taskInfo: Set[(String, String)]) = print {
+    val tasks =
+      taskInfo.toList.sorted.map { case (taskType, taskName) =>
+        cyan(taskType) + ": " + taskName
+      }
+
+    tasks.fold(hideCursor)( _ + _ ) +
+    newLine + showCursor
   }
 }

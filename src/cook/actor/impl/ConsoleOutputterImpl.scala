@@ -1,6 +1,7 @@
 package cook.actor.impl
 
 import cook.actor.ConsoleOutputter
+import cook.console.Console
 import cook.error.CookException
 
 import akka.actor.TypedActor
@@ -25,6 +26,10 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
   override def printUnknownError(e: Throwable) {
     // TODO(timgreen):
     e.printStackTrace
+  }
+
+  override def update(taskInfo: Set[(String, String)]) {
+    Console.updateTaskInfo(taskInfo)
   }
 
   override def stopStatusUpdate {
