@@ -1,7 +1,7 @@
 package cook.app
 
 import cook.app.action._
-import cook.console.CookConsole
+import cook.console.Console
 import cook.path.Path
 import cook.ref.RefFactoryRegister
 
@@ -45,10 +45,10 @@ object Main {
 
   def findAndPrintRootDir {
     try {
-      CookConsole.printRootDir(Path(Directory.Current).rootDir.toString)
+      Console.printRootDir(Path(Directory.Current).rootDir.toString)
     } catch {
       case e: Throwable =>
-        CookConsole.cookRootNotFound
+        Console.cookRootNotFound
         sys.exit(1)
     }
   }
@@ -67,7 +67,7 @@ object Main {
       Config.setConf(config)
     } catch {
       case e: com.typesafe.config.ConfigException =>
-        CookConsole.CookRootFormatError(e.getMessage)
+        Console.CookRootFormatError(e.getMessage)
         sys.exit(1)
     }
   }

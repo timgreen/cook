@@ -1,7 +1,17 @@
 scala_lib(
+  name = "ops",
+  srcs = [
+    "ops.scala",
+  ]
+)
+
+scala_lib(
   name = "console",
-  srcs = glob("*.scala"),
+  srcs = [
+    "Console.scala",
+  ],
   deps = [
+    ":ops",
     "//src/cook/app:config",
   ],
 )
