@@ -38,6 +38,18 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
   private val pendingTargets = mutable.Map[String, (Target[TargetResult], Future[List[Target[TargetResult]]])]()
   private def self = targetBuilder
 
+  override def updateStatus {
+    import cook.actor.TargetStatus
+
+    val status = dagSolver.getStatus
+    val done = status.done
+    val x = status.processing + status.avaliable + status.pending
+    val pending = pendingTargets.size
+    val building = x - pending
+    val unsolved = status.unsolved
+    statusManager.updateTargetStatus(TargetStatus(done, building, pending, unsolved))
+  }
+
   override def taskComplete(refName: String)(tryTargetAndResult: Try[TargetAndResult]) {
     log.debug("complete {} {}", refName, tryTargetAndResult)
     responser.complete(refName)(tryTargetAndResult)
@@ -83,6 +95,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
   }
 
   override def checkDag {
+    self.updateStatus
     if (dagSolver.hasAvaliable) {
       val avaliableTargetName = dagSolver.pop
       self.step3BuildTarget(avaliableTargetName)
@@ -94,6 +107,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     val optTarget = pendingTargets.remove(targetName)
     assert(optTarget.isDefined, "the target ready for build must in pending list: " + targetName)
     val (target, futureDepTargets) = optTarget.get
+    self.updateStatus
 
     Global.workerDispatcher.execute(TargetBuildTask(targetName) {
       val depTargets = Await.result(futureDepTargets, 1 millis)

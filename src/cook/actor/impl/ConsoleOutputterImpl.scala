@@ -1,6 +1,7 @@
 package cook.actor.impl
 
 import cook.actor.ConsoleOutputter
+import cook.actor.TargetStatus
 import cook.console.Console
 import cook.error.CookException
 
@@ -28,8 +29,17 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
     e.printStackTrace
   }
 
-  override def update(taskInfo: Set[(String, String)]) {
-    Console.updateTaskInfo(taskInfo)
+  override def update(targetStatus: TargetStatus, taskInfo: Set[(String, String)]) {
+    if (allowStatusUpdate) {
+      Console.update(
+        done     = targetStatus.done,
+        cached   = 0,
+        building = targetStatus.building,
+        pending  = targetStatus.pending,
+        unsolved = targetStatus.unsolved,
+        taskInfo
+      )
+    }
   }
 
   override def stopStatusUpdate {

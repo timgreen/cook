@@ -11,7 +11,6 @@ package object ops {
 
   sealed trait ConsoleOps {
     private [console] def print
-    def +(o: ConsoleOps) = new CombineOps(this, o)
     def ::(o: ConsoleOps) = new CombineOps(o, this)
   }
 
@@ -39,7 +38,7 @@ package object ops {
 
   trait StyleWrapper { this: StyleOps =>
     def apply(ops: ConsoleOps): ConsoleOps = {
-      this + ops + reset
+      this :: ops :: reset
     }
   }
 
@@ -74,9 +73,10 @@ package object ops {
 
   // According to http://en.wikipedia.org/wiki/ANSI_escape_code
   object newLine extends StringOps("\n")
-  object saveCursor extends ControlOps("\033[s")
-  object restoreCursor extends ControlOps("\033[u")
+  //object saveCursor extends ControlOps("\033[s\0337")
+  //object restoreCursor extends ControlOps("\033[u\0338")
   object eraseToEnd extends ControlOps("\033[J")
   object hideCursor extends ControlOps("\033[?25l")
   object showCursor extends ControlOps("\033[?25h")
+  case class prevLine(lines: Int) extends ControlOps(if (lines > 0) "\033[" + lines + "F" else "")
 }

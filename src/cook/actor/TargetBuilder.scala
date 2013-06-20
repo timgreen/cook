@@ -16,4 +16,5 @@ trait TargetBuilder {
   def step2WaitForDeps(target: Target[TargetResult])
   def step3BuildTarget(targetName: String)
   def checkDag
+  def updateStatus
 }

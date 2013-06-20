@@ -54,7 +54,8 @@ scala_lib(
   name = "console_outputter",
   srcs = "ConsoleOutputter.scala",
   deps = [
-     "//src/cook/error:error",
+    ":status_manager",
+    "//src/cook/error:error",
   ],
 )
 
@@ -62,7 +63,7 @@ scala_lib(
   name = "status_manager",
   srcs = "StatusManager.scala",
   deps = [
-     "//src/cook/error:error",
+    "//src/cook/error:error",
   ],
 )
 
