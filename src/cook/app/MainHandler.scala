@@ -1,7 +1,7 @@
 package cook.app
 
 import cook.actor.Actors.consoleOutputter
-import cook.error.CookException
+import cook.error._
 import cook.meta.db.DbProvider
 
 import scala.concurrent.Await

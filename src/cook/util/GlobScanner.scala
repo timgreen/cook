@@ -1,8 +1,7 @@
-/**
- * @fileoverview
- *
- * According to http://code.google.com/p/wildcard/source/browse/trunk/src/com/esotericsoftware/wildcard/GlobScanner.java
- */
+/** @fileoverview
+  *
+  * According to http://code.google.com/p/wildcard/source/browse/trunk/src/com/esotericsoftware/wildcard/GlobScanner.java
+  */
 
 package cook.util
 
@@ -141,7 +140,7 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
 
   def scan(fileOnly: Boolean): Seq[SPath] = {
     val includePatterns = (includes match {
-      case List() => List("**")
+      case Nil => List("**")
       case _ => includes
     }).map { new Pattern(_) }
     val excludePatterns = excludes.map(new Pattern(_))

@@ -1,6 +1,7 @@
 package cook.config
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 
 import java.io.PrintWriter
 import scala.io.Source
@@ -16,11 +17,15 @@ object ConfigGenerator {
 
   def generate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
     depConfigRefsMap: Map[String, ConfigRef]) {
-    withWriter(configRef) { writer =>
-      generateHeader(configRef, depConfigRefsMap, writer)
-      generateIncludes(configRef, rootIncludes, depConfigRefsMap, writer)
-      generateBody(configRef, depConfigRefsMap, writer)
-      generateFooter(configRef, depConfigRefsMap, writer)
+    wrapperError {
+      "Error when generate config scala source for :" :: strong(configRef.refName)
+    } {
+      withWriter(configRef) { writer =>
+        generateHeader(configRef, depConfigRefsMap, writer)
+        generateIncludes(configRef, rootIncludes, depConfigRefsMap, writer)
+        generateBody(configRef, depConfigRefsMap, writer)
+        generateFooter(configRef, depConfigRefsMap, writer)
+      }
     }
   }
 

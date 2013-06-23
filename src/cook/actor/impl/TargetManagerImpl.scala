@@ -35,6 +35,7 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
     import TypedActor.dispatcher
 
     configManager.getConfig(nativeTargetRef.cookFileRef) flatMap { config =>
+      log.debug("doGetNativeTarget {} {}", config, refName)
       config.getTargetOption(refName) match {
         case Some(t) =>
           Future.successful(t)

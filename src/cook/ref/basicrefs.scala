@@ -1,6 +1,7 @@
 package cook.ref
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 import cook.path.Path
 
 import scala.annotation.tailrec
@@ -53,30 +54,33 @@ object DirRefFactory extends RefFactory[DirRef] {
     }
   }
 
-  def relativeDir(baseSegments: List[String], refName: String): List[String] = {
+  def relativeDir(originBaseSegments: List[String], refName: String): List[String] = {
+    @tailrec
+    def doRelativeDir(baseSegments: List[String], segments: List[String]): List[String] = {
+      segments match {
+        case Nil =>
+          baseSegments
+        case ".." :: tail =>
+          reportErrorIf(baseSegments.isEmpty) {
+            "Bad ref, " :: strong("DirRef") :: "can not jump out of cook root: " ::
+            "base(" :: originBaseSegments.toString :: ") " ::
+            "ref(" :: refName :: ")"
+          }
+          doRelativeDir(baseSegments.dropRight(1), tail)
+        case "." :: tail =>
+          doRelativeDir(baseSegments, tail)
+        case head :: tail =>
+          doRelativeDir(baseSegments :+ head, tail)
+      }
+    }
+
     if (refName.isEmpty) {
-      baseSegments
+      originBaseSegments
     } else {
-      doRelativeDir(baseSegments, refName.split('/').toList)
+      doRelativeDir(originBaseSegments, refName.split('/').toList)
     }
   }
 
-  @tailrec
-  private def doRelativeDir(baseSegments: List[String], segments: List[String]): List[String] = {
-    segments match {
-      case Nil =>
-        baseSegments
-      case ".." :: tail =>
-        if (baseSegments.isEmpty) {
-          reportError("Bad ref, dirref can not jump out of cook root")
-        }
-        doRelativeDir(baseSegments.dropRight(1), tail)
-      case "." :: tail =>
-        doRelativeDir(baseSegments, tail)
-      case head :: tail =>
-        doRelativeDir(baseSegments :+ head, tail)
-    }
-  }
 }
 
 abstract class PathRef(val dir: DirRef, lastPart: String) extends Ref

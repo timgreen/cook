@@ -1,6 +1,5 @@
 package cook.target
 
-import cook.error.ErrorTracking._
 import cook.ref.NativeTargetRef
 import cook.ref.TargetRef
 

@@ -1,4 +1,9 @@
 scala_lib(
   name = "error",
-  srcs = glob("*.scala"),
+  srcs = [
+    "error.scala",
+  ],
+  deps = [
+    "//src/cook/console:ops",
+  ],
 )

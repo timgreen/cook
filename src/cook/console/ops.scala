@@ -12,6 +12,9 @@ package object ops {
   sealed trait ConsoleOps {
     private [console] def print
     def ::(o: ConsoleOps) = new CombineOps(o, this)
+    def apply(ops: ConsoleOps): ConsoleOps = {
+      this :: ops :: reset
+    }
   }
 
   class CombineOps(a: ConsoleOps, b: ConsoleOps) extends ConsoleOps {
@@ -34,13 +37,7 @@ package object ops {
       }
     }
   }
-  object reset extends StyleOps(SConsole.RESET)
-
-  trait StyleWrapper { this: StyleOps =>
-    def apply(ops: ConsoleOps): ConsoleOps = {
-      this :: ops :: reset
-    }
-  }
+  val reset = new StyleOps(SConsole.RESET)
 
   class ControlOps(control: String) extends StringOps(control) {
     private [console] override def print {
@@ -50,17 +47,17 @@ package object ops {
     }
   }
 
-  object black      extends StyleOps(SConsole.BLACK)      with StyleWrapper
-  object blink      extends StyleOps(SConsole.BLINK)      with StyleWrapper
-  object blue       extends StyleOps(SConsole.BLUE)       with StyleWrapper
-  object bold       extends StyleOps(SConsole.BOLD)       with StyleWrapper
-  object cyan       extends StyleOps(SConsole.CYAN)       with StyleWrapper
-  object green      extends StyleOps(SConsole.GREEN)      with StyleWrapper
-  object magenta    extends StyleOps(SConsole.MAGENTA)    with StyleWrapper
-  object red        extends StyleOps(SConsole.RED)        with StyleWrapper
-  object underlined extends StyleOps(SConsole.UNDERLINED) with StyleWrapper
-  object white      extends StyleOps(SConsole.WHITE)      with StyleWrapper
-  object yellow     extends StyleOps(SConsole.YELLOW)     with StyleWrapper
+  val black      = new StyleOps(SConsole.BLACK)
+  val blink      = new StyleOps(SConsole.BLINK)
+  val blue       = new StyleOps(SConsole.BLUE)
+  val bold       = new StyleOps(SConsole.BOLD)
+  val cyan       = new StyleOps(SConsole.CYAN)
+  val green      = new StyleOps(SConsole.GREEN)
+  val magenta    = new StyleOps(SConsole.MAGENTA)
+  val red        = new StyleOps(SConsole.RED)
+  val underlined = new StyleOps(SConsole.UNDERLINED)
+  val white      = new StyleOps(SConsole.WHITE)
+  val yellow     = new StyleOps(SConsole.YELLOW)
 
 
   implicit def string2ops(s: String): ConsoleOps = new StringOps(s)
@@ -72,11 +69,15 @@ package object ops {
   }
 
   // According to http://en.wikipedia.org/wiki/ANSI_escape_code
-  object newLine extends StringOps("\n")
+  val newLine = new StringOps("\n")
   //object saveCursor extends ControlOps("\033[s\0337")
   //object restoreCursor extends ControlOps("\033[u\0338")
-  object eraseToEnd extends ControlOps("\033[J")
-  object hideCursor extends ControlOps("\033[?25l")
-  object showCursor extends ControlOps("\033[?25h")
+  val eraseToEnd = new ControlOps("\033[J")
+  val hideCursor = new ControlOps("\033[?25l")
+  val showCursor = new ControlOps("\033[?25h")
   case class prevLine(lines: Int) extends ControlOps(if (lines > 0) "\033[" + lines + "F" else "")
+
+  // defines
+  val strong = yellow :: bold
+  val indent = new StringOps("  ")
 }

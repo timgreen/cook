@@ -21,11 +21,11 @@ import scala.util.{ Try, Success, Failure }
 object ConfigLoadTask extends TaskBuilder("ConfigLoad")
 
 /**
- *
- * step1: wait all dep configRef
- * step2: wait all dep config is already loaded
- * step3: load self config
- */
+  *
+  * step1: wait all dep configRef
+  * step2: wait all dep config is already loaded
+  * step3: load self config
+  */
 class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoader with TypedActorBase {
 
   import ActorRefs._
@@ -53,6 +53,7 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
   }
 
   def step1WaitDepConfigRefs(configRef: ConfigRef) {
+    log.debug("step1WaitDepConfigRefs {}", configRef.refName)
 
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
     val depConfigFileRef =

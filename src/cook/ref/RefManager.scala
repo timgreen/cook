@@ -1,6 +1,7 @@
 package cook.ref
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -24,6 +25,8 @@ object RefManager {
       }
     }
 
-    tryFactorys(factorys.iterator) getOrElse reportError("Unknown ref name: " + refName)
+    tryFactorys(factorys.iterator) getOrElse reportError {
+      "Unknown ref name: " :: strong(refName)
+    }
   }
 }

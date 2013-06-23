@@ -3,6 +3,7 @@ package cook.actor.impl
 import cook.actor.ConsoleOutputter
 import cook.actor.TargetStatus
 import cook.console.Console
+import cook.console.ops._
 import cook.error.CookException
 
 import akka.actor.TypedActor
@@ -14,10 +15,15 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
 
   override def printError(e: CookException) {
     @tailrec
-    def doPrintError(e: CookException) {
-      println(e.toString)
-      if (e.e ne null) {
-        doPrintError(e.e)
+    def doPrintError(e: Throwable) {
+      e match {
+        case CookException(ops, e) =>
+          Console.print(ops :: newLine)
+          if (e ne null) {
+            doPrintError(e)
+          }
+        case _ =>
+          Console.print(e.toString :: newLine)
       }
     }
 

@@ -5,7 +5,8 @@ import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.config.ConfigRef
-import cook.error.CookException
+import cook.console.ops._
+import cook.error._
 import cook.ref.FileRef
 import cook.util.DagSolver
 
@@ -15,8 +16,7 @@ import scala.collection.mutable
 import scala.util.{ Try, Success, Failure }
 import akka.actor.{ TypedActor, TypedProps }
 
-class ConfigCycleIncludeException(cycle: List[String])
-  extends CookException("Found cycle include in config")
+class ConfigCycleIncludeException(consoleOps: ConsoleOps) extends CookException(consoleOps, null)
 
 class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 
@@ -68,7 +68,7 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
         pendingRefs(refName) = configRef
         self.checkDag
       case DagSolver.FoundDepCycle(cycle) =>
-        self.taskComplete(refName)(Failure(new ConfigCycleIncludeException(cycle)))
+        self.taskComplete(refName)(Failure(configCycleIncludeException(cycle)))
     }
   }
 
@@ -80,5 +80,13 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
       self.taskComplete(avaliableRefName)(Success(optRef.get))
       self.checkDag
     }
+  }
+
+  private def configCycleIncludeException(cycle: List[String]) = {
+    val header = "found cycle include in config:" :: newLine
+    val ops = cycle map { c =>
+      indent :: strong(c) :: newLine
+    } reduce { _ :: _ }
+    new ConfigCycleIncludeException(header :: ops :: indent :: strong(cycle.head))
   }
 }

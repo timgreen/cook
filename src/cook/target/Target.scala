@@ -1,6 +1,7 @@
 package cook.target
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 import cook.meta.Meta
 import cook.meta.db.DbProvider.{ db => metaDb }
 import cook.ref.TargetRef
@@ -30,7 +31,10 @@ abstract class Target[+R <: TargetResult](
   private[this] var _result: Option[R] = None
   def result(depTargets: List[Target[TargetResult]]): R = _result getOrElse {
     if (!isResultReady) {
-      reportError("Can not call target %s.result, target not built yet. Do you miss deps", refName)
+      reportError {
+        "Can not call target " :: strong(refName) :: ".result, target not built yet. " ::
+        "You might miss deps"
+      }
     }
 
     val r = resultFn(this, depTargets)

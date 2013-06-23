@@ -1,6 +1,7 @@
 package cook.path
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 
 import scala.annotation.tailrec
 import scala.reflect.io.{ Path => SPath, Directory }
@@ -33,7 +34,9 @@ object Path {
         instance = new Path(rootDir, currentDir)
         instance
       case None =>
-        reportError("Can not find Cook Root Dir, from dir %s", currentDir.toString)
+        reportError {
+          "Can not find Cook Root Dir, from dir %s" :: strong(currentDir.toString)
+        }
     }
   }
 

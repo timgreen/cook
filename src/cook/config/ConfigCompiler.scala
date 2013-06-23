@@ -1,6 +1,7 @@
 package cook.config
 
-import cook.error.ErrorTracking._
+import cook.console.ops._
+import cook.error._
 import cook.util.ClassPathBuilder
 
 import java.io.PrintWriter
@@ -63,13 +64,14 @@ class ConfigCompiler(outDir: SPath, cp: String) {
       }
       private def calcStartOffSet(source: SourceFile): Int = {
         val marker = "// {{{ BODY START"
-        for (i <- 0 until source.length) {
-          if (marker == source.lineToString(i)) {
-            return source.lineToOffset(i + 1)
-          }
+        0 until source.length find { i =>
+          marker == source.lineToString(i)
+        } map { i =>
+          source.lineToOffset(i + 1)
+        } getOrError {
+          red("Our base is under attack!!!") :: newLine ::
+          indent :: "generated config scala source has been modified: " :: strong(file.path)
         }
-        // TODO(timgreen): error
-        return 0
       }
 
       override def printMessage(posIn: Position, msg: String) {
@@ -100,8 +102,10 @@ class ConfigCompiler(outDir: SPath, cp: String) {
     (new compiler.Run).compile(List(file.path))
 
     // Bail out if compilation failed
-    if (reporter.hasErrors) {
-      reportError("Config Compilation Error: %s\n\n%s", configRef.refName, messageCollector)
+    reportErrorIf(reporter.hasErrors) {
+      "Config Compilation Error: " :: strong(configRef.refName) ::
+      newLine :: newLine ::
+      messageCollector.toString
     }
   }
 

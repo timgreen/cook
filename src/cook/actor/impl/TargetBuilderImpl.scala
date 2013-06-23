@@ -4,6 +4,7 @@ import cook.actor.TargetBuilder
 import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
+import cook.console.ops._
 import cook.error.CookException
 import cook.ref.TargetRef
 import cook.target.Target
@@ -20,9 +21,7 @@ import scala.util.{ Try, Success, Failure }
 
 object TargetBuildTask extends TaskBuilder("TargetBuild")
 
-class TargetCycleDepException(cycle: List[String])
-  extends CookException("Found cycle dep in targets")
-
+class TargetCycleDepException(consoleOps: ConsoleOps) extends CookException(consoleOps, null)
 
 /**
  * step1: get target
@@ -90,7 +89,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
         }
         self.checkDag
       case DagSolver.FoundDepCycle(cycle) =>
-        self.taskComplete(target.refName)(Failure(new TargetCycleDepException(cycle)))
+        self.taskComplete(target.refName)(Failure(targetCycleDepException(cycle)))
     }
   }
 
@@ -116,5 +115,13 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
         target -> target.result(depTargets)
       })
     })
+  }
+
+  private def targetCycleDepException(cycle: List[String]) = {
+    val header = "found cycle deps in targets:" :: newLine
+    val ops = cycle map { t =>
+      indent :: strong(t) :: newLine
+    } reduce { _ :: _ }
+    new TargetCycleDepException(header :: ops :: indent :: strong(cycle.head))
   }
 }
