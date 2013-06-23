@@ -48,6 +48,14 @@ object Console {
     newLine
   }
 
+  object style {
+    val done   = green :: bold
+    val cached = yellow :: bold
+    val building = cyan :: bold
+    val pending = blue :: bold :: underlined
+    val unsolved = bold
+  }
+
   private var lineUsed = 0
   def update(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int, taskInfo: Set[(String, String)]) {
     val s = print {
@@ -60,38 +68,46 @@ object Console {
       val total = done + cached + building + pending + unsolved
 
       val statusInfoOps = if (unsolved > 0) {
-        "Finding "  :: cyan(total.toString)    :: " target(s): " ::
-        "Done "     :: cyan(done.toString)     :: " " ::
-        "Cached "   :: cyan(cached.toString)   :: " " ::
-        "Building " :: cyan(building.toString) :: " " ::
-        "Pending "  :: cyan(pending.toString)  :: " " ::
-        "Unsolved " :: cyan(unsolved.toString)        ::
+        blink("Finding") :: " " :: cyan(total.toString)    :: " target(s): " ::
+        style.done("Done")         :: " " :: done.toString     :: " " ::
+        style.cached("Cached")     :: " " :: cached.toString   :: " " ::
+        style.building("Building") :: " " :: building.toString :: " " ::
+        style.pending("Pending")   :: " " :: pending.toString  :: " " ::
+        style.unsolved("Unsolved") :: " " :: unsolved.toString        ::
         newLine
       } else {
-        "Found "    :: cyan(total.toString)    :: " target(s): " ::
-        "Done "     :: cyan(done.toString)     :: " " ::
-        "Cached "   :: cyan(cached.toString)   :: " " ::
-        "Building " :: cyan(building.toString) :: " " ::
-        "Pending "  :: cyan(pending.toString)  :: " " ::
+        "Found " :: cyan(total.toString)  :: " target(s): "           ::
+        style.done("Done")         :: " " :: done.toString     :: " " ::
+        style.cached("Cached")     :: " " :: cached.toString   :: " " ::
+        style.building("Building") :: " " :: building.toString :: " " ::
+        style.pending("Pending")   :: " " :: pending.toString  :: " " ::
         newLine
       }
 
       // draw progress bar
-      val barWidth = w - 4 - 4
-      val doneWidth = barWidth * done / total
-      val cachedWidth = barWidth * cached / total
+      val barWidth      = w - 4
+      val doneWidth     = barWidth * done / total
+      val cachedWidth   = barWidth * cached / total
       val buildingWidth = barWidth * building / total
-      val pendingWidth = barWidth * pending / total
-      val unsolvedWidth = barWidth - doneWidth - cachedWidth - buildingWidth - pendingWidth
+      val unsolvedWidth = barWidth * unsolved / total
+      val pendingWidth  = barWidth - doneWidth - cachedWidth - buildingWidth - unsolvedWidth
 
-      val statusBarOps = "[ "                ::
-        cyan    :: "C" :: "o" * doneWidth    ::
-        yellow  :: "o" * (cachedWidth   + 1) ::
-        green   :: "o" * (buildingWidth + 1) ::
-        blue    :: "o" * pendingWidth :: "k" ::
-        reset   :: " " * unsolvedWidth       ::
-        " ]"                                 ::
-        newLine
+      val cookLen = doneWidth + cachedWidth + buildingWidth
+      val cookStr = "C" + "o" * (cookLen - 2) + "k"
+
+      val doneStr     = cookStr.take(doneWidth)
+      val cachedStr   = cookStr.substring(doneWidth).take(cachedWidth)
+      val buildingStr = cookStr.substring(doneWidth + cachedWidth).take(buildingWidth)
+      val pendingStr  = " " * pendingWidth
+      val unsolvedStr = " " * unsolvedWidth
+
+      val statusBarOps = "[ "         ::
+        style.done     :: doneStr     ::
+        style.cached   :: cachedStr   ::
+        style.building :: buildingStr ::
+        style.pending  :: pendingStr  ::
+        style.unsolved :: unsolvedStr ::
+        reset :: " ]" :: newLine
 
       val tasksOps =
         taskInfo.toList.sorted.map { case (taskType, taskName) =>
