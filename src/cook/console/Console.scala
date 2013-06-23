@@ -19,8 +19,15 @@ import scala.{ Console => SConsole }
 object Console {
 
   def print(ops: ConsoleOps) {
-    ops.print
-    flush.print
+    val option = ConsoleOption(
+      isStyleEnable = true,
+      isControlEnable = true,
+      width = Config.cols,
+      writer = SConsole.print
+    )
+    ConsoleOps.option.withValue(option) {
+      (ops :: flush).print(ConsoleStatus())
+    }
   }
 
   def cookRootNotFound = print {
