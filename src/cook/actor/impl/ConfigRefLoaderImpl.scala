@@ -5,6 +5,7 @@ import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.config.ConfigRef
+import cook.error._
 import cook.ref.FileRef
 
 import scala.concurrent.{ Future, Promise }
@@ -18,9 +19,14 @@ class ConfigRefLoaderImpl extends ConfigRefLoader with TypedActorBase {
 
   import ActorRefs._
 
-  private val responser = new BatchResponser[String, ConfigRef]()
+  private val responser = new BatchResponser[String, ConfigRef](processError)
 
   private def self = configRefLoader
+
+  private def processError(key: String, e: Throwable): Throwable = error(e) {
+    import cook.console.ops._
+    "Error when reading config: " :: strong(key)
+  }
 
   override def taskComplete(refName: String)(tryConfigRef: Try[ConfigRef]) {
     responser.complete(refName)(tryConfigRef)

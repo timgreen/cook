@@ -9,6 +9,7 @@ import cook.config.Config
 import cook.config.ConfigEngine
 import cook.config.ConfigRef
 import cook.config.ConfigRefInclude
+import cook.error._
 import cook.util.DagSolver
 
 import akka.actor.TypedActor
@@ -30,10 +31,16 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
 
   import ActorRefs._
 
-  private val responser = new BatchResponser[String, Config]()
+  private val responser = new BatchResponser[String, Config](processError)
   private val dagSolver = new DagSolver
 
   private def self = configLoader
+
+  private def processError(key: String, e: Throwable): Throwable = error(e) {
+    import cook.console.ops._
+
+    "Error when loading config :" :: strong(key)
+  }
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     responser.complete(refName)(tryConfig)

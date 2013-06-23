@@ -183,7 +183,7 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
   it should "'a/*/d' should not match 'a/b/c/d'" in {
     val root = (testRoot / "test_b").toDirectory
     val result = GlobScanner(root, Seq("a/*/d"))
-    val except = List()
+    val except = Nil
     comparePathSet(result, except)
   }
 
@@ -228,7 +228,7 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
   it should "'**/??' should not match 'a/b/c/d'" in {
     val root = (testRoot / "test_b").toDirectory
     val result = GlobScanner(root, Seq("**/??"))
-    val except = List()
+    val except = Nil
     comparePathSet(result, except)
   }
 
@@ -303,7 +303,7 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
   it should "work with excludes all" in {
     val root = (testRoot / "test_c").toDirectory
     val result = GlobScanner(root, Seq("**/as*", "**/as*"), Seq("**"))
-    val except = List()
+    val except = Nil
     comparePathSet(result, except)
   }
 }

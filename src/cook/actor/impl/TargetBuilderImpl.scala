@@ -5,7 +5,7 @@ import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
 import cook.console.ops._
-import cook.error.CookException
+import cook.error._
 import cook.ref.TargetRef
 import cook.target.Target
 import cook.target.TargetAndResult
@@ -22,6 +22,19 @@ import scala.util.{ Try, Success, Failure }
 object TargetBuildTask extends TaskBuilder("TargetBuild")
 
 class TargetCycleDepException(consoleOps: ConsoleOps) extends CookException(consoleOps, null)
+class TargetBuiltException(consoleOps: ConsoleOps, targets: List[String], e: Throwable)
+  extends CookException(consoleOps, e) {
+
+  def this(e: Throwable, targets: List[String]) = this(
+    "Error when building target(s): " ::
+      (targets map { newLine :: indent :: strong(_) } reduce { _ :: _ }),
+    targets,
+    e)
+
+  def addTarget(target: String) = {
+    new TargetBuiltException(e, target :: targets)
+  }
+}
 
 /**
  * step1: get target
@@ -32,10 +45,17 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
   import ActorRefs._
 
-  private val responser = new BatchResponser[String, TargetAndResult]()
+  private val responser = new BatchResponser[String, TargetAndResult](processError)
   private val dagSolver = new DagSolver
   private val pendingTargets = mutable.Map[String, (Target[TargetResult], Future[List[Target[TargetResult]]])]()
   private def self = targetBuilder
+
+  private def processError(key: String, e: Throwable): Throwable = e match {
+    case e: TargetBuiltException =>
+      e addTarget key
+    case _ =>
+      new TargetBuiltException(e, key :: Nil)
+  }
 
   override def updateStatus {
     import cook.actor.TargetStatus

@@ -17,16 +17,36 @@ import scala.util.{ Try, Success, Failure }
 import akka.actor.{ TypedActor, TypedProps }
 
 class ConfigCycleIncludeException(consoleOps: ConsoleOps) extends CookException(consoleOps, null)
+class ConfigRefGetException(consoleOps: ConsoleOps, configs: List[String], e: Throwable)
+  extends CookException(consoleOps, e) {
+
+  def this(e: Throwable, configs: List[String]) = this(
+    "Error when reading config(s): " ::
+      (configs map { newLine :: indent :: strong(_) } reduce { _ :: _ }),
+    configs,
+    e)
+
+  def addConfig(config: String) = {
+    new ConfigRefGetException(e, config :: configs)
+  }
+}
 
 class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
 
   import ActorRefs._
 
-  private val responser = new BatchResponser[String, ConfigRef]()
+  private val responser = new BatchResponser[String, ConfigRef](processError)
   private val dagSolver = new DagSolver
   private val pendingRefs = mutable.Map[String, ConfigRef]()
 
   private def self = configRefManager
+
+  private def processError(key: String, e: Throwable): Throwable = e match {
+    case e: ConfigRefGetException =>
+      e addConfig key
+    case _ =>
+      new ConfigRefGetException(e, key :: Nil)
+  }
 
   override def getConfigRef(cookFileRef: FileRef): Future[ConfigRef] = {
     val refName = cookFileRef.refName

@@ -6,7 +6,7 @@ import scala.util.{ Try, Success, Failure }
 
 /** Batch message responser with cache.
   */
-class BatchResponser[Key, Result](processError: Throwable => Throwable = { e => e }) {
+class BatchResponser[Key, Result](processError: (Key, Throwable) => Throwable) {
 
   private val waiters = mutable.Map[Key, Promise[Result]]()
   private val cache = mutable.Map[Key, Result]()
@@ -37,7 +37,7 @@ class BatchResponser[Key, Result](processError: Throwable => Throwable = { e => 
       case None =>
         assert(false, "Can not complete an unexist task as failure: " + key)
       case Some(p) =>
-        p.failure(processError(e))
+        p.failure(processError(key, e))
     }
   }
 

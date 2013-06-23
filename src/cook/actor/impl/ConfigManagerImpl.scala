@@ -5,6 +5,7 @@ import cook.actor.impl.util.BatchResponser
 import cook.app.Global
 import cook.config.Config
 import cook.config.ConfigRef
+import cook.error._
 import cook.ref.FileRef
 
 import akka.actor.TypedActor
@@ -17,9 +18,14 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
 
   import ActorRefs._
 
-  private val responser = new BatchResponser[String, Config]()
+  private val responser = new BatchResponser[String, Config](processError)
 
   private def self = configManager
+
+  private def processError(key: String, e: Throwable): Throwable = error(e) {
+    import cook.console.ops._
+    "Error when get config " :: strong(key)
+  }
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {
     log.debug("configManager.taskComplete {} {}", refName, tryConfig)
