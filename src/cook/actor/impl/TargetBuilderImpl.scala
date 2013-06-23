@@ -121,7 +121,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     val header = "found cycle deps in targets:" :: newLine
     val ops = cycle map { t =>
       indent :: strong(t) :: newLine
-    } reduce { _ :: _ }
-    new TargetCycleDepException(header :: ops :: indent :: strong(cycle.head))
+    }
+    new TargetCycleDepException(header :: ops ::: indent :: strong(cycle.head))
   }
 }

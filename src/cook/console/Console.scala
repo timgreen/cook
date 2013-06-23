@@ -18,12 +18,13 @@ import scala.{ Console => SConsole }
   */
 object Console {
 
-  def print(ops: ConsoleOps) {
+  def print(ops: ConsoleOps): ConsoleStatus = {
     val option = ConsoleOption(
       isStyleEnable = true,
       isControlEnable = true,
       width = Config.cols,
-      writer = SConsole.print
+      writer = SConsole.print,
+      flushFn = SConsole.flush
     )
     ConsoleOps.option.withValue(option) {
       (ops :: flush).print(ConsoleStatus())
@@ -48,53 +49,51 @@ object Console {
   }
 
   private var lineUsed = 0
-  def update(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int, taskInfo: Set[(String, String)]) = print {
-    val moveCursorOps =
-      hideCursor    ::
-      prevLine(lineUsed) ::
-      eraseToEnd
+  def update(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int, taskInfo: Set[(String, String)]) {
+    val s = print {
+      val moveCursorOps =
+        hideCursor    ::
+        prevLine(lineUsed) ::
+        eraseToEnd
 
-    lineUsed = 2
+      // show info
+      val total = done + cached + building + pending + unsolved
 
-    // show info
-    val total = done + cached + building + pending + unsolved
+      val statusInfoOps =
+        "Find "     :: cyan(total.toString)    :: " target(s): " ::
+        "Done "     :: cyan(done.toString)     :: " " ::
+        "Cached "   :: cyan(cached.toString)   :: " " ::
+        "Building " :: cyan(building.toString) :: " " ::
+        "Pending "  :: cyan(pending.toString)  :: " " ::
+        "Unsolved " :: cyan(unsolved.toString)        ::
+        newLine
 
-    val statusInfoOps =
-      "Find "     :: cyan(total.toString)    :: " target(s): " ::
-      "Done "     :: cyan(done.toString)     :: " " ::
-      "Cached "   :: cyan(cached.toString)   :: " " ::
-      "Building " :: cyan(building.toString) :: " " ::
-      "Pending "  :: cyan(pending.toString)  :: " " ::
-      "Unsolved " :: cyan(unsolved.toString)        ::
-      newLine
+      // draw progress bar
+      val barWidth = w - 4 - 4
+      val doneWidth = barWidth * done / total
+      val cachedWidth = barWidth * cached / total
+      val buildingWidth = barWidth * building / total
+      val pendingWidth = barWidth * pending / total
+      val unsolvedWidth = barWidth - doneWidth - cachedWidth - buildingWidth - pendingWidth
 
-    // draw progress bar
-    val barWidth = w - 4 - 4
-    val doneWidth = barWidth * done / total
-    val cachedWidth = barWidth * cached / total
-    val buildingWidth = barWidth * building / total
-    val pendingWidth = barWidth * pending / total
-    val unsolvedWidth = barWidth - doneWidth - cachedWidth - buildingWidth - pendingWidth
+      val statusBarOps = "[ "                ::
+        cyan    :: "C" :: "o" * doneWidth    ::
+        yellow  :: "o" * (cachedWidth   + 1) ::
+        green   :: "o" * (buildingWidth + 1) ::
+        blue    :: "o" * pendingWidth :: "k" ::
+        reset   :: " " * unsolvedWidth       ::
+        " ]"                                 ::
+        newLine
 
-    val statusBarOps = "[ "                ::
-      cyan    :: "C" :: "o" * doneWidth    ::
-      yellow  :: "o" * (cachedWidth   + 1) ::
-      green   :: "o" * (buildingWidth + 1) ::
-      blue    :: "o" * pendingWidth :: "k" ::
-      reset   :: " " * unsolvedWidth       ::
-      " ]"                                 ::
-      newLine
+      val tasksOps =
+        taskInfo.toList.sorted.map { case (taskType, taskName) =>
+          cyan(taskType) :: ": " :: taskName :: newLine
+        }
 
-    val tasks =
-      taskInfo.toList.sorted.map { case (taskType, taskName) =>
-        lineUsed += (taskType.size + taskType.size + 2 + w - 1) / w
-        cyan(taskType) :: ": " :: taskName :: newLine
-      }
+      moveCursorOps :: statusInfoOps :: statusBarOps :: tasksOps ::: showCursor
+    }
 
-    val targetInfoOps = moveCursorOps :: statusInfoOps :: statusBarOps
-    tasks.fold(targetInfoOps) {
-      _ :: _
-    } :: showCursor
+    lineUsed = s.lineUsed
   }
 
   private def w = Config.cols

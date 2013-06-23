@@ -1,5 +1,6 @@
 package cook.console
 
+import scala.collection.Traversable
 import scala.util.DynamicVariable
 import scala.{ Console => SConsole }
 
@@ -12,14 +13,15 @@ package object ops {
     isStyleEnable: Boolean,
     isControlEnable: Boolean,
     width: Int,
-    writer: String => Unit
+    writer: String => Unit,
+    flushFn: () => Unit
   )
   /** count from 0 */
   case class ConsoleStatus(
     cols: Int = 0,
     lines: Int = 0
   ) {
-    def lineUsed = lines + 1
+  def lineUsed = lines
   }
 
   object ConsoleOps {
@@ -30,6 +32,10 @@ package object ops {
   sealed trait ConsoleOps {
     private [console] def print(prevStatus: ConsoleStatus): ConsoleStatus
     def ::(o: ConsoleOps) = new CombineOps(o, this)
+    def :::(os: Traversable[ConsoleOps]): ConsoleOps = os match {
+      case Nil => this
+      case _ => os.reduce(_ :: _) :: this
+    }
     def apply(ops: ConsoleOps): ConsoleOps = {
       this :: ops :: reset
     }
@@ -108,8 +114,7 @@ package object ops {
 
   object flush extends ConsoleOps {
     private [console] override def print(prevStatus: ConsoleStatus): ConsoleStatus = {
-      // TODO(timgreen):
-      // SConsole.flush
+      option.flushFn
       prevStatus
     }
 

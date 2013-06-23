@@ -86,7 +86,7 @@ class ConfigRefManagerImpl extends ConfigRefManager with TypedActorBase {
     val header = "found cycle include in config:" :: newLine
     val ops = cycle map { c =>
       indent :: strong(c) :: newLine
-    } reduce { _ :: _ }
-    new ConfigCycleIncludeException(header :: ops :: indent :: strong(cycle.head))
+    }
+    new ConfigCycleIncludeException(header :: ops ::: indent :: strong(cycle.head))
   }
 }
