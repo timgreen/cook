@@ -59,14 +59,22 @@ object Console {
       // show info
       val total = done + cached + building + pending + unsolved
 
-      val statusInfoOps =
-        "Find "     :: cyan(total.toString)    :: " target(s): " ::
+      val statusInfoOps = if (unsolved > 0) {
+        "Finding "  :: cyan(total.toString)    :: " target(s): " ::
         "Done "     :: cyan(done.toString)     :: " " ::
         "Cached "   :: cyan(cached.toString)   :: " " ::
         "Building " :: cyan(building.toString) :: " " ::
         "Pending "  :: cyan(pending.toString)  :: " " ::
         "Unsolved " :: cyan(unsolved.toString)        ::
         newLine
+      } else {
+        "Found "    :: cyan(total.toString)    :: " target(s): " ::
+        "Done "     :: cyan(done.toString)     :: " " ::
+        "Cached "   :: cyan(cached.toString)   :: " " ::
+        "Building " :: cyan(building.toString) :: " " ::
+        "Pending "  :: cyan(pending.toString)  :: " " ::
+        newLine
+      }
 
       // draw progress bar
       val barWidth = w - 4 - 4
