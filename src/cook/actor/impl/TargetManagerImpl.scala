@@ -50,7 +50,7 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
   }
 
   private def targetNotFoundException(refName: String) = error {
-    "Target " :: strong(refName) :: "not exist" :: newLine ::
+    "Target " :: strong(refName) :: " not exist" :: newLine ::
     indent :: "Should defined in config " :: strong(refName.split(':').head + "/COOK")
   }
 }

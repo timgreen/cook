@@ -81,10 +81,10 @@ abstract class Target[+R <: TargetResult](
   }
 
   def isRunnable = runCmd.isDefined
-  private [cook] def run(args: List[String] = Nil): Int = {
+  private [cook] def run(depTargets: List[Target[TargetResult]], args: List[String] = Nil): Int = {
     assert(isRunnable, "can not run a target without runCmd: " + refName)
     assert(isResultReady, "can not run a target that was not built yet: " + refName)
-    runCmd.get(this, args)
+    runCmd.get(this, depTargets, args)
   }
 }
 

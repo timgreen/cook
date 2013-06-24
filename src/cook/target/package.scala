@@ -12,7 +12,7 @@ package object target {
   type TargetBuildCmd[R <: TargetResult] = (Target[R], List[Target[TargetResult]]) => Unit
   type TargetResultFn[R <: TargetResult] = (Target[R], List[Target[TargetResult]]) => R
   type TargetMetaFn[R <: TargetResult] = Target[R] => Meta
-  type TargetRunCmd[R <: TargetResult] = (Target[R], List[String]) => Int
+  type TargetRunCmd[R <: TargetResult] = (Target[R], List[Target[TargetResult]], List[String]) => Int
 
   class UnitResult extends TargetResult
   object UnitResult extends UnitResult()
