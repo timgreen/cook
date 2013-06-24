@@ -59,15 +59,16 @@ abstract class Target[+R <: TargetResult](
     assert(_status == Pending, "target should only be built once: " + refName)
 
     if (needBuild) {
-      // cache hint
-      _status = Cached
-    } else {
       // need build
+      buildDir.deleteRecursively
       buildDir.createDirectory(force = true)
       buildCmd(this, depTargets)
       _status = Built
       val meta = buildMeta
       metaDb.put(ref.metaKey, meta)
+    } else {
+      // cache hint
+      _status = Cached
     }
   }
 
