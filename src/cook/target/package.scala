@@ -4,7 +4,10 @@ import cook.meta.Meta
 
 package object target {
 
-  trait TargetResult
+  trait TargetResult {
+    def as[R <: TargetResult]: R = this.asInstanceOf[R]
+  }
+
   type TargetAndResult = (Target[TargetResult], TargetResult)
   type TargetBuildCmd[R <: TargetResult] = (Target[R], List[Target[TargetResult]]) => Unit
   type TargetResultFn[R <: TargetResult] = (Target[R], List[Target[TargetResult]]) => R

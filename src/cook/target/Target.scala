@@ -22,6 +22,8 @@ abstract class Target[+R <: TargetResult](
     val deps: Seq[TargetRef]) {
 
   def refName = ref.refName
+  def buildDir = ref.targetBuildDir
+
 
   import TargetStatus._
   private var _status: TargetStatus = Pending
@@ -29,7 +31,9 @@ abstract class Target[+R <: TargetResult](
   def isResultReady = (_status == Cached) || (_status == Built)
 
   private[this] var _result: Option[R] = None
-  def result(depTargets: List[Target[TargetResult]]): R = _result getOrElse {
+  private [cook] def buildResult(depTargets: List[Target[TargetResult]]): R = {
+    assert(_result.isEmpty, "result should only be built once: " + refName)
+
     if (!isResultReady) {
       reportError {
         "Can not call target " :: strong(refName) :: ".result, target not built yet. " ::
@@ -40,6 +44,9 @@ abstract class Target[+R <: TargetResult](
     val r = resultFn(this, depTargets)
     _result = Some(r)
     r
+  }
+  def result: R = _result getOrError {
+    "Can not call target " :: strong(refName) :: ".result, result not ready yet."
   }
 
   private def needBuild: Boolean = {
@@ -56,7 +63,7 @@ abstract class Target[+R <: TargetResult](
       _status = Cached
     } else {
       // need build
-      ref.targetBuildDir.createDirectory(force = true)
+      buildDir.createDirectory(force = true)
       buildCmd(this, depTargets)
       _status = Built
       val meta = buildMeta

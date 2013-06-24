@@ -132,7 +132,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
       val depTargets = Await.result(futureDepTargets, 1 millis)
       self.taskComplete(targetName)(Try {
         target.build(depTargets)
-        target -> target.result(depTargets)
+        target -> target.buildResult(depTargets)
       })
     })
   }

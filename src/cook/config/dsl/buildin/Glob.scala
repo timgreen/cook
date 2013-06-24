@@ -26,7 +26,7 @@ trait Glob {
   }
 
   def glob(includes: List[String], baseDir: Directory,
-    excludes: Seq[String] = List(), fileOnly: Boolean = true): List[Path] = {
+    excludes: Seq[String] = Nil, fileOnly: Boolean = true): List[Path] = {
     GlobScanner(
       dir = baseDir,
       includes = includes,
