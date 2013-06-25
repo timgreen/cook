@@ -5,6 +5,7 @@ scala_lib(
     "package.scala",
   ],
   deps = [
+    "//src/cook/config:config_ref",
     "//src/cook/error:error",
     "//src/cook/meta/db:db_provider",
     "//src/cook/meta:meta",

@@ -60,8 +60,8 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
 
   def refName = fileRef.refName
 
-  def configScalaSourceMetaKey = "configSrc" + ":" + refName
-  def configByteCodeMetaKey = "configBytecode" + ":" + refName
+  def configScalaSourceMetaKey = ConfigRef.configScalaSourceMetaKeyFor(refName)
+  def configByteCodeMetaKey = ConfigRef.configByteCodeMetaKeyFor(refName)
 
   private def relativeConfigRef(ref: String): FileRef = {
     RefManager(fileRef.dir.segments, ref) match {
@@ -96,4 +96,8 @@ object ConfigRef {
   val IncludeAsP = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
 
   val packagePrefix = "COOK_CONFIG_PACKAGE"
+
+  def configScalaSourceMetaKeyFor(refName: String) = "configSrc" + ":" + refName
+  def configByteCodeMetaKeyFor(refName: String) = "configBytecode" + ":" + refName
+  def defineConfigRefNameForTarget(refName: String) = refName.split(':').head + "/COOK"
 }

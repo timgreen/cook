@@ -3,6 +3,7 @@ package cook.actor.impl
 import cook.actor.TargetManager
 import cook.actor.impl.util.BatchResponser
 import cook.config.Config
+import cook.config.ConfigRef
 import cook.console.ops._
 import cook.error._
 import cook.ref.NativeTargetRef
@@ -51,6 +52,6 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
 
   private def targetNotFoundException(refName: String) = error {
     "Target " :: strong(refName) :: " not exist" :: newLine ::
-    indent :: "Should defined in config " :: strong(refName.split(':').head + "/COOK")
+    indent :: "Should defined in config " :: strong(ConfigRef.defineConfigRefNameForTarget(refName))
   }
 }

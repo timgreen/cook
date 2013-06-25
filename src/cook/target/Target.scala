@@ -1,5 +1,6 @@
 package cook.target
 
+import cook.config.ConfigRef
 import cook.console.ops._
 import cook.error._
 import cook.meta.Meta
@@ -78,6 +79,9 @@ abstract class Target[+R <: TargetResult](
     deps foreach { dep =>
       depsMeta.add(Target.DepMetaGroup, dep.refName, metaDb.get(dep.metaKey).hash)
     }
+    val defineConfigRefName = ConfigRef.defineConfigRefNameForTarget(refName)
+    val configKey = ConfigRef.configScalaSourceMetaKeyFor(defineConfigRefName)
+    depsMeta.add(Target.ConfigMetaGroup, "config", metaDb.get(configKey).hash)
     inputMeta.withPrefix(Target.InputMetaPrefix) + depsMeta
   }
 
@@ -92,5 +96,6 @@ abstract class Target[+R <: TargetResult](
 object Target {
 
   val DepMetaGroup = "deps"
+  val ConfigMetaGroup = "config"
   val InputMetaPrefix = "input"
 }
