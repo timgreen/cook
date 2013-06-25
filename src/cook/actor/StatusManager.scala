@@ -1,6 +1,6 @@
 package cook.actor
 
-case class TargetStatus(done: Int, building: Int, pending: Int, unsolved: Int)
+case class TargetStatus(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int)
 
 trait StatusManager {
 

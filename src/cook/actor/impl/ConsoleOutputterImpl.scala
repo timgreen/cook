@@ -39,7 +39,7 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
     if (allowStatusUpdate) {
       Console.update(
         done     = targetStatus.done,
-        cached   = 0,
+        cached   = targetStatus.cached,
         building = targetStatus.building,
         pending  = targetStatus.pending,
         unsolved = targetStatus.unsolved,

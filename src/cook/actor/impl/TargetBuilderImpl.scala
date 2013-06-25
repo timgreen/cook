@@ -57,16 +57,17 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
       new TargetBuiltException(e, key :: Nil)
   }
 
+  private var cached = 0
   override def updateStatus {
     import cook.actor.TargetStatus
 
     val status = dagSolver.getStatus
-    val done = status.done
+    val done = status.done - cached
     val x = status.processing + status.avaliable + status.pending
     val pending = pendingTargets.size
     val building = x - pending
     val unsolved = status.unsolved
-    statusManager.updateTargetStatus(TargetStatus(done, building, pending, unsolved))
+    statusManager.updateTargetStatus(TargetStatus(done, cached, building, pending, unsolved))
   }
 
   override def taskComplete(refName: String)(tryTargetAndResult: Try[TargetAndResult]) {
@@ -74,6 +75,9 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     responser.complete(refName)(tryTargetAndResult)
     if (tryTargetAndResult.isSuccess) {
       dagSolver.markDone(refName)
+      if (tryTargetAndResult.get._1.status == cook.target.TargetStatus.Cached) {
+        cached += 1
+      }
       self.checkDag
     }
   }

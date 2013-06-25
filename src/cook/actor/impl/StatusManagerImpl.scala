@@ -10,7 +10,7 @@ class StatusManagerImpl extends StatusManager {
   import ActorRefs._
 
   private val runningTasks = mutable.Set[(String, String)]()
-  private var _targetStatus = TargetStatus(0, 0, 0, 1)
+  private var _targetStatus = TargetStatus(0, 0, 0, 0, 1)
 
   private def isValidType(taskType: String): Boolean = {
     // TODO(timgreen):
