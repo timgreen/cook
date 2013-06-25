@@ -35,7 +35,7 @@ object Main {
       case Some(parser.commandClean) =>
         println("clean " + parser.commandClean.targets())
       case Some(parser.commandRun) =>
-        println("run " + parser.commandRun.target())
+        RunAction.run(parser.commandRun.target() :: Nil)
       case Some(parser.commandAnalyze) =>
         println("analyze " + parser.commandAnalyze.target())
       case Some(parser.commandHelp) =>

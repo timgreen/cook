@@ -120,5 +120,9 @@ object Console {
     lineUsed = s.lineUsed
   }
 
+  def runTarget(targetRefName: String) = print {
+    "Run Target: " :: strong(targetRefName)
+  }
+
   private def w = Config.cols
 }

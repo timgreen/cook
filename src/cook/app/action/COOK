@@ -3,10 +3,12 @@ scala_lib(
   srcs = [
     "ActionBase.scala",
     "BuildAction.scala",
+    "RunAction.scala",
   ],
   deps = [
     "//src/cook/actor:actors",
     "//src/cook/app:main_handler",
+    "//src/cook/console:console",
     "//src/cook/path:path",
     "//src/cook/ref:ref",
     "//src/cook/ref:ref_manager",
