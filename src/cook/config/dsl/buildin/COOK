@@ -21,6 +21,7 @@ scala_lib(
   name = "utils",
   srcs = "Utils.scala",
   deps = [
+    "//src/cook/error:error",
     "//src/cook/meta:meta_helper",
     "//src/cook/target:target",
   ],
