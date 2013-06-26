@@ -24,7 +24,7 @@ class ConfigManagerImpl extends ConfigManager with TypedActorBase {
 
   private def processError(key: String, e: Throwable): Throwable = error(e) {
     import cook.console.ops._
-    "Error when get config " :: strong(key)
+    "Error when get config: " :: strong(key)
   }
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {

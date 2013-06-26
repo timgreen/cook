@@ -40,7 +40,7 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
   private def processError(key: String, e: Throwable): Throwable = error(e) {
     import cook.console.ops._
 
-    "Error when loading config :" :: strong(key)
+    "Error when loading config: " :: strong(key)
   }
 
   override def taskComplete(refName: String)(tryConfig: Try[Config]) {

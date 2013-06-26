@@ -23,7 +23,10 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
             doPrintError(e)
           }
         case _ =>
-          Console.print(e.toString :: newLine)
+          import java.io.{ StringWriter, PrintWriter }
+          val buffer = new StringWriter
+          e.printStackTrace(new PrintWriter(buffer))
+          Console.print(buffer.toString :: newLine)
       }
     }
 

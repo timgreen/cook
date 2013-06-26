@@ -80,18 +80,20 @@ class ConfigCompiler(outDir: SPath, cp: String) {
                   else posIn
         pos match {
           case FakePos(fmsg) =>
-            super.printMessage(posIn, msg);
+            super.printMessage(posIn, msg)
           case NoPosition =>
-            super.printMessage(posIn, msg);
+            super.printMessage(posIn, msg)
           case _ =>
             val cookSource = new BatchSourceFile(AbstractFile.getFile(
               configRef.fileRef.toPath.path))
             val offset = startOffset(posIn.source)
             val newPos = posIn.withSource(cookSource, -offset)
-            if (newPos.point < 0) {
-              super.printMessage(new OffsetPosition(cookSource, 0), msg)
-            } else {
+            try {
               super.printMessage(newPos, msg)
+            } catch {
+              case _: Throwable =>
+                // Can not map error position to cook source, fallback to scala source
+                super.printMessage(posIn, msg)
             }
         }
       }
