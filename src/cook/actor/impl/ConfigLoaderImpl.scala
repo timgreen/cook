@@ -9,6 +9,7 @@ import cook.config.Config
 import cook.config.ConfigEngine
 import cook.config.ConfigRef
 import cook.config.ConfigRefInclude
+import cook.config.ConfigType
 import cook.error._
 import cook.util.DagSolver
 
@@ -63,9 +64,13 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
     log.debug("step1WaitDepConfigRefs {}", configRef.refName)
 
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
-    val depConfigFileRef =
-      rootIncludes.map(_.ref) ++
-      configRef.includes.map(_.ref)
+    val depConfigFileRef = configRef.configType match {
+      case ConfigType.CookConfig =>
+        rootIncludes.map(_.ref) ++
+        configRef.includes.map(_.ref)
+      case ConfigType.CookiConfig =>
+        configRef.includes.map(_.ref)
+    }
 
     import TypedActor.dispatcher
     Future.traverse(depConfigFileRef.toList) { cookFileRef =>
