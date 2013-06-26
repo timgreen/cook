@@ -41,7 +41,7 @@ object DirRefFactory extends RefFactory[DirRef] {
    */
   override def apply(baseSegments: List[String], refName: String): Option[DirRef] = {
     if (refName.nonEmpty &&
-      (refName.lastOption != Some('/') || refName.indexOf("//") > 0 || refName.indexOf(":") > 0)) {
+      (refName.lastOption != Some('/') || refName.indexOf("//") >= 0 || refName.indexOf(":") >= 0)) {
       None
     } else {
       val segments =

@@ -26,7 +26,7 @@ object RefManager {
     }
 
     tryFactorys(factorys.iterator) getOrElse reportError {
-      "Unknown ref name: " :: strong(refName)
+      "Unrecognized ref name: " :: strong(refName)
     }
   }
 }
