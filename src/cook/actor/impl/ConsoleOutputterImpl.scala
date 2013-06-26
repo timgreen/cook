@@ -2,6 +2,7 @@ package cook.actor.impl
 
 import cook.actor.ConsoleOutputter
 import cook.actor.TargetStatus
+import cook.app.Config
 import cook.console.Console
 import cook.console.ops._
 import cook.error.CookException
@@ -39,7 +40,7 @@ class ConsoleOutputterImpl extends ConsoleOutputter {
   }
 
   override def update(targetStatus: TargetStatus, taskInfo: Set[(String, String)]) {
-    if (allowStatusUpdate) {
+    if (allowStatusUpdate && !Config.quiet) {
       Console.update(
         done     = targetStatus.done,
         cached   = targetStatus.cached,

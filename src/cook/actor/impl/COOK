@@ -94,9 +94,10 @@ scala_lib(
   name = "console_outputter_impl",
   srcs = "ConsoleOutputterImpl.scala",
   deps = [
-    ":typed_actor_base",
     "//src/cook/actor:console_outputter",
+    "//src/cook/app:config",
     "//src/cook/console:console",
+    ":typed_actor_base",
   ],
 )
 

@@ -17,6 +17,7 @@ object Config {
   }
 
   def conf = config
+  def quiet: Boolean = config.getBoolean("cook.quiet")
 
   var cols: Int = _
 
@@ -36,6 +37,7 @@ object Config {
           parallelism-factor = 1.0
         }
       }
+      quiet = false
     }
   """)
 
