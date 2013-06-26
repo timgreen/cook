@@ -19,7 +19,8 @@ class CookOptionParser(args: Seq[String]) extends ScallopConf(args, "") {
   }
 
   val commandRun = new Subcommand("run") {
-    val target = trailArg[String]("target")
+    val target = trailArg[String]("target", required = true)
+    val runArgs = trailArg[List[String]]("args", required = false)
   }
 
   val commandAnalyze = new Subcommand("analyze") {

@@ -6,9 +6,9 @@ import cook.path.Path
 import cook.ref.RefManager
 import cook.ref.TargetRef
 
-object BuildAction extends ActionBase {
+object BuildAction {
 
-  override def run(args: List[String]) {
+  def run(args: List[String]) {
     if (args.isEmpty) {
       // TODO(timgreen): show help
       println("show help")

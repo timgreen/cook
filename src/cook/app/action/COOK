@@ -1,7 +1,6 @@
 scala_lib(
   name = "actions",
   srcs = [
-    "ActionBase.scala",
     "BuildAction.scala",
     "RunAction.scala",
   ],

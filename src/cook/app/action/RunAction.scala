@@ -8,12 +8,9 @@ import cook.path.Path
 import cook.ref.RefManager
 import cook.ref.TargetRef
 
-object RunAction extends ActionBase {
+object RunAction {
 
-  override def run(args: List[String]) {
-    assert(args.size == 1, "Can only run one target at once.")
-    val targetRefName = args.head
-
+  def run(targetRefName: String, args: List[String]) {
     val currentSegments = Path().currentSegments
     val targetRef = RefManager(currentSegments, targetRefName).as[TargetRef]
 
@@ -30,8 +27,7 @@ object RunAction extends ActionBase {
       val depTargets = Await.result(Future.sequence(fs), Duration.Inf)
       // TODO(timgreen):
       //  - exit code
-      //  - args
-      t.run(depTargets, Nil)
+      t.run(depTargets, args)
     })
   }
 }
