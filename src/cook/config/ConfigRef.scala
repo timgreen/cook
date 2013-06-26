@@ -43,8 +43,9 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
   val configClassTraitFullName = configClassPackageName + "." + configClassTraitName
 
   val configScalaSourceFile =
-    Path().configScalaSourceDir / (configClassFullName + ".scala")
-  val configByteCodeDir = (Path().configByteCodeDir / configClassFullName).toDirectory
+    fileRef.dir.segments.foldLeft(Path().configScalaSourceDir: SPath)(_ / _) / (fileRef.filename + ".scala")
+  val configByteCodeDir =
+    (fileRef.dir.segments.foldLeft(Path().configByteCodeDir: SPath)(_ / _) / fileRef.filename) toDirectory
 
   if (!fileRef.toPath.canRead) {
     reportError("Config not readable : " :: strong(fileRef.toPath.path))
