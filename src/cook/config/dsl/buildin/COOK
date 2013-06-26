@@ -1,46 +1,46 @@
 scala_lib(
   name = "define_target",
   srcs = "DefineTarget.scala",
-  deps = [
-    "//src/cook/config/dsl:context",
-    "//src/cook/ref:ref",
-    "//src/cook/target:native_target",
-  ],
+  deps = (
+    "/src/cook/config/dsl:context",
+    "/src/cook/ref:ref",
+    "/src/cook/target:native_target"
+  )
 )
 
 scala_lib(
   name = "glob",
   srcs = "Glob.scala",
-  deps = [
-    "//src/cook/config/dsl:context",
-    "//src/cook/util:glob_scanner",
-  ],
+  deps = (
+    "/src/cook/config/dsl:context",
+    "/src/cook/util:glob_scanner"
+  )
 )
 
 scala_lib(
   name = "meta",
   srcs = "Meta.scala",
-  deps = [
-    "//src/cook/meta:meta_helper",
-  ],
+  deps = (
+    "/src/cook/meta:meta_helper"
+  )
 )
 
 scala_lib(
   name = "utils",
   srcs = "Utils.scala",
-  deps = [
-    "//src/cook/error:error",
-    "//src/cook/target:target",
-  ],
+  deps = (
+    "/src/cook/error:error",
+    "/src/cook/target:target"
+  )
 )
 
 scala_lib(
   name = "buildin_commands",
   srcs = "BuildinCommands.scala",
-  deps = [
+  deps = (
     ":define_target",
     ":glob",
     ":meta",
-    ":utils",
-  ],
+    ":utils"
+  )
 )

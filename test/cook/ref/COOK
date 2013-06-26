@@ -1,18 +1,18 @@
+// @import "/rules/scala_test"
+
 scala_lib(
   name = "basic_ref_test",
   srcs = "BasicRefTest.scala",
-  deps = [
-    "//src/cook/ref:ref_factory_register",
-    "//lib/scalatest.jar",
-  ],
+  deps = (
+    "/src/cook/ref:ref_factory_register",
+    "/lib/scalatest.jar"
+  )
 )
 
 scala_test(
   name = "run_basic_ref_test",
-  deps = [ ":basic_ref_test" ],
-  testClasses = [
-    "cook.ref.BasicRefTest",
-  ],
-  res = [
-  ],
+  deps = ( ":basic_ref_test" ),
+  testClasses = (
+    "cook.ref.BasicRefTest"
+  )
 )

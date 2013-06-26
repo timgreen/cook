@@ -1,25 +1,25 @@
 scala_lib(
   name = "target",
-  srcs = [
+  srcs = (
     "Target.scala",
-    "package.scala",
-  ],
-  deps = [
-    "//src/cook/config:config_ref",
-    "//src/cook/error:error",
-    "//src/cook/meta/db:db_provider",
-    "//src/cook/meta:meta_helper",
-    "//src/cook/ref:ref",
-    "//src/cook/util:glob_scanner",
-  ],
+    "package.scala"
+  ),
+  deps = (
+    "/src/cook/config:config_ref",
+    "/src/cook/error:error",
+    "/src/cook/meta/db:db_provider",
+    "/src/cook/meta:meta_helper",
+    "/src/cook/ref:ref",
+    "/src/cook/util:glob_scanner"
+  )
 )
 
 scala_lib(
   name = "native_target",
-  srcs = [
-    "NativeTarget.scala",
-  ],
-  deps = [
-    ":target",
-  ],
+  srcs = (
+    "NativeTarget.scala"
+  ),
+  deps = (
+    ":target"
+  )
 )

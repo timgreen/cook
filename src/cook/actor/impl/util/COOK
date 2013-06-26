@@ -1,18 +1,18 @@
 scala_lib(
   name = "batch_responser",
-  srcs = [
-    "BatchResponser.scala",
-  ],
+  srcs = (
+    "BatchResponser.scala"
+  )
 )
 
 scala_lib(
   name = "task_builder",
-  srcs = [
-    "TaskBuilder.scala",
-  ],
-  deps = [
-    "//src/cook/actor:status_manager",
-    "//src/cook/app:global",
-    "//src/cook/util:log_source_provider",
-  ],
+  srcs = (
+    "TaskBuilder.scala"
+  ),
+  deps = (
+    "/src/cook/actor:status_manager",
+    "/src/cook/app:global",
+    "/src/cook/util:log_source_provider"
+  )
 )

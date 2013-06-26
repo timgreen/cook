@@ -1,7 +1,8 @@
 #!/bin/bash
 
-ROOT=$(dirname "$0")
-jar="$ROOT/cook.jar"
+BASE_DIR=$(dirname "$0")
+jar="$BASE_DIR/cook.jar"
+CLASSPATH=$(find "$BASE_DIR/../lib" -name "*.jar" | tr '\n' ':')
 
 COLUMNS=$(stty size | cut -f 2 -d " ")
-java -Xmx1024M -Xms16m -jar "$jar" --columns=$COLUMNS $*
+java -Xmx1024M -Xms16m -cp "$jar:$CLASSPATH" cook.app.Main --cols $COLUMNS "$@"

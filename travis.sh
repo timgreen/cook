@@ -1,5 +1,7 @@
 #!/bin/bash
 
+COOK_VERSION=v1.0.0-M1
+
 mkdir -p lib
 mkdir -p tmp
 cd tmp
@@ -36,13 +38,19 @@ JE_JAR=je-3.2.76.jar
   ln -sf $PWD/$JE_JAR ../../lib/je.jar)
 cd ..
 
+## prepare cook
+mkdir -p cook
+cd cook
+COOK_JAR=cook-$COOK_VERSION.jar
+[ -r $COOK_JAR ] || (wget -c http://downloads.sourceforge.net/project/cook-bin/$COOK_JAR &&
+  ln -sf $PWD/$COOK_JAR ../../bin/cook.jar)
+cd ..
+
 ## build & test
 cd ..
 set -e
 ./bin/cook clean
-./bin/cook build src/cook/app:main
-./bin/cook build src/cook/target:target
-./bin/cook build src/cook/actor:actors
+./bin/cook build :cook.jar
 ./bin/cook run test/cook/ref:run_basic_ref_test
 ./bin/cook run test/cook/util:run_glob_scanner_test
 ./bin/cook run test/cook/util:run_dag_solver_test

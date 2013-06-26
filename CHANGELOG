@@ -1,5 +1,6 @@
-Cook v1.0
+Cook v1.0.0
   * Fully rewrite!
+  * Use Scala as COOK DSL.
 
 Cook v0.8
   * Fix default value scope.

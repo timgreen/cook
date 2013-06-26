@@ -1,9 +1,9 @@
 scala_lib(
   name = "error",
-  srcs = [
-    "error.scala",
-  ],
-  deps = [
-    "//src/cook/console:ops",
-  ],
+  srcs = (
+    "error.scala"
+  ),
+  deps = (
+    "/src/cook/console:ops"
+  )
 )

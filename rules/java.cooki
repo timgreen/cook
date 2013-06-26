@@ -1,165 +1,135 @@
-def java_lib(name, srcs = [], deps = []) {
-  srcs = labels(srcs)
-  srcTargets = [s for s in srcs if s.isTargetLabel]
-  srcs = [s for s in srcs if s.isFileLabel]
-
-  deps = labels(deps)
-  libs = [d for d in deps if d.isFileLabel]
-  lib  = [d.file for d in libs]
-  depTargets = [d for d in deps if d.isTargetLabel]
-  cp = []
-
-  genrule(
-    name = name,
-    outputType = "java_class",
-    inputs = srcs ++ libs,
-    deps = depTargets ++ srcTargets,
-    preBuild = lambda(t) {
-      javafiles = srcs
-      for (st <- srcTargets) {
-        if (st.outputType() != "java_source") {
-          error("java_lib.srcs should only contains target which has outputType='java_source': " + st.name)
-        }
-
-        javafiles ++= glob("**/*.java", baseDir = st.outputDir)
-      }
-      javafiles = [i.file for i in javafiles]
-
-      for (d <- depTargets) {
-        if (d.outputType() == "java_class") {
-          cp += d.outputDir
-          cp ++= d.value("cp")
-          lib ++= d.value("lib")
-        } else {
-          error("java_lib(\"" + t.name + "\").deps should only contains target which has outputType='java_class': " + d.name)
-        }
-      }
-
-      cp = cp.toSet()
-      lib = lib.toSet()
-
-      if (javafiles.nonEmpty) {
-        [
-          "SOURCES=(%s)" % [ javafiles.join(" ") ],
-          "CP=\"%s\"" % [ (cp ++ lib).join(":") ],
-          "javac -encoding UTF-8 -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}"
-        ]
-      } else {
-        []
-      }
-    },
-    postBuild = lambda(t) {
-      t.setValues({
-        cp: cp.toSet(),
-        lib: lib.toSet()
-      })
-    },
-    errorWhenNoOutput = srcs.nonEmpty,
-  )
+trait JavaDepResult extends TargetResult {
+  def cp: List[String]
 }
+case class JavaDepResultImpl(cp: List[String]) extends JavaDepResult
+object JavaDepResult {
+  def apply(cp: List[String]) = JavaDepResultImpl(cp)
 
-def jar(name, java_libs = [], mainClass = null) {
-  targets = labels(java_libs)
+  def buildCp(cp: List[String], depResults: List[TargetResult]): List[String] = {
+    import scala.collection.immutable.ListSet
+    val mergedCp = ListSet.newBuilder[String]
+    mergedCp ++= cp
 
-  for (t <- targets) {
-    if (!t.isTargetLabel) {
-      error("target jar(\"%s\").java_libs should only contains targets")
+    depResults collect {
+      case r: JavaDepResult => r
+    } foreach { r =>
+      mergedCp ++= r.cp
     }
+
+    mergedCp.result.toList
   }
-
-  if (mainClass == null) {
-    jarCmd = "jar cf $NAME -C classes ."
-  } else {
-    jarCmd = "jar cfe $NAME %s -C classes ." % [ mainClass ]
-  }
-
-  genrule(
-    name = name + ".jar",
-    outputType = "java_jar",
-    deps = targets,
-    preBuild = lambda(t) {
-      for (t <- targets) {
-        if (!t.isTargetLabel) {
-          error("target jar(\"%s\").java_libs should only contains target has outputType=java_class")
-        }
-      }
-
-      classDirs = [ t.outputDir for t in targets ]
-      [
-        "rm -fr classes",
-        "mkdir classes",
-        "CLASSES_DIRS=(%s)" % [ classDirs.join(" ") ],
-        "for d in ${CLASSES_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        jarCmd
-      ]
-    },
-  )
-
-  genrule(
-    name = name + ".all.jar",
-    outputType = "java_jar",
-    deps = targets,
-    preBuild = lambda(t) {
-      for (t <- targets) {
-        if (!t.isTargetLabel) {
-          error("target jar(\"%s\").java_libs should only contains target has outputType=java_class")
-        }
-      }
-
-      classDirs = []
-      for (t <- targets) {
-        classDirs += t.outputDir
-        classDirs ++= t.value("cp")
-      }
-
-      [
-        "rm -fr classes",
-        "mkdir classes",
-        "CLASSES_DIRS=(%s)" % [ classDirs.join(" ") ],
-        "for d in ${CLASSES_DIRS[*]}; do cp -r \"$d/\"* classes/; done",
-        jarCmd
-      ]
-    },
-  )
 }
 
-def java_bin(name, java_libs, mainClass, linkRes = [], deps = [], jvmOptions = [], extraClasspath = []) {
-  targets = labels(java_libs)
-  depTargets = [ t for t in targets if t.isTargetLabel ]
-  inputs = glob([ r.get(0) for r in linkRes ])
+trait JavaBytecodeResult extends JavaDepResult with TargetResult {
+  def bytecodeDir: Directory
+  def inCp: List[String]
+}
+case class JavaBytecodeResultImpl(bytecodeDir: Directory, inCp: List[String]) extends JavaBytecodeResult {
+  override def cp: List[String] = bytecodeDir.path :: inCp
+}
 
-  genrule(
-    name = name,
-    outputType = "",
-    inputs = inputs,
-    deps = depTargets ++ labels(deps),
-    preBuild = lambda(t) {
-      link_cmds = ["mkdir -p %s; ln -sf %s %s" % [r.get(1), label(r.get(0)).file, r.get(1)] for r in linkRes]
+object JavaBytecodeResult {
 
-      link_cmds ++ [
-        "echo ''",
-      ]
-    },
-    preRun = lambda(t) {
-      cp = []
-      lib = [ t.file for t in targets if t.isFileLabel ]
+  def apply(bytecodeDir: Directory, cp: List[String], depResults: List[TargetResult] = Nil) = {
+    JavaBytecodeResultImpl(bytecodeDir, JavaDepResult.buildCp(cp, depResults))
+  }
 
-      for (d <- depTargets) {
-        cp += d.outputDir
-        cp ++= d.value("cp")
-        lib ++= d.value("lib")
+  def getAllBytecodeResults(targets: Seq[Target[TargetResult]]): List[JavaBytecodeResult] = {
+    import scala.collection.mutable
+    val results = mutable.ArrayBuffer[JavaBytecodeResult]()
+    val known = mutable.Set[String]()
+    val pending = mutable.Stack[Target[TargetResult]]()
+
+    known ++= targets.map(_.refName)
+    pending pushAll targets
+    while (pending.nonEmpty) {
+      val t = pending.pop
+      if (t.result.isInstanceOf[JavaBytecodeResult]) {
+        results += t.result.as[JavaBytecodeResult]
       }
+      val deps = t.depTargets filterNot { d => known.contains(d.refName) }
+      known ++= deps.map(_.refName)
+      pending pushAll deps
+    }
 
-      cp = cp.toSet()
-      lib = lib.toSet()
+    results toList
+  }
+}
 
-      [
-#"JAVA_HOME=%s" % [ jdkDir ],
-        "PATH=$JAVA_HOME/bin:$PATH",
-        "CP=\"%s\"" % [ (cp ++ lib ++ extraClasspath).join(":") ],
-        "java %s -Dfile.encoding=UTF8 -cp .:$CP %s $@" % [ jvmOptions.join(" "), mainClass ]
-      ]
+trait JavaSourceResult extends TargetResult {
+  def javaSrcs: List[Path]
+}
+case class JavaSourceResultImpl(javaSrcs: List[Path]) extends JavaSourceResult
+
+object JavaSourceResult {
+
+  def apply(dir: Directory) = {
+    JavaSourceResultImpl(glob(includes = List("**/*\\.java"), baseDir = dir))
+  }
+}
+
+def java_lib(name: String, srcs: List[String] = Nil, deps: List[String] = Nil)(implicit context: Context) {
+  val (inputTargetRefs, inputRefs) = refs(srcs) partition { _.isTarget }
+  val (depTargetRefs, cpRefs) = refs(deps) partition { _.isTarget }
+  val cpPath = cpRefs collect {
+    case f: FileRef => f.toPath
+    case d: DirRef => d.toDir
+  }
+  val inCp = cpPath map { _.path }
+  val inputs = inputRefs collect {
+    case f: FileRef => f.toPath
+    case d: DirRef => d.toDir
+  }
+
+  defineTarget[JavaBytecodeResult](
+    name = name,
+    resultFn = { t =>
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      JavaBytecodeResult(t.buildDir, inCp, depTargets.map(_.result))
     },
-    errorWhenNoOutput = false,
+    buildCmd = if (srcs.isEmpty) {
+      EmptyBuildCmd()
+    } else { t =>
+      val inputTargets = collectTargets(t.depTargets, inputTargetRefs)
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      val sources = inputs ::: (inputTargets map { _.result.as[JavaSourceResult].javaSrcs } flatten)
+      val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result))
+      // build java sources with cp
+      val cmd = List("javac", "-encoding", "UTF-8", "-d", t.buildDir.path, "-cp", cp.mkString(":")) ::: sources.map(_.path)
+      handleBuildCmd(t) { logger =>
+        import scala.sys.process._
+        cmd !! logger
+      }
+    },
+    inputMetaFn = { t =>
+      filesToMeta("java", inputs) + filesToMeta("cp", cpPath)
+    },
+    deps = inputTargetRefs ::: depTargetRefs
+  )(context)
+}
+
+def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = Nil)(implicit context: Context) {
+  val (depTargetRefs, cpRefs) = refs(deps) partition { _.isTarget }
+  val cpPath = cpRefs collect {
+    case f: FileRef => f.toPath
+    case d: DirRef => d.toDir
+  }
+  val inCp = cpPath map { _.path }
+
+  defineTarget[UnitResult](
+    name = name,
+    resultFn = UnitResultFn(),
+    buildCmd = EmptyBuildCmd(),
+    runCmd = Option({ (t, args) =>
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result))
+      val cmd = "java" :: jvmOption ::: List("-cp", cp.mkString(":"), mainClass) ::: args
+      import scala.sys.process._
+      cmd!
+    }),
+    inputMetaFn = { t =>
+      filesToMeta("cp", cpPath)
+    },
+    deps = depTargetRefs
   )
 }

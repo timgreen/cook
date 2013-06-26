@@ -1,4 +1,11 @@
-# include default rules
+cook {
+  # rules defined here will be mixined into each COOK file by default.
+  include-rules = [
+    "rules/java.cooki"
+    "rules/scala.cooki"
+  ]
 
-include("//rules/scala")
-include("//rules/java")
+  # rules defined here will be importted in each COOK file by default.
+  include-as-rules {
+  }
+}

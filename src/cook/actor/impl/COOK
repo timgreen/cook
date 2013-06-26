@@ -1,111 +1,111 @@
-# base
+// base
 
 scala_lib(
   name = "typed_actor_base",
-  srcs = [
-    "TypedActorBase.scala",
-  ],
-  deps = [
-    "//src/cook/actor:config_loader",
-    "//src/cook/actor:config_manager",
-    "//src/cook/actor:config_ref_loader",
-    "//src/cook/actor:config_ref_manager",
-    "//src/cook/actor:console_outputter",
-    "//src/cook/actor:status_manager",
-    "//src/cook/actor:target_builder",
-    "//src/cook/actor:target_manager",
-    "//src/cook/app:global",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
-  ]
+  srcs = (
+    "TypedActorBase.scala"
+  ),
+  deps = (
+    "/src/cook/actor:config_loader",
+    "/src/cook/actor:config_manager",
+    "/src/cook/actor:config_ref_loader",
+    "/src/cook/actor:config_ref_manager",
+    "/src/cook/actor:console_outputter",
+    "/src/cook/actor:status_manager",
+    "/src/cook/actor:target_builder",
+    "/src/cook/actor:target_manager",
+    "/src/cook/app:global",
+    "/lib/akka-actors.jar",
+    "/lib/typesafe-config.jar"
+  )
 )
 
-# impl
+// impl
 
 scala_lib(
   name = "config_ref_loader_impl",
   srcs = "ConfigRefLoaderImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
     "util:batch_responser",
     "util:task_builder",
-    "//src/cook/app:global",
-  ]
+    "/src/cook/app:global"
+  )
 )
 
 scala_lib(
   name = "config_ref_manager_impl",
   srcs = "ConfigRefManagerImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
     "util:batch_responser",
     "util:task_builder",
-    "//src/cook/app:global",
-    "//src/cook/util:dag_solver",
-  ]
+    "/src/cook/app:global",
+    "/src/cook/util:dag_solver"
+  )
 )
 
 scala_lib(
   name = "config_manager_impl",
   srcs = "ConfigManagerImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
     "util:batch_responser",
-    "//src/cook/app:global",
-    "//src/cook/error:error",
-  ]
+    "/src/cook/app:global",
+    "/src/cook/error:error"
+  )
 )
 
 scala_lib(
   name = "config_loader_impl",
   srcs = "ConfigLoaderImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
     "util:batch_responser",
     "util:task_builder",
-    "//src/cook/app:global",
-    "//src/cook/config:config_engine",
-    "//src/cook/util:dag_solver",
-  ]
+    "/src/cook/app:global",
+    "/src/cook/config:config_engine",
+    "/src/cook/util:dag_solver"
+  )
 )
 
 scala_lib(
   name = "target_manager_impl",
   srcs = "TargetManagerImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
-    "util:batch_responser",
-  ],
+    "util:batch_responser"
+  )
 )
 
 scala_lib(
   name = "target_builder_impl",
   srcs = "TargetBuilderImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
     "util:batch_responser",
     "util:task_builder",
-    "//src/cook/error:error",
-    "//src/cook/util:dag_solver",
-  ],
+    "/src/cook/error:error",
+    "/src/cook/util:dag_solver"
+  )
 )
 
 scala_lib(
   name = "console_outputter_impl",
   srcs = "ConsoleOutputterImpl.scala",
-  deps = [
-    "//src/cook/actor:console_outputter",
-    "//src/cook/app:config",
-    "//src/cook/console:console",
-    ":typed_actor_base",
-  ],
+  deps = (
+    "/src/cook/actor:console_outputter",
+    "/src/cook/app:config",
+    "/src/cook/console:console",
+    ":typed_actor_base"
+  )
 )
 
 scala_lib(
   name = "status_manager_impl",
   srcs = "StatusManagerImpl.scala",
-  deps = [
+  deps = (
     ":typed_actor_base",
-    "//src/cook/actor:status_manager",
-  ],
+    "/src/cook/actor:status_manager"
+  )
 )

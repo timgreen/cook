@@ -1,76 +1,76 @@
 scala_lib(
   name = "config_ref_loader",
   srcs = "ConfigRefLoader.scala",
-  deps = [
-    "//src/cook/config:config_ref",
-    "//src/cook/ref:ref",
-  ]
+  deps = (
+    "/src/cook/config:config_ref",
+    "/src/cook/ref:ref"
+  )
 )
 
 scala_lib(
   name = "config_ref_manager",
   srcs = "ConfigRefManager.scala",
-  deps = [
-    "//src/cook/config:config_ref",
-    "//src/cook/ref:ref",
-  ]
+  deps = (
+    "/src/cook/config:config_ref",
+    "/src/cook/ref:ref"
+  )
 )
 
 scala_lib(
   name = "config_manager",
   srcs = "ConfigManager.scala",
-  deps = [
-    "//src/cook/config:config",
-    "//src/cook/config:config_ref",
-  ]
+  deps = (
+    "/src/cook/config:config",
+    "/src/cook/config:config_ref"
+  )
 )
 
 scala_lib(
   name = "config_loader",
   srcs = "ConfigLoader.scala",
-  deps = [
-    "//src/cook/config:config",
-    "//src/cook/config:config_ref",
-  ]
+  deps = (
+    "/src/cook/config:config",
+    "/src/cook/config:config_ref"
+  )
 )
 
 scala_lib(
   name = "target_manager",
   srcs = "TargetManager.scala",
-  deps = [
-    "//src/cook/target:target",
-  ],
+  deps = (
+    "/src/cook/target:target"
+  )
 )
 
 scala_lib(
   name = "target_builder",
   srcs = "TargetBuilder.scala",
-  deps = [
-    "//src/cook/target:target",
-  ],
+  deps = (
+    "/src/cook/target:target"
+  )
 )
 
 scala_lib(
   name = "console_outputter",
   srcs = "ConsoleOutputter.scala",
-  deps = [
+  deps = (
     ":status_manager",
-    "//src/cook/error:error",
-  ],
+    "/src/cook/error:error"
+  )
 )
 
 scala_lib(
   name = "status_manager",
   srcs = "StatusManager.scala",
-  deps = [
-    "//src/cook/error:error",
-  ],
+  deps = (
+    "/src/cook/error:error"
+  )
 )
 
 scala_lib(
   name = "actors",
   srcs = "Actors.scala",
-  deps = [
+  deps = (
     "impl:config_loader_impl",
     "impl:config_manager_impl",
     "impl:config_ref_loader_impl",
@@ -79,7 +79,7 @@ scala_lib(
     "impl:status_manager_impl",
     "impl:target_builder_impl",
     "impl:target_manager_impl",
-    "//src/cook/app:config",
-    "//src/cook/app:global",
-  ],
+    "/src/cook/app:config",
+    "/src/cook/app:global"
+  )
 )

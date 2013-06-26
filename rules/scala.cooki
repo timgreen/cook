@@ -1,83 +1,53 @@
-def scala_lib(name, srcs, deps = []) {
-  srcs = labels(srcs)
-  srcTargets = [s for s in srcs if s.isTargetLabel]
-  srcs = [s for s in srcs if s.isFileLabel]
+// @val java = "java"
 
-  deps = labels(deps)
-  # deps += label("//lib/scala-library.jar")
-  lib   = [d.file for d in deps if d.isFileLabel]
-  depTargets = [d for d in deps if d.isTargetLabel]
-  cp = []
+import java.{ JavaDepResult, JavaBytecodeResult }
 
-  genrule(
-    name = name,
-    outputType = "java_class",
-    inputs = srcs,
-    deps = depTargets ++ srcTargets,
-    preBuild = lambda(t) {
-      scalafiles = srcs
-      for (st <- srcTargets) {
-        if (st.outputType() != "scala_source") {
-          error("scala_lib.srcs should only contains target which has outputType='scala_source': " + st.name)
-        }
-        scalafiles ++= glob("**/*.scala", baseDir = st.outputDir)
-      }
-      scalafiles = [i.file for i in scalafiles]
+trait ScalaSourceResult extends TargetResult {
+  def scalaSrcs: List[Path]
+}
+case class ScalaSourceResultImpl(scalaSrcs: List[Path]) extends ScalaSourceResult
 
-      for (d <- depTargets) {
-        if (d.outputType() == "java_class") {
-          cp += d.outputDir
-          cp ++= d.value("cp")
-          lib ++= d.value("lib")
-        } else {
-          error("scala_lib(\"" + t.name + "\").deps should only contains target which has outputType='java_class': " + d.name)
-        }
-      }
+object ScalaSourceResult {
 
-      [
-        "SOURCES=(%s)" % [ scalafiles.join(" ") ],
-        "CP=\"%s\"" % [ (cp ++ lib).toSet().join(":") ],
-	"SCALAC=$SCALA_HOME/bin/scalac",
-        "$SCALAC -d $OUTPUT_DIR -cp .:$CP ${SOURCES[*]}",
-      ]
-    },
-    postBuild = lambda(t) {
-      t.setValues({
-        cp: cp.toSet(),
-        lib: lib.toSet()
-      })
-    }
-  )
+  def apply(dir: Directory) = {
+    ScalaSourceResultImpl(glob(includes = List("**/*\\.scala"), baseDir = dir))
+  }
 }
 
-def scala_test(name, testClasses, deps, res) {
+def scala_lib(name: String, srcs: List[String], deps: List[String] = Nil)(implicit context: Context) {
+  val (inputTargetRefs, inputRefs) = refs(srcs) partition { _.isTarget }
+  val (depTargetRefs, cpRefs) = refs(deps) partition { _.isTarget }
+  val cpPath = cpRefs collect {
+    case f: FileRef => f.toPath
+    case d: DirRef => d.toDir
+  }
+  val inCp = cpPath map { _.path }
+  val inputs = inputRefs collect {
+    case f: FileRef => f.toPath
+    case d: DirRef => d.toDir
+  }
 
-  deps = labels(deps)
-  lib   = [d.file for d in deps if d.isFileLabel]
-  depTargets = [d for d in deps if d.isTargetLabel]
-  cp = [ label("//lib/scalatest.jar").file ]
-  mkdirForRes = ["mkdir -p " + r.get(1) for r in res]
-  cpRes = ["cp -r " + label(r.get(0)).file + " " + r.get(1) for r in res]
-
-  genrule(
+  defineTarget[JavaBytecodeResult](
     name = name,
-    outputType = "",
-    deps = depTargets,
-    cmds = [ "" ],
-    preRun = lambda(t) {
-      for (d <- depTargets) {
-        cp += d.outputDir
-        cp ++= d.value("cp")
-        lib ++= d.value("lib")
-      }
-
-      [
-        "CP=%s" % [ (cp ++ lib).join(":") ],
-      ] ++ mkdirForRes ++ cpRes ++ [
-	"SCALA=$SCALA_HOME/bin/scala",
-        "$SCALA -Dfile.encoding=UTF8 -cp .:$CP org.scalatest.tools.Runner -R . -o -s %s" % [testClasses.join(" ")],
-      ]
+    resultFn = { t =>
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      JavaBytecodeResult(t.buildDir, inCp, depTargets.map(_.result))
     },
-    errorWhenNoOutput = false,
-  )
+    buildCmd = { t =>
+      val inputTargets = collectTargets(t.depTargets, inputTargetRefs)
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      val sources = inputs ::: (inputTargets map { _.result.as[ScalaSourceResult].scalaSrcs } flatten)
+      val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result))
+      // build scala sources with cp
+      val cmd = List("scalac", "-encoding", "UTF-8", "-d", t.buildDir.path, "-classpath", cp.mkString(":")) ::: sources.map(_.path)
+      handleBuildCmd(t) { logger =>
+        import scala.sys.process._
+        cmd !! logger
+      }
+    },
+    inputMetaFn = { t =>
+      filesToMeta("scala", inputs) + filesToMeta("cp", cpPath)
+    },
+    deps = inputTargetRefs ::: depTargetRefs
+  )(context)
 }

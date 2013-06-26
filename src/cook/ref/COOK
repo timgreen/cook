@@ -1,46 +1,46 @@
 scala_lib(
   name = "trait_ref",
-  srcs = [
-    "Ref.scala",
-  ],
+  srcs = (
+    "Ref.scala"
+  )
 )
 
 scala_lib(
   name = "ref_manager",
-  srcs = [
-    "RefManager.scala",
-  ],
-  deps = [
+  srcs = (
+    "RefManager.scala"
+  ),
+  deps = (
     ":trait_ref",
-    "//src/cook/error:error",
-  ],
+    "/src/cook/error:error"
+  )
 )
 
 scala_lib(
   name = "basic_refs",
-  srcs = [
-    "basicrefs.scala",
-  ],
-  deps = [
+  srcs = (
+    "basicrefs.scala"
+  ),
+  deps = (
     ":ref_manager",
-    "//src/cook/error:error",
-    "//src/cook/path:path",
-  ],
+    "/src/cook/error:error",
+    "/src/cook/path:path"
+  )
 )
 
 scala_lib(
   name = "ref_factory_register",
-  srcs = [
-    "RefFactoryRegister.scala",
-  ],
-  deps = [
+  srcs = (
+    "RefFactoryRegister.scala"
+  ),
+  deps = (
     ":basic_refs"
-  ],
+  )
 )
 
 java_lib(
   name = "ref",
-  deps = [
-    ":basic_refs",
-  ],
+  deps = (
+    ":basic_refs"
+  )
 )

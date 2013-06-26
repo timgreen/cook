@@ -1,27 +1,27 @@
 scala_lib(
   name = "meta",
-  srcs = [
-    "Meta.scala",
-  ],
+  srcs = (
+    "Meta.scala"
+  )
 )
 
 scala_lib(
   name = "file_hash",
-  srcs = [
-    "FileHash.scala",
-  ],
-  deps = [
-    "//lib/scala-reflect.jar",
-  ],
+  srcs = (
+    "FileHash.scala"
+  ),
+  deps = (
+    "/lib/scala-reflect.jar"
+  )
 )
 
 scala_lib(
   name = "meta_helper",
-  srcs = [
-    "MetaHelper.scala",
-  ],
-  deps = [
+  srcs = (
+    "MetaHelper.scala"
+  ),
+  deps = (
     ":meta",
-    ":file_hash",
-  ],
+    ":file_hash"
+  )
 )

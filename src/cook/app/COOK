@@ -1,74 +1,67 @@
 scala_lib(
-  name = "stage",
-  srcs = [
-    "Stage.scala",
-  ],
-)
-
-scala_lib(
   name = "config",
-  srcs = [
-    "Config.scala",
-  ],
-  deps = [
-    "//src/cook/config:config_ref",
-  ],
+  srcs = (
+    "Config.scala"
+  ),
+  deps = (
+    "/src/cook/config:config_ref"
+  )
 )
 
 scala_lib(
   name = "parser",
-  srcs = [
-    "CookOptionParser.scala",
-  ],
-  deps = [
+  srcs = (
+    "CookOptionParser.scala"
+  ),
+  deps = (
     ":config",
-    "//lib/scallop.jar",
-  ],
+    "/lib/scallop.jar"
+  )
 )
 
 scala_lib(
   name = "global",
-  srcs = [
-    "Global.scala",
-  ],
-  deps = [
+  srcs = (
+    "Global.scala"
+  ),
+  deps = (
     ":config",
-    "//lib/akka-actors.jar",
-    "//lib/typesafe-config.jar",
-  ],
+    "/lib/akka-actors.jar",
+    "/lib/typesafe-config.jar"
+  )
 )
 
 scala_lib(
   name = "main",
-  srcs = [
-    "Main.scala",
-  ],
-  deps = [
+  srcs = (
+    "Main.scala"
+  ),
+  deps = (
     ":parser",
     "action:actions",
-    "//src/cook/console:console",
-    "//src/cook/path:path",
-    "//src/cook/ref:ref_factory_register",
-    "//lib/typesafe-config.jar",
-  ],
+    "/src/cook/console:console",
+    "/src/cook/path:path",
+    "/src/cook/ref:ref_factory_register",
+    "/lib/typesafe-config.jar"
+  )
 )
 
 scala_lib(
   name = "main_handler",
-  srcs = [
-    "MainHandler.scala",
-  ],
-  deps = [
-    "//src/cook/actor:actors",
-    "//src/cook/meta/db:db_provider",
-  ],
+  srcs = (
+    "MainHandler.scala"
+  ),
+  deps = (
+    "/src/cook/actor:actors",
+    "/src/cook/meta/db:db_provider"
+  )
 )
 
 java_bin(
   name = "run_main",
-  java_libs = [
+  deps = (
     ":main",
-    "//lib/scala-library.jar",
-  ],
-  mainClass = "cook.app.Main",
+    "/lib/scala-library.jar"
+  ),
+  mainClass = "cook.app.Main"
 )

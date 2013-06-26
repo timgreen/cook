@@ -1,74 +1,74 @@
 scala_lib(
   name = "config",
-  srcs = [
-    "Config.scala",
-  ],
-  deps = [
-    "dsl:context",
-  ],
+  srcs = (
+    "Config.scala"
+  ),
+  deps = (
+    "dsl:context"
+  )
 )
 
 scala_lib(
   name = "config_ref",
-  srcs = [
-    "ConfigRef.scala",
-  ],
-  deps = [
-    "//src/cook/ref:ref",
-  ],
+  srcs = (
+    "ConfigRef.scala"
+  ),
+  deps = (
+    "/src/cook/ref:ref"
+  )
 )
 
 scala_lib(
   name = "config_generator",
-  srcs = [
-    "ConfigGenerator.scala",
-  ],
-  deps = [
+  srcs = (
+    "ConfigGenerator.scala"
+  ),
+  deps = (
     ":config",
     ":config_ref",
-    "dsl:dsl",
-  ],
+    "dsl:dsl"
+  )
 )
 
 scala_lib(
   name = "config_loader",
-  srcs = [
-    "ConfigLoader.scala",
-  ],
-  deps = [
+  srcs = (
+    "ConfigLoader.scala"
+  ),
+  deps = (
     ":config",
-    ":config_ref",
-  ],
+    ":config_ref"
+  )
 )
 
 scala_lib(
   name = "config_compiler",
-  srcs = [
-    "ConfigCompiler.scala",
-  ],
-  deps = [
+  srcs = (
+    "ConfigCompiler.scala"
+  ),
+  deps = (
     ":config",
     ":config_ref",
-    "//src/cook/config/dsl:dsl",
-    "//src/cook/error:error",
-    "//src/cook/util:cp_builder",
-    "//lib/scala-compiler.jar",
-  ],
+    "/src/cook/config/dsl:dsl",
+    "/src/cook/error:error",
+    "/src/cook/util:cp_builder",
+    "/lib/scala-compiler.jar"
+  )
 )
 
 scala_lib(
   name = "config_engine",
-  srcs = [
-    "ConfigEngine.scala",
-  ],
-  deps = [
+  srcs = (
+    "ConfigEngine.scala"
+  ),
+  deps = (
     ":config_compiler",
     ":config_generator",
     ":config_loader",
-    "//src/cook/app:global",
-    "//src/cook/meta/db:db_provider",
-    "//src/cook/meta:meta_helper",
-    "//src/cook/util:glob_scanner",
-    "//src/cook/util:log_source_provider",
-  ],
+    "/src/cook/app:global",
+    "/src/cook/meta/db:db_provider",
+    "/src/cook/meta:meta_helper",
+    "/src/cook/util:glob_scanner",
+    "/src/cook/util:log_source_provider"
+  )
 )

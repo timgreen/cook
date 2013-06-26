@@ -1,45 +1,45 @@
 scala_lib(
   name = "context",
-  srcs = [
-    "ConfigContext.scala",
-  ],
-  deps = [
-    "//src/cook/ref:ref",
-    "//src/cook/target:target",
-  ],
+  srcs = (
+    "ConfigContext.scala"
+  ),
+  deps = (
+    "/src/cook/ref:ref",
+    "/src/cook/target:target"
+  )
 )
 
 scala_lib(
   name = "implicits",
-  srcs = [
-    "Implicits.scala",
-  ],
-  deps = [
+  srcs = (
+    "Implicits.scala"
+  ),
+  deps = (
     ":context",
-    "//src/cook/ref:ref_manager",
-  ]
+    "/src/cook/ref:ref_manager"
+  )
 )
 
 scala_lib(
   name = "type_and_values",
-  srcs = [
-    "TypeAndValues.scala",
-  ],
-  deps = [
+  srcs = (
+    "TypeAndValues.scala"
+  ),
+  deps = (
     ":context",
-    "//src/cook/ref:basic_refs",
-    "//src/cook/target:target",
-  ],
+    "/src/cook/ref:basic_refs",
+    "/src/cook/target:target"
+  )
 )
 
 scala_lib(
   name = "dsl",
-  srcs = [
-    "Dsl.scala",
-  ],
-  deps = [
+  srcs = (
+    "Dsl.scala"
+  ),
+  deps = (
     ":implicits",
     ":type_and_values",
-    "buildin:buildin_commands",
-  ],
+    "buildin:buildin_commands"
+  )
 )

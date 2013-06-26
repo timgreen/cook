@@ -1,5 +1,9 @@
+// @import "/rules/jar"
+
 jar(
-    name = "cook-unprocessed",
-    java_libs = [ "//src/cook/app:main" ],
-    mainClass = "cook.app.Main",
+  jarName = "cook.jar",
+  deps = (
+    "/src/cook/app:main"
+  ),
+  mainClass = "cook.app.Main"
 )

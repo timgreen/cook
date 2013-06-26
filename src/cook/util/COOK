@@ -1,30 +1,30 @@
 scala_lib(
   name = "dag_solver",
-  srcs = [
-    "DagSolver.scala",
-  ],
+  srcs = (
+    "DagSolver.scala"
+  )
 )
 
 scala_lib(
   name = "cp_builder",
-  srcs = [
-    "ClassPathBuilder.scala",
-  ],
+  srcs = (
+    "ClassPathBuilder.scala"
+  )
 )
 
 scala_lib(
   name = "glob_scanner",
-  srcs = [
-    "GlobScanner.scala",
-  ],
+  srcs = (
+    "GlobScanner.scala"
+  )
 )
 
 scala_lib(
   name = "log_source_provider",
-  srcs = [
-    "LogSourceProvider.scala",
-  ],
-  deps = [
-    "//lib/akka-actors.jar",
-  ],
+  srcs = (
+    "LogSourceProvider.scala"
+  ),
+  deps = (
+    "/lib/akka-actors.jar"
+  )
 )

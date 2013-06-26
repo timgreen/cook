@@ -1,0 +1,47 @@
+// @val java = "java"
+
+import java.JavaDepResult
+
+trait ScalaTestSuiteResult extends TargetResult {
+  def runTest
+}
+class ScalaTestSuiteResultImpl(target: Target[ScalaTestSuiteResult]) extends ScalaTestSuiteResult {
+  override def runTest = target.run()
+}
+
+def scala_test(name: String, testClasses: List[String], deps: List[String] = Nil, res: List[(String, String)] = Nil)
+              (implicit context: Context) {
+
+  val depTargetRefs = refs(deps)
+  require(depTargetRefs.forall(_.isTarget), "deps should be target_ref(s)")
+
+  defineTarget[ScalaTestSuiteResult](
+    name = name,
+    resultFn = { t =>
+      new ScalaTestSuiteResultImpl(t)
+    },
+    buildCmd = EmptyBuildCmd(),
+    runCmd = Some({ (t, args) =>
+      val depTargets = collectTargets(t.depTargets, depTargetRefs)
+      val cp = JavaDepResult.buildCp(Nil, depTargets.map(_.result))
+
+      val mkdirCmds = res map { case (s, d) =>
+        "mkdir" :: "-p" :: d
+      }
+      val copyCmds = res map { case (s, d) =>
+        "cp" :: "-r" :: ref(s).as[PathRef].toPath.path :: d
+      }
+      val runTestCmd =
+        "scala" :: "-Dfile.encoding=UTF8" :: "-cp" :: cp.mkString(":") ::
+          "org.scalatest.tools.Runner" :: "-R" :: "." :: "-o" :: "-s" :: testClasses
+
+      runRunCmdInTargetDir(t)(
+        mkdirCmds ::: copyCmds ::: runTestCmd :: Nil: _*
+      )
+
+      0
+    }),
+    inputMetaFn = EmptyMetaFn(),
+    deps = depTargetRefs
+  )(context)
+}

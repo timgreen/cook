@@ -1,16 +1,16 @@
 scala_lib(
   name = "actions",
-  srcs = [
+  srcs = (
     "BuildAction.scala",
     "RunAction.scala",
-    "CleanAction.scala",
-  ],
-  deps = [
-    "//src/cook/actor:actors",
-    "//src/cook/app:main_handler",
-    "//src/cook/console:console",
-    "//src/cook/path:path",
-    "//src/cook/ref:ref",
-    "//src/cook/ref:ref_manager",
-  ],
+    "CleanAction.scala"
+  ),
+  deps = (
+    "/src/cook/actor:actors",
+    "/src/cook/app:main_handler",
+    "/src/cook/console:console",
+    "/src/cook/path:path",
+    "/src/cook/ref:ref",
+    "/src/cook/ref:ref_manager"
+  )
 )

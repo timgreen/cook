@@ -1,0 +1,47 @@
+// @val java = "java"
+
+import java.{ JavaDepResult, JavaBytecodeResult }
+
+trait JarResult extends JavaDepResult with TargetResult {
+  def jarPath: Path
+}
+case class JarResultImpl(jarPath: Path) extends JarResult {
+  override def cp: List[String] = jarPath.path :: Nil
+}
+object JarResult {
+  def apply(jarPath: Path) = JarResultImpl(jarPath)
+}
+
+def jar(jarName: String, deps: List[String], mainClass: String = null)
+       (implicit context: Context) {
+  val depTargetRefs = refs(deps)
+  require(depTargetRefs.forall(_.isTarget), "deps should be target_refs")
+
+  defineTarget[JarResult](
+    name = jarName,
+    resultFn = { t =>
+      JarResult(t.buildDir / jarName)
+    },
+    buildCmd = { t =>
+      val mkdirCmd = List("mkdir", "-p", "classes")
+      val javaBytecodeResults = JavaBytecodeResult.getAllBytecodeResults(t.depTargets)
+      val cpClassesCmds =
+        (javaBytecodeResults map { r => r.bytecodeDir.list.map(_.path) } flatten) map { d =>
+          "cp" :: "-rf" :: d :: "classes/" :: Nil
+        }
+      val jarCmd = if (mainClass == null) {
+        "jar" :: "cf" :: jarName :: "-C" :: "classes" :: "." :: Nil
+      } else {
+        "jar" :: "cfe" :: jarName :: mainClass :: "-C" :: "classes" :: "." :: Nil
+      }
+
+      runBuildCmdInTargetDir(t)(
+        mkdirCmd :: cpClassesCmds ::: jarCmd :: Nil: _*
+      )
+    },
+    inputMetaFn = { t =>
+      stringToMeta("mainClass", mainClass)
+    },
+    deps = depTargetRefs
+  )(context)
+}

@@ -1,31 +1,31 @@
 scala_lib(
   name = "db",
-  srcs = [
-    "Db.scala",
-  ],
-  deps = [
-    "//src/cook/meta:meta",
-    "//src/cook/path:path",
-  ],
+  srcs = (
+    "Db.scala"
+  ),
+  deps = (
+    "/src/cook/meta:meta",
+    "/src/cook/path:path"
+  )
 )
 
 scala_lib(
   name = "berkeley_db_impl",
-  srcs = [
-    "BerkeleyDbImpl.scala",
-  ],
-  deps = [
+  srcs = (
+    "BerkeleyDbImpl.scala"
+  ),
+  deps = (
     ":db",
-    "//lib/je.jar",
-  ],
+    "/lib/je.jar"
+  )
 )
 
 scala_lib(
   name = "db_provider",
-  srcs = [
-    "DbProvider.scala",
-  ],
-  deps = [
-    ":berkeley_db_impl",
-  ],
+  srcs = (
+    "DbProvider.scala"
+  ),
+  deps = (
+    ":berkeley_db_impl"
+  )
 )

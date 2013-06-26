@@ -1,10 +1,10 @@
 scala_lib(
   name = "path",
-  srcs = [
-    "Path.scala",
-  ],
-  deps = [
-    "//lib/scala-reflect.jar",
-    "//src/cook/error:error",
-  ],
+  srcs = (
+    "Path.scala"
+  ),
+  deps = (
+    "/lib/scala-reflect.jar",
+    "/src/cook/error:error"
+  )
 )
