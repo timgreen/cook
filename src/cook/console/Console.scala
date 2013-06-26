@@ -85,13 +85,8 @@ object Console {
       }
 
       // draw progress bar
-      val barWidth      = w - 4
-      val doneWidth     = barWidth * done / total
-      val cachedWidth   = barWidth * cached / total
-      val buildingWidth = barWidth * building / total
-      val unsolvedWidth = barWidth * unsolved / total
-      val pendingWidth  = barWidth - doneWidth - cachedWidth - buildingWidth - unsolvedWidth
-
+      val (doneWidth, cachedWidth, buildingWidth, pendingWidth, unsolvedWidth) =
+        calcBarWidth(done, cached, building, pending, unsolved)
       val cookLen = doneWidth + cachedWidth + buildingWidth
       val cookStr = "C" + "o" * (cookLen - 2) + "k"
 
@@ -125,4 +120,36 @@ object Console {
   }
 
   private def w = Config.cols
+
+  private def calcBarWidth(done: Int, cached: Int, building: Int, pending: Int, unsolved:Int) = {
+    val total = done + cached + building + pending + unsolved
+    val barWidth      = w - 4
+    val doneWidth     = barWidth * done / total
+    val cachedWidth   = barWidth * cached / total
+    val buildingWidth = barWidth * building / total
+    val unsolvedWidth = barWidth * unsolved / total
+    val pendingWidth  = barWidth - doneWidth - cachedWidth - buildingWidth - unsolvedWidth
+
+    val delta = if (pendingWidth == 0 || pending > 0) {
+      (0, 0, 0, 0, 0)
+    } else if (done > 0) {
+      (pendingWidth, 0, 0, -pendingWidth, 0)
+    } else if (cached > 0) {
+      (0, pendingWidth, 0, -pendingWidth, 0)
+    } else if (building > 0) {
+      (0, 0, pendingWidth, -pendingWidth, 0)
+    } else if (unsolved > 0) {
+      (0, 0, 0, -pendingWidth, pendingWidth)
+    } else {
+      (0, 0, 0, 0, 0)
+    }
+
+    (
+      doneWidth     + delta._1,
+      cachedWidth   + delta._2,
+      buildingWidth + delta._3,
+      pendingWidth  + delta._4,
+      unsolvedWidth + delta._5
+    )
+  }
 }
