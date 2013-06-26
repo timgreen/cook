@@ -52,11 +52,12 @@ class DagSolver {
     assert(!solvedNodes.contains(node), "Duplicated node: " + node)
     nodes += node
     solvedNodes += node
-    if (deps.isEmpty) {
+
+    val set = deps.toSet -- doneNodes
+    if (set.isEmpty) {
       avaliableNodes += node
       Ok
     } else {
-      val set = deps.toSet
       nodes ++= set
       depNodesCount(node) = set.size
       set foreach { dep =>

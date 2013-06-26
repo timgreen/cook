@@ -61,10 +61,8 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
   }
 
   def step1WaitDepConfigRefs(configRef: ConfigRef) {
-    log.debug("step1WaitDepConfigRefs {}", configRef.refName)
-
     // NOTE(timgreen): cycle check already been done on configRef level, so don't need check here.
-    val depConfigFileRef = configRef.configType match {
+    val depConfigFileRefs = configRef.configType match {
       case ConfigType.CookConfig =>
         rootIncludes.map(_.ref) ++
         configRef.includes.map(_.ref)
@@ -72,14 +70,16 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
         configRef.includes.map(_.ref)
     }
 
+    log.debug("step1WaitDepConfigRefs {} \n{}", configRef.refName, depConfigFileRefs.map(_.refName).mkString("\n"))
+
     import TypedActor.dispatcher
-    Future.traverse(depConfigFileRef.toList) { cookFileRef =>
+    Future.traverse(depConfigFileRefs.toList) { cookFileRef =>
       configRefManager.getConfigRef(cookFileRef)
     } onComplete self.step2WaitDepConfig(configRef)
   }
 
   override def step2WaitDepConfig(configRef: ConfigRef)(tryDepConfigRefs: Try[List[ConfigRef]]) {
-    log.debug("step2WaitDepConfig {} {}", configRef.refName, tryDepConfigRefs)
+    log.debug("step2WaitDepConfig {} {}", configRef.refName, tryDepConfigRefs.map(l => l.map(_.refName)))
     tryDepConfigRefs match {
       case Success(depConfigRefs) =>
         depUnsolvedTasks(configRef.refName) = LoadConfigClassTaskInfo(configRef, depConfigRefs)
@@ -112,6 +112,7 @@ class ConfigLoaderImpl(rootIncludes: List[ConfigRefInclude]) extends ConfigLoade
 
   override def step3LoadConfigClass(taskInfo: LoadConfigClassTaskInfo) {
     val refName = taskInfo.configRef.refName
+    log.debug("step3LoadConfigClass {}", refName)
     Global.workerDispatcher.execute(ConfigLoadTask(refName) {
       self.taskComplete(refName)(Try(doLoadConfig(taskInfo)))
     })
