@@ -10,16 +10,22 @@ class BatchResponser[Key, Result](processError: (Key, Throwable) => Throwable) {
 
   private val waiters = mutable.Map[Key, Promise[Result]]()
   private val cache = mutable.Map[Key, Result]()
+  private val cacheError = mutable.Map[Key, Throwable]()
 
   def onTask(key: Key)(firstTimeAction: => Unit): Future[Result] = cache.get(key) match {
     case Some(result) =>
       Future.successful(result)
     case None =>
-      waiters.getOrElseUpdate(key, {
-        val p = Promise[Result]()
-        firstTimeAction
-        p
-      }).future
+      cacheError.get(key) match {
+        case Some(e) =>
+          Future.failed(e)
+        case None =>
+          waiters.getOrElseUpdate(key, {
+            val p = Promise[Result]()
+            firstTimeAction
+            p
+          }).future
+      }
   }
 
   def success(key: Key, result: Result) {
@@ -37,7 +43,9 @@ class BatchResponser[Key, Result](processError: (Key, Throwable) => Throwable) {
       case None =>
         assert(false, "Can not complete an unexist task as failure: " + key)
       case Some(p) =>
-        p.failure(processError(key, e))
+        val error = processError(key, e)
+        cacheError(key) = error
+        p.failure(error)
     }
   }
 
