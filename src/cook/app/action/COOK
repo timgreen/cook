@@ -3,6 +3,7 @@ scala_lib(
   srcs = [
     "BuildAction.scala",
     "RunAction.scala",
+    "CleanAction.scala",
   ],
   deps = [
     "//src/cook/actor:actors",

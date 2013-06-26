@@ -33,7 +33,7 @@ object Main {
       case Some(parser.commandBuild) =>
         BuildAction.run(parser.commandBuild.targets())
       case Some(parser.commandClean) =>
-        println("clean " + parser.commandClean.targets())
+        CleanAction.run
       case Some(parser.commandRun) =>
         RunAction.run(parser.commandRun.target(), parser.commandRun.runArgs())
       case Some(parser.commandAnalyze) =>
