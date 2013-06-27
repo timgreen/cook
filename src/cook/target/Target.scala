@@ -31,8 +31,19 @@ abstract class Target[+R <: TargetResult](
   def status = _status
   def isResultReady = (_status == Cached) || (_status == Built)
 
+  private var _depTargets: Option[List[Target[TargetResult]]] = None
+  def depTargets: List[Target[TargetResult]] = _depTargets getOrError {
+    "Can not call target " :: strong(refName) :: ".depTargets, deps not ready yet."
+  }
+  private [cook] def setDepTargets(depTargets: List[Target[TargetResult]]) {
+    assert(_depTargets.isEmpty, "depTargets should only be set once: " + refName)
+    val f = deps.map(_.refName).toSet == depTargets.map(_.refName).toSet
+    assert(f, "depTargets should equal to deps: " + refName)
+    _depTargets = Some(depTargets)
+  }
+
   private[this] var _result: Option[R] = None
-  private [cook] def buildResult(depTargets: List[Target[TargetResult]]): R = {
+  private [cook] def buildResult: R = {
     assert(_result.isEmpty, "result should only be built once: " + refName)
 
     if (!isResultReady) {
@@ -42,7 +53,7 @@ abstract class Target[+R <: TargetResult](
       }
     }
 
-    val r = resultFn(this, depTargets)
+    val r = resultFn(this)
     _result = Some(r)
     r
   }
@@ -56,14 +67,14 @@ abstract class Target[+R <: TargetResult](
     meta != cachedMeta
   }
 
-  private [cook] def build(depTargets: List[Target[TargetResult]]) {
+  private [cook] def build {
     assert(_status == Pending, "target should only be built once: " + refName)
 
     if (needBuild) {
       // need build
       buildDir.deleteRecursively
       buildDir.createDirectory(force = true)
-      buildCmd(this, depTargets)
+      buildCmd(this)
       _status = Built
       val meta = buildMeta
       metaDb.put(ref.metaKey, meta)
@@ -86,10 +97,10 @@ abstract class Target[+R <: TargetResult](
   }
 
   def isRunnable = runCmd.isDefined
-  private [cook] def run(depTargets: List[Target[TargetResult]], args: List[String] = Nil): Int = {
+  private [cook] def run(args: List[String] = Nil): Int = {
     assert(isRunnable, "can not run a target without runCmd: " + refName)
     assert(isResultReady, "can not run a target that was not built yet: " + refName)
-    runCmd.get(this, depTargets, args)
+    runCmd.get(this, args)
   }
 }
 

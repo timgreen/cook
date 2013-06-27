@@ -19,21 +19,12 @@ object RunAction {
     val targetRef = RefManager(currentSegments, targetRefName).as[TargetRef]
 
     val futureTargetAndResult = Actors.targetBuilder build targetRef
-    implicit val ec = Global.workerDispatcher
-    val futureTargetAndDeps = futureTargetAndResult map { case (t, _) =>
-
-      val fs = t.deps.toList map Actors.targetManager.getTarget
-      val depTargets = Await.result(Future.sequence(fs), Duration.Inf)
-
-      t -> depTargets
-    }
-
-    MainHandler.exec(futureTargetAndDeps)
+    MainHandler.exec(futureTargetAndResult)
 
     Console.runTarget(targetRefName)
-    val (t, depTargets) = Await.result(futureTargetAndDeps, Duration.Inf)
+    val (t, _) = Await.result(futureTargetAndResult, Duration.Inf)
     // TODO(timgreen):
     //  - exit code
-    t.run(depTargets, args)
+    t.run(args)
   }
 }

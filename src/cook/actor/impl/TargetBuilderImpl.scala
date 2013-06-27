@@ -135,8 +135,9 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     Global.workerDispatcher.execute(TargetBuildTask(targetName) {
       val depTargets = Await.result(futureDepTargets, Duration.Inf)
       self.taskComplete(targetName)(Try {
-        target.build(depTargets)
-        target -> target.buildResult(depTargets)
+        target.setDepTargets(depTargets)
+        target.build
+        target -> target.buildResult
       })
     })
   }
