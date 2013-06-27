@@ -10,7 +10,7 @@ import cook.error.CookException
 import akka.actor.TypedActor
 import scala.annotation.tailrec
 
-class ConsoleOutputterImpl extends ConsoleOutputter {
+class ConsoleOutputterImpl extends ConsoleOutputter with TypedActorBase {
 
   private var allowStatusUpdate = true
 

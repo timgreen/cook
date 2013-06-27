@@ -10,11 +10,13 @@ import cook.actor.TargetBuilder
 import cook.actor.TargetManager
 import cook.app.Global
 
-import akka.actor.{ TypedActor, TypedProps }
+import akka.actor.{ TypedActor, TypedProps, SupervisorStrategy }
 import akka.event.Logging
 
-trait TypedActorBase {
+trait TypedActorBase extends TypedActor.Supervisor {
   val log = Logging(TypedActor.context.system, TypedActor.context.self)
+
+  override def supervisorStrategy: SupervisorStrategy = SupervisorStrategy.stoppingStrategy
 }
 
 object ActorRefs {

@@ -5,7 +5,7 @@ import cook.actor.TargetStatus
 
 import scala.collection.mutable
 
-class StatusManagerImpl extends StatusManager {
+class StatusManagerImpl extends StatusManager with TypedActorBase {
 
   import ActorRefs._
 
