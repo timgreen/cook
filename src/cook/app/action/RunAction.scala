@@ -8,6 +8,10 @@ import cook.path.Path
 import cook.ref.RefManager
 import cook.ref.TargetRef
 
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
 object RunAction {
 
   def run(targetRefName: String, args: List[String]) {
@@ -16,18 +20,20 @@ object RunAction {
 
     val futureTargetAndResult = Actors.targetBuilder build targetRef
     implicit val ec = Global.workerDispatcher
-
-    MainHandler.exec(futureTargetAndResult map { case (t, r) =>
-      import scala.concurrent.Await
-      import scala.concurrent.Future
-      import scala.concurrent.duration._
+    val futureTargetAndDeps = futureTargetAndResult map { case (t, _) =>
 
       val fs = t.deps.toList map Actors.targetManager.getTarget
-      Console.runTarget(targetRefName)
       val depTargets = Await.result(Future.sequence(fs), Duration.Inf)
-      // TODO(timgreen):
-      //  - exit code
-      t.run(depTargets, args)
-    })
+
+      t -> depTargets
+    }
+
+    MainHandler.exec(futureTargetAndDeps)
+
+    Console.runTarget(targetRefName)
+    val (t, depTargets) = Await.result(futureTargetAndDeps, Duration.Inf)
+    // TODO(timgreen):
+    //  - exit code
+    t.run(depTargets, args)
   }
 }

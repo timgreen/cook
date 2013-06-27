@@ -116,7 +116,7 @@ object Console {
   }
 
   def runTarget(targetRefName: String) = print {
-    "Run Target: " :: strong(targetRefName)
+    "Run Target: " :: strong(targetRefName) :: newLine
   }
 
   private def w = Config.cols
