@@ -1,5 +1,6 @@
 package cook.app
 
+import cook.actor.Actors
 import cook.actor.Actors.consoleOutputter
 import cook.error._
 import cook.meta.db.DbProvider
@@ -32,6 +33,9 @@ object MainHandler {
   }
 
   private def handleNormalExit {
+    Actors.targetBuilder.blockToFinish
+    Actors.statusManager.blockToFinish
+    Actors.consoleOutputter.blockToFinish
     shutdownCleanUp
     Global.system.shutdown
   }

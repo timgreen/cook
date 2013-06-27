@@ -17,4 +17,6 @@ trait TargetBuilder {
   def step3BuildTarget(targetName: String)
   def checkDag
   def updateStatus
+  // NOTE(timgreen): return value Int is used to mark this request blocking.
+  def blockToFinish: Int
 }

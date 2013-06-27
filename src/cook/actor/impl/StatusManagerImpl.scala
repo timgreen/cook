@@ -41,4 +41,5 @@ class StatusManagerImpl extends StatusManager with TypedActorBase {
     fireUpdate
   }
 
+  override def blockToFinish: Int = 0
 }

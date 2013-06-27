@@ -72,7 +72,6 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
 
   override def taskComplete(refName: String)(tryTargetAndResult: Try[TargetAndResult]) {
     log.debug("complete {} {}", refName, tryTargetAndResult)
-    responser.complete(refName)(tryTargetAndResult)
     if (tryTargetAndResult.isSuccess) {
       dagSolver.markDone(refName)
       if (tryTargetAndResult.get._1.status == cook.target.TargetStatus.Cached) {
@@ -80,6 +79,7 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
       }
       self.checkDag
     }
+    responser.complete(refName)(tryTargetAndResult)
   }
 
   override def build(targetRef: TargetRef): Future[TargetAndResult] = {
@@ -148,4 +148,6 @@ class TargetBuilderImpl extends TargetBuilder with TypedActorBase {
     }
     new TargetCycleDepException(header :: ops ::: indent :: strong(cycle.head))
   }
+
+  override def blockToFinish: Int = 0
 }
