@@ -14,13 +14,20 @@ import cook.target.TargetResult
 import akka.actor.{ ActorContext, TypedActor, TypedProps }
 import scala.concurrent.{ Promise, Future, Await }
 import scala.concurrent.duration._
+import scala.util.Try
 
 
 class TargetManagerImpl extends TargetManager with TypedActorBase {
 
   import ActorRefs._
 
+  private def self = targetManager
+
   private val nativeResponser = new BatchResponser[String, Target[TargetResult]](processError)
+
+  override def nativeTaskComplete(refName: String)(tryTarget: Try[Target[TargetResult]]) {
+    nativeResponser.complete(refName)(tryTarget)
+  }
 
   private def processError(key: String, e: Throwable): Throwable = error(e) {
     "Error when get target: " :: strong(key)
@@ -47,7 +54,7 @@ class TargetManagerImpl extends TargetManager with TypedActorBase {
         case None =>
           Future.failed(targetNotFoundException(refName))
       }
-    } onComplete nativeResponser.complete(refName)
+    } onComplete self.nativeTaskComplete(refName)
   }
 
   private def targetNotFoundException(refName: String) = error {
