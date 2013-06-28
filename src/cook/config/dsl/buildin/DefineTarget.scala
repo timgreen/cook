@@ -39,6 +39,6 @@ trait DefineTarget {
   }
 
   private def passTargetNameCheck(name: String): Boolean = {
-    name.matches("^[a-zA-Z0-9_]+$")
+    name.matches("^[a-zA-Z0-9_.]+$")
   }
 }
