@@ -121,8 +121,8 @@ trait TargetRef extends Ref {
   def logParentDir: Directory = {
     targetPath.foldLeft(Path().logDir: SPath)(_ / _) toDirectory
   }
-  def buildLogFile: SPath = logParentDir / "build.log"
-  def runLogFile: SPath = logParentDir / "run.log"
+  def buildLogFile: SPath = logParentDir / (targetName + ".build.log")
+  def runLogFile: SPath = logParentDir / (targetName + ".run.log")
 
   def metaKey: String
 }
