@@ -25,12 +25,37 @@ trait Utils {
   def filesToMeta(group: String, file: SPath): Meta = filesToMeta(group, file :: Nil)
 
   def handleBuildCmd(target: Target[TargetResult])(runWithLoggerOp: ProcessLogger => Unit) {
+    import scala.sys.process._
+
     target.ref.buildLogFile.deleteIfExists
     target.ref.logParentDir.createDirectory()
     target.ref.buildLogFile.createFile()
     val f = target.ref.buildLogFile.jfile
     val logger = ProcessLogger(f)
     val r = Try { runWithLoggerOp(logger) }
+    logger.flush
+    logger.close
+    if (r.isFailure) {
+      import cook.error._
+      import cook.console.ops._
+      reportError {
+        Source.fromFile(f).mkString
+      }
+    }
+  }
+  def runBuildCmdInTargetDir(target: Target[TargetResult])(cmds: Seq[String]*) {
+    import scala.sys.process._
+
+    target.ref.buildLogFile.deleteIfExists
+    target.ref.logParentDir.createDirectory()
+    target.ref.buildLogFile.createFile()
+    val f = target.ref.buildLogFile.jfile
+    val logger = ProcessLogger(f)
+    val r = Try {
+      cmds foreach { cmd =>
+        Process(cmd, Some(target.buildDir.jfile)) !! logger
+      }
+    }
     logger.flush
     logger.close
     if (r.isFailure) {
