@@ -4,3 +4,4 @@ trait BuildinCommands
   extends DefineTarget
   with Glob
   with Utils
+  with Meta

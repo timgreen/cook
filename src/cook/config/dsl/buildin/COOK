@@ -18,11 +18,18 @@ scala_lib(
 )
 
 scala_lib(
+  name = "meta",
+  srcs = "Meta.scala",
+  deps = [
+    "//src/cook/meta:meta_helper",
+  ],
+)
+
+scala_lib(
   name = "utils",
   srcs = "Utils.scala",
   deps = [
     "//src/cook/error:error",
-    "//src/cook/meta:meta_helper",
     "//src/cook/target:target",
   ],
 )
@@ -33,6 +40,7 @@ scala_lib(
   deps = [
     ":define_target",
     ":glob",
+    ":meta",
     ":utils",
   ],
 )

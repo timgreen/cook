@@ -1,7 +1,5 @@
 package cook.config.dsl.buildin
 
-import cook.meta.Meta
-import cook.meta.MetaHelper
 import cook.ref.{ Ref, TargetRef }
 import cook.target.{ Target, TargetResult }
 
@@ -20,9 +18,6 @@ trait Utils {
   }
   def collectTarget(targets: List[Target[TargetResult]], targetRef: Ref): Target[TargetResult] =
     collectTargets(targets, targetRef :: Nil).head
-
-  def filesToMeta(group: String, files: Seq[SPath]): Meta = MetaHelper.buildFileMeta(group, files)
-  def filesToMeta(group: String, file: SPath): Meta = filesToMeta(group, file :: Nil)
 
   def handleBuildCmd(target: Target[TargetResult])(runWithLoggerOp: ProcessLogger => Unit) {
     import scala.sys.process._
