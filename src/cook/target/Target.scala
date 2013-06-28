@@ -99,8 +99,12 @@ abstract class Target[+R <: TargetResult](
     // input
     val inputMeta = inputMetaFn(this).withPrefix(Target.InputMetaPrefix)
     // target
-    val targets = GlobScanner(buildDir, "**" :: Nil)
-    val targetMeta = MetaHelper.buildFileMeta(Target.TargetMetaGroup, targets)
+    val targetMeta = if (buildDir.exists) {
+      val targets = GlobScanner(buildDir, "**" :: Nil)
+      MetaHelper.buildFileMeta(Target.TargetMetaGroup, targets)
+    } else {
+      new Meta
+    }
 
     //
     depsMeta + configMeta + inputMeta + targetMeta
