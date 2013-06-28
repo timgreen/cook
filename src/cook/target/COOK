@@ -8,8 +8,9 @@ scala_lib(
     "//src/cook/config:config_ref",
     "//src/cook/error:error",
     "//src/cook/meta/db:db_provider",
-    "//src/cook/meta:meta",
+    "//src/cook/meta:meta_helper",
     "//src/cook/ref:ref",
+    "//src/cook/util:glob_scanner",
   ],
 )
 

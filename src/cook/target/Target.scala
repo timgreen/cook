@@ -3,9 +3,10 @@ package cook.target
 import cook.config.ConfigRef
 import cook.console.ops._
 import cook.error._
-import cook.meta.Meta
+import cook.meta.{ Meta, MetaHelper }
 import cook.meta.db.DbProvider.{ db => metaDb }
 import cook.ref.TargetRef
+import cook.util.GlobScanner
 
 
 object TargetStatus extends Enumeration {
@@ -85,15 +86,24 @@ abstract class Target[+R <: TargetResult](
   }
 
   private [cook] def buildMeta: Meta = {
-    val inputMeta = inputMetaFn(this)
+    // dep
     val depsMeta = new Meta
     deps foreach { dep =>
       depsMeta.add(Target.DepMetaGroup, dep.refName, metaDb.get(dep.metaKey).hash)
     }
+    // config
+    val configMeta = new Meta
     val defineConfigRefName = ConfigRef.defineConfigRefNameForTarget(refName)
     val configKey = ConfigRef.configScalaSourceMetaKeyFor(defineConfigRefName)
-    depsMeta.add(Target.ConfigMetaGroup, "config", metaDb.get(configKey).hash)
-    inputMeta.withPrefix(Target.InputMetaPrefix) + depsMeta
+    configMeta.add(Target.ConfigMetaGroup, "config", metaDb.get(configKey).hash)
+    // input
+    val inputMeta = inputMetaFn(this).withPrefix(Target.InputMetaPrefix)
+    // target
+    val targets = GlobScanner(buildDir, "**" :: Nil)
+    val targetMeta = MetaHelper.buildFileMeta(Target.TargetMetaGroup, targets)
+
+    //
+    depsMeta + configMeta + inputMeta + targetMeta
   }
 
   def isRunnable = runCmd.isDefined
@@ -108,5 +118,6 @@ object Target {
 
   val DepMetaGroup = "deps"
   val ConfigMetaGroup = "config"
+  val TargetMetaGroup = "target"
   val InputMetaPrefix = "input"
 }
