@@ -94,7 +94,7 @@ abstract class Target[+R <: TargetResult](
     // config
     val configMeta = new Meta
     val defineConfigRefName = ConfigRef.defineConfigRefNameForTarget(refName)
-    val configKey = ConfigRef.configScalaSourceMetaKeyFor(defineConfigRefName)
+    val configKey = ConfigRef.configByteCodeMetaKeyFor(defineConfigRefName)
     configMeta.add(Target.ConfigMetaGroup, "config", metaDb.get(configKey).hash)
     // input
     val inputMeta = inputMetaFn(this).withPrefix(Target.InputMetaPrefix)
