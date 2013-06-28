@@ -116,7 +116,8 @@ trait TargetRef extends Ref {
     targetPath.foldLeft(Path().targetBuildDir: SPath)(_ / _) toDirectory
   }
 
-  def targetBuildDir: Directory = targetBuildParentDir / (targetName + ".cook_target") toDirectory
+  def targetBuildDir: Directory = targetBuildParentDir / (targetName + ".cook_build_target") toDirectory
+  def targetRunDir: Directory = targetBuildParentDir / (targetName + ".cook_run_target") toDirectory
 
   def logParentDir: Directory = {
     targetPath.foldLeft(Path().logDir: SPath)(_ / _) toDirectory

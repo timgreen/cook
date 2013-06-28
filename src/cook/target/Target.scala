@@ -25,6 +25,7 @@ abstract class Target[+R <: TargetResult](
 
   def refName = ref.refName
   def buildDir = ref.targetBuildDir
+  def runDir = ref.targetRunDir
 
 
   import TargetStatus._
@@ -111,9 +112,11 @@ abstract class Target[+R <: TargetResult](
   }
 
   def isRunnable = runCmd.isDefined
-  private [cook] def run(args: List[String] = Nil): Int = {
+  def run(args: List[String] = Nil): Int = {
     assert(isRunnable, "can not run a target without runCmd: " + refName)
     assert(isResultReady, "can not run a target that was not built yet: " + refName)
+    runDir.deleteRecursively
+    runDir.createDirectory(force = true)
     runCmd.get(this, args)
   }
 }
