@@ -19,11 +19,11 @@ object Main {
     loadCookRootConfig
     try {
       MainHandler.prepareMetaDb
-      runSubCommand(parser)
     } catch {
       case e: Throwable =>
         MainHandler.handleException(e)
     }
+    runSubCommand(parser)
   }
 
   def runSubCommand(parser: CookOptionParser) {

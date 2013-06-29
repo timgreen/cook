@@ -63,8 +63,10 @@ trait Utils {
       val exit = Process(cmd, Some(target.runDir.jfile)) !
       import cook.error._
       import cook.console.ops._
-      reportError {
-        "Exit with code: " :: strong(exit.toString)
+      if (exit != 0) {
+        reportError {
+          "Exit with code: " :: strong(exit.toString)
+        }
       }
     }
   }

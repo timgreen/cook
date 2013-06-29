@@ -8,6 +8,10 @@ import scala.annotation.tailrec
 import scala.reflect.io.{ Path => SPath, Directory }
 
 
+trait PathRef extends Ref {
+  def toPath: SPath
+}
+
 /**
  * Directory reference.
  *
@@ -15,9 +19,10 @@ import scala.reflect.io.{ Path => SPath, Directory }
  *
  * @author iamtimgreen@gmail.com (Tim Green)
  */
-class DirRef(val segments: List[String]) extends Ref {
+class DirRef(val segments: List[String]) extends PathRef {
 
   def toDir: Directory = segments.foldLeft(Path().rootDir: SPath)(_ / _).toDirectory
+  override def toPath: SPath = toDir
   override def refName: String = if (segments.isEmpty) "/" else segments.mkString("/", "/", "/")
   override def isDir: Boolean = true
 }
@@ -83,11 +88,9 @@ object DirRefFactory extends RefFactory[DirRef] {
 
 }
 
-abstract class PathRef(val dir: DirRef, lastPart: String) extends Ref
+class FileRef(val dir: DirRef, val filename: String) extends PathRef {
 
-class FileRef(dir: DirRef, val filename: String) extends PathRef(dir, filename) {
-
-  def toPath: SPath = dir.toDir / filename
+  override def toPath: SPath = dir.toDir / filename
   override def refName: String = dir.refName + filename
   override def isFile: Boolean = true
 }
@@ -128,8 +131,7 @@ trait TargetRef extends Ref {
   def metaKey: String
 }
 
-class NativeTargetRef(dir: DirRef, val targetName: String)
-  extends PathRef(dir, targetName) with TargetRef {
+class NativeTargetRef(val dir: DirRef, val targetName: String) extends TargetRef {
 
   override def targetPath: List[String] = "native" :: dir.segments
 
