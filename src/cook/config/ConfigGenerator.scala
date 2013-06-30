@@ -46,7 +46,7 @@ object ConfigGenerator {
   private def generateHeader(configRef: ConfigRef, depConfigRefsMap: Map[String, ConfigRef],
     writer: PrintWriter) {
     writer.println("// GENERATED CODE, DON'T MODIFY")
-    writer.println("package %s {  // PACKAGE START" format (configRef.configClassPackageName))
+    writer.println("package %s" format (configRef.configClassPackageName))
 
     configRef.configType match {
       case ConfigType.CookConfig =>
@@ -79,10 +79,12 @@ object ConfigGenerator {
         case IncludeDefine(ref) =>
           writer.println("import %s._".format(depConfigRefsMap(ref.refName).configClassFullName))
         case IncludeAsDefine(ref, name) =>
-          writer.println("val %s: %s = %s".format(
-            name,
-            depConfigRefsMap(ref.refName).configClassTraitFullName,
-            depConfigRefsMap(ref.refName).configClassFullName
+          val parts = depConfigRefsMap(ref.refName).configClassFullName.split('.')
+          val packageName = parts.dropRight(1).mkString(".")
+          writer.println("import %s.{ %s => %s }".format(
+            packageName,
+            parts.last,
+            name
           ))
       }
     }
@@ -118,7 +120,5 @@ object ConfigGenerator {
         writer.println("object %s extends %s".format(
           configRef.configClassName, configRef.configClassTraitName))
     }
-
-    writer.println("}  // PACKAGE END")
   }
 }
