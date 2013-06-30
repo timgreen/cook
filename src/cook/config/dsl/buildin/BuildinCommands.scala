@@ -6,3 +6,4 @@ trait BuildinCommands
   with Utils
   with Meta
   with RefOp
+  with ConfigOp

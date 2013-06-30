@@ -44,6 +44,14 @@ scala_lib(
 )
 
 scala_lib(
+  name = "config_op",
+  srcs = "ConfigOp.scala",
+  deps = (
+    "/src/cook/app:config"
+  )
+)
+
+scala_lib(
   name = "buildin_commands",
   srcs = "BuildinCommands.scala",
   deps = (
@@ -51,6 +59,7 @@ scala_lib(
     ":glob",
     ":meta",
     ":utils",
-    ":ref_op"
+    ":ref_op",
+    ":config_op"
   )
 )
