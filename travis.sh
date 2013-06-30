@@ -17,7 +17,7 @@ rm -f scala
 ln -s scala-$TRAVIS_SCALA_VERSION scala
 
 link() {
-  [[ $(readlink -f "$1") != $(readlink -f "$2") ]] && {
+  [ $(readlink -f "$1") != $(readlink -f "$2") ] && {
     rm -f "$2"
     ln -sf "$1" "$2"
   }
