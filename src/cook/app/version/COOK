@@ -1,0 +1,29 @@
+def genVersionSource(name: String) {
+
+  val script = ref("gen_version.sh").as[FileRef].toPath
+
+  defineTarget[ScalaSourceResult](
+    name = "version_source",
+    resultFn = { t =>
+      ScalaSourceResult(t.buildDir)
+    },
+    buildCmd = { t =>
+      runBuildCmdInTargetDir(t) {
+        "sh" :: script.path :: (t.buildDir / "Version.scala").path :: Nil
+      }
+    },
+    inputMetaFn = { t =>
+      import scala.sys.process._
+      val s = "sh" :: script.path :: Nil !!
+
+      filesToMeta("script", script) + stringToMeta("source", s)
+    }
+  )
+}
+
+genVersionSource("version_source")
+
+scala_lib(
+  name = "version",
+  srcs = ":version_source"
+)
