@@ -1,3 +1,13 @@
+private val conf = configWithDefault("""
+  java {
+    javaCmd = ${JAVA_HOME}/bin/java
+    jarCmd = ${JAVA_HOME}/bin/jar
+  }
+""")
+
+val javaCmd = conf.getString("java.javaCmd")
+val jarCmd = conf.getString("java.jarCmd")
+
 trait JavaDepResult extends TargetResult {
   def cp: List[String]
 }

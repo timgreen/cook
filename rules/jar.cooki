@@ -1,6 +1,6 @@
-// @val java = "java"
+// @val javaRule = "java"
 
-import java.{ JavaDepResult, JavaBytecodeResult }
+import javaRule.{ JavaDepResult, JavaBytecodeResult, jarCmd }
 
 trait JarResult extends JavaDepResult with TargetResult {
   def jarPath: Path
@@ -29,14 +29,14 @@ def jar(jarName: String, deps: List[String], mainClass: String = null)
         (javaBytecodeResults map { r => r.bytecodeDir.list.map(_.path) } flatten) map { d =>
           "cp" :: "-rf" :: d :: "classes/" :: Nil
         }
-      val jarCmd = if (mainClass == null) {
-        "jar" :: "cf" :: jarName :: "-C" :: "classes" :: "." :: Nil
+      val jarCmdOp = if (mainClass == null) {
+        jarCmd :: "cf" :: jarName :: "-C" :: "classes" :: "." :: Nil
       } else {
-        "jar" :: "cfe" :: jarName :: mainClass :: "-C" :: "classes" :: "." :: Nil
+        jarCmd :: "cfe" :: jarName :: mainClass :: "-C" :: "classes" :: "." :: Nil
       }
 
       runBuildCmdInTargetDir(t)(
-        mkdirCmd :: cpClassesCmds ::: jarCmd :: Nil: _*
+        mkdirCmd :: cpClassesCmds ::: jarCmdOp :: Nil: _*
       )
     },
     inputMetaFn = { t =>

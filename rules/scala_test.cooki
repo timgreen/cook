@@ -1,6 +1,8 @@
-// @val java = "java"
+// @val javaRule = "java"
+// @val scalaRule = "scala"
 
-import java.JavaDepResult
+import javaRule.JavaDepResult
+import scalaRule.scalaCmd
 
 trait ScalaTestSuiteResult extends TargetResult {
   def runTest
@@ -32,7 +34,7 @@ def scala_test(name: String, testClasses: List[String], deps: List[String] = Nil
         "cp" :: "-r" :: ref(s).as[PathRef].toPath.path :: d
       }
       val runTestCmd =
-        "scala" :: "-Dfile.encoding=UTF8" :: "-cp" :: cp.mkString(":") ::
+        scalaCmd :: "-Dfile.encoding=UTF8" :: "-cp" :: cp.mkString(":") ::
           "org.scalatest.tools.Runner" :: "-R" :: "." :: "-o" :: "-s" :: testClasses
 
       runRunCmdInTargetDir(t)(

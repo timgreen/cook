@@ -1,6 +1,16 @@
-// @val java = "java"
+// @val javaRule = "java"
 
-import java.{ JavaDepResult, JavaBytecodeResult }
+private val conf = configWithDefault("""
+  scala {
+    scalaCmd = ${SCALA_HOME}/bin/scala
+    scalacCmd = ${SCALA_HOME}/bin/scalac
+  }
+""")
+
+val scalaCmd = conf.getString("scala.scalaCmd")
+val scalacCmd = conf.getString("scala.scalacCmd")
+
+import javaRule.{ JavaDepResult, JavaBytecodeResult }
 
 trait ScalaSourceResult extends TargetResult {
   def scalaSrcs: List[Path]
@@ -39,7 +49,7 @@ def scala_lib(name: String, srcs: List[String], deps: List[String] = Nil)(implic
       val sources = inputs ::: (inputTargets map { _.result.as[ScalaSourceResult].scalaSrcs } flatten)
       val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result))
       // build scala sources with cp
-      val cmd = List("scalac", "-encoding", "UTF-8", "-d", t.buildDir.path, "-classpath", cp.mkString(":")) ::: sources.map(_.path)
+      val cmd = List(scalacCmd, "-encoding", "UTF-8", "-d", t.buildDir.path, "-classpath", cp.mkString(":")) ::: sources.map(_.path)
       handleBuildCmd(t) { logger =>
         import scala.sys.process._
         cmd !! logger
