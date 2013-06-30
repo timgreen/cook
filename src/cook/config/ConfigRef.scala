@@ -54,7 +54,7 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
     Source.fromFile(fileRef.toPath.path) getLines() collect {
       case ConfigRef.IncludeP(ref) =>
         IncludeDefine(relativeConfigRef(ref + ".cooki"))
-      case ConfigRef.IncludeAsP(name, ref) =>
+      case ConfigRef.IncludeAsP(ref, name) =>
         IncludeAsDefine(relativeConfigRef(ref + ".cooki"), name)
     } toSet
   }
@@ -94,7 +94,7 @@ private[cook] class ConfigRef(val fileRef: FileRef) {
 object ConfigRef {
 
   val IncludeP   = """^\s*//\s*@import\s+"(.+)"\s*$""".r
-  val IncludeAsP = """^\s*//\s*@val\s+(\w+)\s*=\s*"(.+)"\s*$""".r
+  val IncludeAsP = """^\s*//\s*@import\s+"(\w+)"\s*=>\s*(\w+)\s*$""".r
 
   val packagePrefix = "COOK_CONFIG_PACKAGE"
 
