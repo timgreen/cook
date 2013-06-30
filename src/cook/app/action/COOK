@@ -3,10 +3,12 @@ scala_lib(
   srcs = (
     "BuildAction.scala",
     "RunAction.scala",
-    "CleanAction.scala"
+    "CleanAction.scala",
+    "VersionAction.scala"
   ),
   deps = (
     "/src/cook/actor:actors",
+    "/src/cook/app/version:version",
     "/src/cook/app:main_handler",
     "/src/cook/console:console",
     "/src/cook/path:path",

@@ -41,6 +41,10 @@ object Console {
     newLine
   }
 
+  def printVersion(version: String) = print {
+    "Cook version " :: strong(version) :: newLine
+  }
+
   def CookRootFormatError(msg: String) = print {
     red("COOK_ROOT format error") ::
     newLine ::

@@ -38,6 +38,8 @@ object Main {
         RunAction.run(parser.commandRun.target(), parser.commandRun.runArgs())
       case Some(parser.commandAnalyze) =>
         println("analyze " + parser.commandAnalyze.target())
+      case Some(parser.commandVersion) =>
+        VersionAction.run
       case Some(parser.commandHelp) =>
         parser.printHelp
     }
