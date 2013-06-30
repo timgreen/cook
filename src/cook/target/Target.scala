@@ -76,6 +76,7 @@ abstract class Target[+R <: TargetResult](
       // need build
       buildDir.deleteRecursively
       buildDir.createDirectory(force = true)
+      ref.buildLogFile.deleteIfExists
       buildCmd(this)
       _status = Built
       val meta = buildMeta
@@ -117,6 +118,7 @@ abstract class Target[+R <: TargetResult](
     assert(isResultReady, "can not run a target that was not built yet: " + refName)
     runDir.deleteRecursively
     runDir.createDirectory(force = true)
+    ref.runLogFile.deleteIfExists
     runCmd.get(this, args)
   }
 }
