@@ -5,3 +5,4 @@ trait BuildinCommands
   with Glob
   with Utils
   with Meta
+  with RefOp

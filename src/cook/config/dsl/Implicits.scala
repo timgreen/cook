@@ -1,14 +1,6 @@
 package cook.config.dsl
 
-import cook.ref.Ref
-import cook.ref.RefManager
-
 trait Implicits {
-
-  def ref(s: String)(implicit c: ConfigContext): Ref = RefManager(c.dir.segments, s)
-  def refs(strings: String*)(implicit c: ConfigContext): List[Ref] =
-    strings map { s => ref(s)(c) } toList
-  def refs(strings: List[String])(implicit c: ConfigContext): List[Ref] = refs(strings: _*)
 
   private def t2l(t: {def productIterator: Iterator[Any]}): List[String] =
     t.productIterator.toList.asInstanceOf[List[String]]

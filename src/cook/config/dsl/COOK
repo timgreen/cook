@@ -13,10 +13,6 @@ scala_lib(
   name = "implicits",
   srcs = (
     "Implicits.scala"
-  ),
-  deps = (
-    ":context",
-    "/src/cook/ref:ref_manager"
   )
 )
 

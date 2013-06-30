@@ -35,12 +35,22 @@ scala_lib(
 )
 
 scala_lib(
+  name = "ref_op",
+  srcs = "RefOp.scala",
+  deps = (
+    "..:context",
+    "/src/cook/ref:ref_manager"
+  )
+)
+
+scala_lib(
   name = "buildin_commands",
   srcs = "BuildinCommands.scala",
   deps = (
     ":define_target",
     ":glob",
     ":meta",
-    ":utils"
+    ":utils",
+    ":ref_op"
   )
 )
