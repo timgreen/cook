@@ -1,4 +1,4 @@
-// @val javaRule = "java"
+// @import "java" => javaRule
 
 private val conf = configWithDefault("""
   scala {

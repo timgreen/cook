@@ -1,4 +1,4 @@
-// @val javaRule = "java"
+// @import "java" => javaRule
 
 import javaRule.{ JavaDepResult, JavaBytecodeResult, jarCmd }
 

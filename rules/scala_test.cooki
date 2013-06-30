@@ -1,5 +1,5 @@
-// @val javaRule = "java"
-// @val scalaRule = "scala"
+// @import "java" => javaRule
+// @import "scala" => scalaRule
 
 import javaRule.JavaDepResult
 import scalaRule.scalaCmd
