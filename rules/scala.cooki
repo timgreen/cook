@@ -20,7 +20,7 @@ case class ScalaSourceResultImpl(scalaSrcs: List[Path]) extends ScalaSourceResul
 object ScalaSourceResult {
 
   def apply(dir: Directory) = {
-    ScalaSourceResultImpl(glob(includes = List("**/*\\.scala"), baseDir = dir))
+    ScalaSourceResultImpl(glob(includes = List("**.scala"), baseDir = dir))
   }
 }
 

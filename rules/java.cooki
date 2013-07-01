@@ -74,7 +74,7 @@ case class JavaSourceResultImpl(javaSrcs: List[Path]) extends JavaSourceResult
 object JavaSourceResult {
 
   def apply(dir: Directory) = {
-    JavaSourceResultImpl(glob(includes = List("**/*\\.java"), baseDir = dir))
+    JavaSourceResultImpl(glob(includes = List("**.java"), baseDir = dir))
   }
 }
 
