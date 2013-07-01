@@ -12,6 +12,7 @@ scala_lib(
   ),
   deps = (
     ":ops",
-    "/src/cook/app:config"
+    "/src/cook/app:config",
+    "/src/cook/actor:task_type"
   )
 )

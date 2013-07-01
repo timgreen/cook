@@ -2,6 +2,7 @@ package cook.actor.impl
 
 import cook.actor.ConfigLoader
 import cook.actor.LoadConfigClassTaskInfo
+import cook.actor.TaskType
 import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
@@ -20,7 +21,7 @@ import scala.concurrent.Future
 import scala.util.{ Try, Success, Failure }
 
 
-object ConfigLoadTask extends TaskBuilder("ConfigLoad")
+object ConfigLoadTask extends TaskBuilder(TaskType.LoadConfig)
 
 /**
   *

@@ -2,6 +2,7 @@ package cook.actor.impl
 
 import cook.actor.ConsoleOutputter
 import cook.actor.TargetStatus
+import cook.actor.TaskType
 import cook.app.Config
 import cook.console.Console
 import cook.console.ops._
@@ -39,7 +40,7 @@ class ConsoleOutputterImpl extends ConsoleOutputter with TypedActorBase {
     e.printStackTrace
   }
 
-  override def update(targetStatus: TargetStatus, taskInfo: Set[(String, String)]) {
+  override def update(targetStatus: TargetStatus, taskInfo: Set[(TaskType.Value, String)]) {
     if (allowStatusUpdate && !Config.quiet) {
       Console.update(
         done     = targetStatus.done,

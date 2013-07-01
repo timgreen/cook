@@ -1,5 +1,6 @@
 package cook.console
 
+import cook.actor.TaskType
 import cook.app.Config
 import cook.console.ops._
 
@@ -61,7 +62,7 @@ object Console {
   }
 
   private var lineUsed = 0
-  def update(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int, taskInfo: Set[(String, String)]) {
+  def update(done: Int, cached: Int, building: Int, pending: Int, unsolved: Int, taskInfo: Set[(TaskType.Value, String)]) {
     val s = print {
       val moveCursorOps =
         hideCursor    ::
@@ -110,13 +111,19 @@ object Console {
 
       val tasksOps =
         taskInfo.toList.sorted.map { case (taskType, taskName) =>
-          cyan(taskType) :: ": " :: taskName :: newLine
+          cyan(taskTypeName(taskType)) :: ": " :: taskName :: newLine
         }
 
       moveCursorOps :: statusInfoOps :: statusBarOps :: tasksOps ::: showCursor
     }
 
     lineUsed = s.lineUsed
+  }
+
+  private def taskTypeName(taskType: TaskType.Value): String = taskType match {
+    case TaskType.LoadConfigRef => "Loading ConfigRef"
+    case TaskType.LoadConfig    => "Loading  Config"
+    case TaskType.BuildTarget   => "Building Target"
   }
 
   def runTarget(targetRefName: String) = print {

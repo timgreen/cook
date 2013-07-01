@@ -1,6 +1,7 @@
 package cook.actor.impl
 
 import cook.actor.ConfigRefLoader
+import cook.actor.TaskType
 import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
@@ -13,7 +14,7 @@ import scala.concurrent.duration._
 import scala.util.{ Try, Success, Failure }
 import akka.actor.TypedActor
 
-object ConfigRefLoadTask extends TaskBuilder("ConfigRefLoad")
+object ConfigRefLoadTask extends TaskBuilder(TaskType.LoadConfigRef)
 
 class ConfigRefLoaderImpl extends ConfigRefLoader with TypedActorBase {
 

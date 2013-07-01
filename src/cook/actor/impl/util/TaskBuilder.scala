@@ -1,8 +1,9 @@
 package cook.actor.impl.util
 
 import cook.actor.StatusManager
+import cook.actor.TaskType
 
-class TaskBuilder(taskType: String) {
+class TaskBuilder(taskType: TaskType.Value) {
 
   import cook.util.LogSourceProvider._
   import akka.event.Logging

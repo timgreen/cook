@@ -1,6 +1,7 @@
 package cook.actor.impl
 
 import cook.actor.TargetBuilder
+import cook.actor.TaskType
 import cook.actor.impl.util.BatchResponser
 import cook.actor.impl.util.TaskBuilder
 import cook.app.Global
@@ -19,7 +20,7 @@ import scala.concurrent.duration._
 import scala.util.{ Try, Success, Failure }
 
 
-object TargetBuildTask extends TaskBuilder("TargetBuild")
+object TargetBuildTask extends TaskBuilder(TaskType.BuildTarget)
 
 class TargetCycleDepException(consoleOps: ConsoleOps) extends CookException(consoleOps, null)
 class TargetBuiltException(consoleOps: ConsoleOps, targets: List[String], e: Throwable)

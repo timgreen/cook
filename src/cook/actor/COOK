@@ -60,9 +60,15 @@ scala_lib(
 )
 
 scala_lib(
+  name = "task_type",
+  srcs = "TaskType.scala"
+)
+
+scala_lib(
   name = "status_manager",
   srcs = "StatusManager.scala",
   deps = (
+    ":task_type",
     "/src/cook/error:error"
   )
 )
