@@ -16,59 +16,104 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
     }
   }
 
+  import GlobScanner._
+
   "Pattern" should "normalize input pattern" in {
-    val p = new Pattern("a**b")
-    p.values should be (Array("a*", "**", "*b"))
+    val p = GlobScanner.Pattern("a**b")
+    p.items should be (List(CharItem('a'), **, CharItem('b')))
   }
 
-  it should "normalize '**/??' as '**/*/??'" in {
-    val p = new Pattern("**/??")
-    p.values should be (Array("**", "*", "??"))
+  it should "normalize '*******/??' as '**/??'" in {
+    val p = GlobScanner.Pattern("*******/??")
+    p.items should be (List(**, CharItem('/'), ?, ?))
   }
 
-  it should "? should not be simple" in {
-    val p = new Pattern("?")
-    p.isSimplyPattern should be (false)
+  it should "normalize asfd/sfa/**" in {
+    val p = GlobScanner.Pattern("asfd/sfa/**")
+    p.items should be (List(
+      CharItem('a'),
+      CharItem('s'),
+      CharItem('f'),
+      CharItem('d'),
+      CharItem('/'),
+      CharItem('s'),
+      CharItem('f'),
+      CharItem('a'),
+      CharItem('/'),
+      **
+    ))
   }
 
-  it should "* should not be simple" in {
-    val p = new Pattern("*")
-    p.isSimplyPattern should be (false)
+  it should "** should be match all" in {
+    val p = GlobScanner.Pattern("**")
+    p.hasMatchAll should be (true)
   }
 
-  it should "'ab' should be simple" in {
-    val p = new Pattern("ab")
-    p.isSimplyPattern should be (true)
+  it should "asfd/sfa/** should be match all" in {
+    val p = GlobScanner.Pattern("asfd/sfa/**").copy(indexes = Set(9))
+    p.hasMatchAll should be (true)
+  }
+
+  it should "asfd/sfa/**xx should not be match all" in {
+    val p = GlobScanner.Pattern("asfd/sfa/**xx")
+    p.hasMatchAll should be (false)
   }
 
   it should "? should match a" in {
-    val p = new Pattern("?")
-    p.matches("a") should be (true)
+    val p = GlobScanner.Pattern("?")
+    p.matches("a").hasMatched should be (true)
   }
 
   it should "? should not match ab" in {
-    val p = new Pattern("?")
-    p.matches("ab") should be (false)
+    val p = GlobScanner.Pattern("?")
+    p.matches("ab").hasMatched should be (false)
   }
 
   it should "?? should match ab" in {
-    val p = new Pattern("??")
-    p.matches("ab") should be (true)
+    val p = GlobScanner.Pattern("??")
+    p.matches("ab").hasMatched should be (true)
   }
 
   it should "?? should not match a" in {
-    val p = new Pattern("??")
-    p.matches("a") should be (false)
+    val p = GlobScanner.Pattern("??")
+    p.matches("a").hasMatched should be (false)
   }
 
   it should "a*a*a?? should match asdfasdfasd" in {
-    val p = new Pattern("a*a*a??")
-    p.matches("asdfasdfasd") should be (true)
+    val p = GlobScanner.Pattern("a*a*a??")
+    p.matches("asdfasdfasd").hasMatched should be (true)
   }
 
   it should "a*a*a?? should not match asdfasdfasdf" in {
-    val p = new Pattern("a*a*a??")
-    p.matches("asdfasdfasdf") should be (false)
+    val p = GlobScanner.Pattern("a*a*a??")
+    p.matches("asdfasdfasdf").hasMatched should be (false)
+  }
+
+  it should "*******a*a*a??,0 should extend to 0,1" in {
+    val p = GlobScanner.Pattern("*******a*a*a??")
+    p.extendedIndexes should be (Set(0, 1))
+  }
+
+  it should "???a*a*a??,0 should extend to 0" in {
+    val p = GlobScanner.Pattern("???a*a*a??")
+    p.extendedIndexes should be (Set(0))
+  }
+
+  //  0 1 2 3 4 5 6 7
+  // ** a * a * a ? ?
+  it should "*******a*a*a?? match a" in {
+    val p = GlobScanner.Pattern("*******a*a*a??")
+    p.matches("a") should be (Pattern(p.items, Set(0, 1, 2, 3)))
+  }
+
+  it should "*******a*a*a?? match aa" in {
+    val p = GlobScanner.Pattern("*******a*a*a??")
+    p.matches("aa") should be (Pattern(p.items, Set(0, 1, 2, 3, 4, 5)))
+  }
+
+  it should "*******a*a*a?? should match aaaxx" in {
+    val p = GlobScanner.Pattern("*******a*a*a??")
+    p.matches("aaaxx").hasMatched should be (true)
   }
 
   "Glob Scanner" should "throw java.lang.IllegalArgumentException when dir not exist" in {
@@ -87,6 +132,26 @@ class GlobScannerTest extends FlatSpec with ShouldMatchers with BeforeAndAfter {
   it should "return all items in the dir by default" in {
     val root = (testRoot / "test_scan_all").toDirectory
     val result = GlobScanner(root)
+    val except = List(
+      root / "a",
+      root / "b",
+      root / "c",
+      root / "d",
+      root / "d" / "e",
+      root / "d" / "e" / "f",
+      root / "d" / "e" / "f" / "g",
+      root / "d" / "e" / "f" / "h",
+      root / "d" / "e" / "f" / "j",
+      root / "d" / "e" / "f" / "j" / "k",
+      root / "d" / "e" / "f" / "j" / "k" / "1",
+      root / "d" / "e" / "f" / "j" / "k" / "2"
+    )
+    comparePathSet(result, except)
+  }
+
+  it should "return all items in the dir for '**'" in {
+    val root = (testRoot / "test_scan_all").toDirectory
+    val result = GlobScanner(root, List("**"))
     val except = List(
       root / "a",
       root / "b",

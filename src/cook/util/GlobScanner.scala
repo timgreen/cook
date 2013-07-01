@@ -9,82 +9,9 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.io.{ Path => SPath, Directory }
 
-
-case class Pattern(val values: Array[String], index: Int = 0) {
-
-  val value = if (index < values.length) values(index) else null
-
-  def this(pattern: String) {
-    this(pattern.replace('\\', '/')
-      .replaceAll("\\*{3,}", "**")
-      .replaceAll("\\*\\*/", "**/*/")
-      .replaceAll("\\*\\*([^/])", "**/*$1")
-      .replaceAll("/\\*\\*", "/*/**")
-      .replaceAll("([^/])\\*\\*", "$1*/**")
-      .split("/"))
-  }
-
-  def matches(filename: String): Boolean = {
-    if (value == "**") return true
-    if (value == null) return false
-
-    // Shortcut if no wildcards.
-    if ((value.indexOf('*') == -1) && (value.indexOf('?') == -1)) {
-      return filename == value
-    }
-
-    @tailrec
-    def doMatches(indexes: mutable.Set[Int], it: Iterator[Char]): Boolean = {
-      if (!it.hasNext) {
-        indexes.contains(value.length)
-      } else {
-        val c = it.next
-        val nextIndexes = mutable.Set[Int]()
-        for (i <- indexes if i < value.length) {
-          if (value(i) == '*') {
-            nextIndexes += i
-            nextIndexes += i + 1
-            if (i + 1 < value.length && (value(i + 1) == '?' || value(i + 1) == c)) {
-              nextIndexes += i + 2
-            }
-          } else if (value(i) == '?' || value(i) == c) {
-            nextIndexes += i + 1
-          }
-        }
-        doMatches(nextIndexes, it)
-      }
-    }
-    doMatches(mutable.Set(0), filename.iterator)
-  }
-
-  def next(name: String): Seq[Pattern] = {
-    if (isEnd) {
-      Seq()
-    } else {
-      val nextPattern = buildNext
-      if (value == "**") {
-        if (nextPattern.matches(name)) {
-          Seq(this, nextPattern, nextPattern.buildNext)
-        } else {
-          Seq(this, nextPattern)
-        }
-      } else {
-        Seq(nextPattern)
-      }
-    }
-  }
-
-  def isSimplyPattern = (value != null) && (value.indexOf('*') == -1) && (value.indexOf('?') == -1)
-  def isMatched: Boolean = {
-    (values.length == index + 1) || ((values.length == index + 2) && (values.last == "**"))
-  }
-  def isLast = (values.length == index + 1)
-  def isEnd: Boolean = values.length <= index
-
-  private def buildNext: Pattern = Pattern(values, index + 1)
-}
-
 class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[String]) {
+
+  import GlobScanner._
 
   require(rootDir != null,  "rootDir cannot be null.")
   require(rootDir.exists,   "Directory does not exist: " + rootDir)
@@ -94,28 +21,16 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
   private def scanDir(dir: Directory, includes: Seq[Pattern], excludes: Seq[Pattern],
     matches: mutable.ListBuffer[SPath]) {
     if (!dir.canRead) return
-
     // See has excludes all
-    if (excludes exists { e => e.isLast && e.value == "**" }) return
+    if (excludes exists { _.hasMatchAll }) return
 
-    // See if patterns are specific enough to avoid scanning every file in the directory.
-    val scanAll = includes exists { !_.isSimplyPattern }
-
-    if (!scanAll) {
-      // If not scanning all the files, we know exactly which ones to follow.
-      includes.groupBy(_.value).foreach { kv =>
-        val name = kv._1
-        process(dir / name, kv._2, excludes.filter(_.matches(name)), matches)
-      }
-    } else {
-      // Scan every file.
-      for (path <- dir.list) {
-        // Get all include patterns that match.
-        val name = path.name
-        val matchingIncludes = includes.filter(_.matches(name))
-        if (matchingIncludes.nonEmpty) {
-          process(path, matchingIncludes, excludes.filter(_.matches(name)), matches)
-        }
+    // Scan every file.
+    for (path <- dir.list) {
+      // Get all include patterns that match.
+      val name = path.name
+      val matchingIncludes = includes map { _.matches(name) } filterNot { _.isEmpty }
+      if (matchingIncludes.nonEmpty) {
+        process(path, matchingIncludes, excludes.map(_.matches(name)).filterNot(_.isEmpty), matches)
       }
     }
   }
@@ -124,17 +39,15 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
     matchingExcludes: Seq[Pattern], matches: mutable.ListBuffer[SPath]) {
     if (!path.exists) return
 
-    if (matchingIncludes.exists(_.isMatched) && !matchingExcludes.exists(_.isMatched)) {
+    if (matchingIncludes.exists(_.hasMatched) && !matchingExcludes.exists(_.hasMatched)) {
       // match found!
       matches += path
     }
 
     if (path.isDirectory) {
-      val nextIncludes = mutable.Set[Pattern]()
-      val nextExcludes = mutable.Set[Pattern]()
-      matchingIncludes.foreach { nextIncludes ++= _.next(path.name) }
-      matchingExcludes.foreach { nextExcludes ++= _.next(path.name) }
-      scanDir(path.toDirectory, nextIncludes.toSeq, nextExcludes.toSeq, matches)
+      val nextIncludes = matchingIncludes map { _.matches("/") } filterNot { _.isEmpty }
+      val nextExcludes = matchingExcludes map { _.matches("/") } filterNot { _.isEmpty }
+      scanDir(path.toDirectory, nextIncludes, nextExcludes, matches)
     }
   }
 
@@ -142,8 +55,8 @@ class GlobScanner(rootDir: Directory, includes: Seq[String], excludes: Seq[Strin
     val includePatterns = (includes match {
       case Nil => List("**")
       case _ => includes
-    }).map { new Pattern(_) }
-    val excludePatterns = excludes.map(new Pattern(_))
+    }).map(Pattern(_))
+    val excludePatterns = excludes.map(Pattern(_))
 
     val matches = mutable.ListBuffer[SPath]()
     scanDir(rootDir, includePatterns, excludePatterns, matches)
@@ -160,4 +73,94 @@ object GlobScanner {
     excludes: Seq[String] = Seq(),
     fileOnly: Boolean = false) =
     new GlobScanner(dir, includes, excludes).scan(fileOnly)
+
+  sealed trait Item {
+    def nextDelta(c: Char): Set[Int]
+    def canPass: Boolean
+  }
+  case class CharItem(c: Char) extends Item {
+    override def nextDelta(c: Char): Set[Int] = if (this.c == c) {
+      Set(1)
+    } else {
+      Set()
+    }
+    override def canPass: Boolean = false
+  }
+  case object ** extends Item {
+    override def nextDelta(c: Char): Set[Int] = Set(0, 1)
+    override def canPass: Boolean = true
+  }
+  case object * extends Item {
+    override def nextDelta(c: Char): Set[Int] = if (c != '/') Set(0, 1) else Set()
+    override def canPass: Boolean = true
+  }
+  case object ? extends Item {
+    override def nextDelta(c: Char): Set[Int] = if (c != '/') Set(1) else Set()
+    override def canPass: Boolean = false
+  }
+
+  case class Pattern(items: List[Item], indexes: Set[Int]) {
+    def isEmpty = indexes.isEmpty
+    def hasMatched: Boolean = indexes.contains(items.length)
+    def hasMatchAll: Boolean = (items.lastOption == Some(**)) && indexes.contains(items.size - 1)
+
+    def matches(s: String): Pattern = {
+      @tailrec
+      def doMatches(indexes: Set[Int], it: Iterator[Char]): Set[Int] = {
+        val ei = extendIndexes(indexes)
+        if (!it.hasNext) {
+          ei
+        } else {
+          val c = it.next
+
+          val nextIndexes = (ei map { i =>
+            if (i < items.size) {
+              items(i).nextDelta(c).map(_ + i)
+            } else {
+              Set[Int]()
+            }
+          }).flatten.toSet
+
+          doMatches(nextIndexes, it)
+        }
+      }
+      this.copy(indexes = doMatches(indexes, s.iterator))
+    }
+
+    def extendedIndexes = extendIndexes(indexes)
+    private def extendIndexes(indexes: Set[Int]): Set[Int] = {
+      val builder = Set.newBuilder[Int]
+      val known = mutable.Set(indexes.toSeq: _*)
+      val unprocessed = mutable.Stack(indexes.toSeq: _*)
+      while (unprocessed.nonEmpty) {
+        val i = unprocessed.pop
+        builder += i
+        if ((i < items.size) && items(i).canPass && !known.contains(i + 1)) {
+          unprocessed.push(i + 1)
+          known += (i + 1)
+        }
+      }
+      builder.result
+    }
+  }
+
+  object Pattern {
+
+    def apply(pattern: String) = {
+      val p = pattern.replace('\\', '/').replaceAll("\\*{3,}", "**")
+      val (l, last) = p.foldLeft[(List[Item], Item)](Nil -> null) { case ((list, last), c) =>
+        if (c == '*' && last == *) {
+          list -> **
+        } else {
+          val item = c match {
+            case '*' => *
+            case '?' => ?
+            case _ => CharItem(c)
+          }
+          (list ::: last :: Nil) -> item
+        }
+      }
+      new Pattern(l.tail ::: last :: Nil, Set(0))
+    }
+  }
 }
