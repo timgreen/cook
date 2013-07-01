@@ -2,8 +2,9 @@ package cook.app
 
 import cook.actor.Actors
 import cook.actor.Actors.consoleOutputter
+import cook.app.version.VersionMeta
 import cook.error._
-import cook.meta.db.DbProvider
+import cook.meta.db.DbProvider.{ db => metaDb }
 
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -60,7 +61,7 @@ object MainHandler {
   }
 
   private def shutdownCleanUp {
-    DbProvider.db.close
+    metaDb.close
     if (shutdownHookThread ne null) {
       shutdownHookThread.remove
     }
@@ -68,9 +69,17 @@ object MainHandler {
 
   private var shutdownHookThread: sys.ShutdownHookThread = _
   def prepareMetaDb {
-    DbProvider.db.open
+    metaDb.open
     shutdownHookThread = sys.addShutdownHook {
-      DbProvider.db.close
+      metaDb.close
+    }
+  }
+
+  def cleanMetaDbIfCookVersionChanged {
+    val m = VersionMeta()
+    if (metaDb.get(VersionMeta.key) != m) {
+      metaDb.clean
+      metaDb.put(VersionMeta.key, m)
     }
   }
 }

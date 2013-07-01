@@ -27,3 +27,12 @@ scala_lib(
   name = "version",
   srcs = ":version_source"
 )
+
+scala_lib(
+  name = "version_meta",
+  srcs = "VersionMeta.scala",
+  deps = (
+    ":version",
+    "/src/cook/meta:meta"
+  )
+)

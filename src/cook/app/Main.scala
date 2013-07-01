@@ -19,6 +19,7 @@ object Main {
     loadCookRootConfig
     try {
       MainHandler.prepareMetaDb
+      MainHandler.cleanMetaDbIfCookVersionChanged
     } catch {
       case e: Throwable =>
         MainHandler.handleException(e)

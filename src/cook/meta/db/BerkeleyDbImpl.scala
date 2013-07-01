@@ -13,6 +13,8 @@ import com.sleepycat.je.OperationStatus
 
 object BerkeleyDbImpl extends Db {
 
+  private val MetaDbName = "meta"
+
   private var _db: Database = _
   private var _dbEnv: Environment = _
 
@@ -24,21 +26,35 @@ object BerkeleyDbImpl extends Db {
     envConf.setAllowCreate(true)
     val dbEnv = new Environment(dbDir.jfile, envConf)
     _dbEnv = dbEnv
-    val dbConf = new DatabaseConfig
-    dbConf.setAllowCreate(true)
-    _db = dbEnv.openDatabase(null, "meta", dbConf)
+    openDb
   }
 
-  override def close {
+  private def openDb {
+    val dbConf = new DatabaseConfig
+    dbConf.setAllowCreate(true)
+    _db = _dbEnv.openDatabase(null, MetaDbName, dbConf)
+  }
+
+  private def closeDb {
     if (_db ne null) {
       _db.close
       _db = null
     }
+  }
+
+  override def close {
+    closeDb
     if (_dbEnv ne null) {
       _dbEnv.sync
       _dbEnv.close
       _dbEnv = null
     }
+  }
+
+  override def clean {
+    closeDb
+    _dbEnv.removeDatabase(null, MetaDbName)
+    openDb
   }
 
   private implicit def string2databaseEntry(s: String) =
