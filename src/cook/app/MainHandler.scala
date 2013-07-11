@@ -2,7 +2,7 @@ package cook.app
 
 import cook.actor.Actors
 import cook.actor.Actors.consoleOutputter
-import cook.app.version.VersionMeta
+import cook.app.version.Version
 import cook.error._
 import cook.meta.db.DbProvider.{ db => metaDb }
 
@@ -76,10 +76,10 @@ object MainHandler {
   }
 
   def cleanMetaDbIfCookVersionChanged {
-    val m = VersionMeta()
-    if (metaDb.get(VersionMeta.key) != m) {
+    val m = Version.meta
+    if (metaDb.get(Version.metaKey) != m) {
       metaDb.clean
-      metaDb.put(VersionMeta.key, m)
+      metaDb.put(Version.metaKey, m)
     }
   }
 }

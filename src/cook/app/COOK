@@ -54,7 +54,7 @@ scala_lib(
   ),
   deps = (
     "/src/cook/actor:actors",
-    "/src/cook/app/version:version_meta",
+    "/src/cook/app/version:version",
     "/src/cook/meta/db:db_provider"
   )
 )

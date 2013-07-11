@@ -25,14 +25,6 @@ genVersionConf("version_conf")
 
 scala_lib(
   name = "version",
-  srcs = "Version.scala"
-)
-
-scala_lib(
-  name = "version_meta",
-  srcs = "VersionMeta.scala",
-  deps = (
-    ":version",
-    "/src/cook/meta:meta"
-  )
+  srcs = "Version.scala",
+  deps = "/src/cook/meta:meta"
 )
