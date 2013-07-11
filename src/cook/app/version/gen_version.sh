@@ -5,15 +5,7 @@ version() {
 }
 
 gen() {
-  cat << EOF
-package cook.app.version
-
-object Version {
-
-  val version = "$(version)"
-  def apply = version
-}
-EOF
+  echo "cook.version = \"$(version)\""
 }
 
 if (( $# > 0 )); then

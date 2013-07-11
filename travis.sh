@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COOK_VERSION=v1.0.0-M2
+COOK_VERSION=v1.0.0-M3
 
 mkdir -p lib
 mkdir -p tmp
@@ -49,7 +49,7 @@ cd ..
 mkdir -p cook
 cd cook
 COOK_JAR=cook-$COOK_VERSION.jar
-[ -r $COOK_JAR ] || wget -c http://downloads.sourceforge.net/project/cook-bin/$COOK_JAR
+[ -r $COOK_JAR ] || wget -c https://github.com/timgreen/cook/releases/download/$COOK_VERSION/$COOK_JAR
 link $PWD/$COOK_JAR ../../bin/cook.jar
 cd ..
 

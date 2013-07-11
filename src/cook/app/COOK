@@ -39,6 +39,7 @@ scala_lib(
   deps = (
     ":parser",
     "action:actions",
+    "version:version_conf",
     "/src/cook/console:console",
     "/src/cook/path:path",
     "/src/cook/ref:ref_factory_register",
@@ -64,5 +65,8 @@ java_bin(
     ":main",
     "/lib/scala-library.jar"
   ),
-  mainClass = "cook.app.Main"
+  mainClass = "cook.app.Main",
+  res = List(
+    (ref("version:version_conf").as[TargetRef].targetBuildDir / "version.conf") -> "."
+  )
 )

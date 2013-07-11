@@ -1,15 +1,15 @@
-def genVersionSource(name: String) {
+def genVersionConf(name: String) {
 
   val script = ref("gen_version.sh").as[FileRef].toPath
 
   defineTarget[ScalaSourceResult](
-    name = "version_source",
+    name = "version_conf",
     resultFn = { t =>
       ScalaSourceResult(t.buildDir)
     },
     buildCmd = { t =>
       runBuildCmdInTargetDir(t) {
-        "sh" :: script.path :: (t.buildDir / "Version.scala").path :: Nil
+        "sh" :: script.path :: (t.buildDir / "version.conf").path :: Nil
       }
     },
     inputMetaFn = { t =>
@@ -21,11 +21,11 @@ def genVersionSource(name: String) {
   )
 }
 
-genVersionSource("version_source")
+genVersionConf("version_conf")
 
 scala_lib(
   name = "version",
-  srcs = ":version_source"
+  srcs = "Version.scala"
 )
 
 scala_lib(

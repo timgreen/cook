@@ -118,7 +118,8 @@ def java_lib(name: String, srcs: List[String] = Nil, deps: List[String] = Nil)(i
   )(context)
 }
 
-def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = Nil)(implicit context: Context) {
+def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: List[String] = Nil, res: List[(Path, String)] = Nil)
+            (implicit context: Context) {
   val (depTargetRefs, cpRefs) = refs(deps) partition { _.isTarget }
   val cpPath = cpRefs collect {
     case f: FileRef => f.toPath
@@ -132,10 +133,18 @@ def java_bin(name: String, mainClass: String, deps: List[String], jvmOption: Lis
     buildCmd = EmptyBuildCmd(),
     runCmd = Option({ (t, args) =>
       val depTargets = collectTargets(t.depTargets, depTargetRefs)
-      val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result))
+      val cp = JavaDepResult.buildCp(inCp, depTargets.map(_.result)) ::: t.runDir.path :: Nil
+      val mkdirCmds = res map { case (s, d) =>
+        "mkdir" :: "-p" :: d
+      }
+      val copyCmds = res map { case (s, d) =>
+        "cp" :: "-r" :: s.path :: d
+      }
       val cmd = "java" :: jvmOption ::: List("-cp", cp.mkString(":"), mainClass) ::: args
-      import scala.sys.process._
-      cmd!
+      runRunCmdInTargetDir(t)(
+        mkdirCmds ::: copyCmds ::: cmd :: Nil: _*
+      )
+      0
     }),
     inputMetaFn = { t =>
       filesToMeta("cp", cpPath)

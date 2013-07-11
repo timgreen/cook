@@ -5,5 +5,8 @@ jar(
   deps = (
     "/src/cook/app:main"
   ),
-  mainClass = "cook.app.Main"
+  mainClass = "cook.app.Main",
+  res = List(
+    (ref("/src/cook/app/version:version_conf").as[TargetRef].targetBuildDir / "version.conf") -> "."
+  )
 )

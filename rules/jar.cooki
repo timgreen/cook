@@ -12,7 +12,7 @@ object JarResult {
   def apply(jarPath: Path) = JarResultImpl(jarPath)
 }
 
-def jar(jarName: String, deps: List[String], mainClass: String = null)
+def jar(jarName: String, deps: List[String], mainClass: String = null, res: List[(Path, String)] = Nil)
        (implicit context: Context) {
   val depTargetRefs = refs(deps)
   require(depTargetRefs.forall(_.isTarget), "deps should be target_refs")
@@ -34,9 +34,14 @@ def jar(jarName: String, deps: List[String], mainClass: String = null)
       } else {
         jarCmd :: "cfe" :: jarName :: mainClass :: "-C" :: "classes" :: "." :: Nil
       }
-
+      val mkdirCmds = res map { case (s, d) =>
+        "mkdir" :: "-p" :: s"classes/$d"
+      }
+      val copyCmds = res map { case (s, d) =>
+        "cp" :: "-r" :: s.path :: s"classes/$d"
+      }
       runBuildCmdInTargetDir(t)(
-        mkdirCmd :: cpClassesCmds ::: jarCmdOp :: Nil: _*
+        mkdirCmd :: cpClassesCmds ::: mkdirCmds ::: copyCmds ::: jarCmdOp :: Nil: _*
       )
     },
     inputMetaFn = { t =>
