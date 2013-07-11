@@ -8,7 +8,7 @@ gen() {
   echo "cook.version = \"$(version)\""
 }
 
-if (( $# > 0 )); then
+if [ x"$1" != x ]; then
   gen > "$1"
 else
   gen
