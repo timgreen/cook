@@ -88,12 +88,16 @@ class ConfigCompiler(outDir: SPath, cp: String) {
               configRef.fileRef.toPath.path))
             val offset = startOffset(posIn.source)
             val newPos = posIn.withSource(cookSource, -offset)
-            try {
-              super.printMessage(newPos, msg)
-            } catch {
-              case _: Throwable =>
-                // Can not map error position to cook source, fallback to scala source
-                super.printMessage(posIn, msg)
+            if (newPos.point > 0) {
+              try {
+                super.printMessage(newPos, msg)
+              } catch {
+                case e: Throwable =>
+                  // Can not map error position to cook source, fallback to scala source
+                  super.printMessage(posIn, msg)
+              }
+            } else {
+              super.printMessage(posIn, msg)
             }
         }
       }
@@ -112,7 +116,7 @@ class ConfigCompiler(outDir: SPath, cp: String) {
   }
 
   private def errorHandler(message: String): Unit = {
-    //throw new TemplateException("Compilation failed:\n" + message)
+    throw new Exception("Compilation failed:\n" + message)
   }
 
   private def generateSettings: Settings = {
