@@ -102,7 +102,7 @@ private[cook] object ConfigEngine {
     configRef: ConfigRef, depConfigRefMap: Map[String, ConfigRef]): Meta = {
     val m1 = MetaHelper.buildFileMeta("cookScalaSource", configRef.configScalaSourceFile :: Nil)
     val bytecodes = Try {
-      GlobScanner(configRef.configByteCodeDir, "**/*" :: Nil, fileOnly = true)
+      GlobScanner(configRef.configByteCodeDir, "**" :: Nil, fileOnly = true)
     } getOrElse Seq()
     val m2 = MetaHelper.buildFileMeta("cookByteCode", bytecodes)
     val m3 = new Meta
