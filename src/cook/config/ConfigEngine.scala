@@ -29,12 +29,7 @@ private[cook] object ConfigEngine {
 
     doGenerate(configRef, rootIncludes, map)
     doCompile(configRef, map)
-    configRef.configType match {
-      case ConfigType.CookConfig =>
-        doLoad(configRef, map)
-      case ConfigType.CookiConfig =>
-        null
-    }
+    doLoad(configRef, map)
   }
 
   private def doGenerate(configRef: ConfigRef, rootIncludes: List[ConfigRefInclude],
