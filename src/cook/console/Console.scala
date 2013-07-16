@@ -73,7 +73,7 @@ object Console {
       val total = done + cached + building + pending + unsolved
 
       val statusInfoOps = if (unsolved > 0) {
-        blink("Finding") :: " " :: cyan(total.toString)    :: " target(s): " ::
+        "Finding " :: cyan(total.toString) :: " target(s): "          ::
         style.done("Done")         :: " " :: done.toString     :: " " ::
         style.cached("Cached")     :: " " :: cached.toString   :: " " ::
         style.building("Building") :: " " :: building.toString :: " " ::
